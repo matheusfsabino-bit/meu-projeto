@@ -118,6 +118,7 @@
         <option value="manut_res"   data-iof="3.5"  data-ir="0"        data-modo="compra">Manutenção de Residentes no Exterior</option>
         <option value="transf_prop" data-iof="1.1"  data-ir="0"        data-modo="compra">Transferência Conta Própria no Exterior</option>
         <option value="emp_ext"     data-iof="3.5"  data-ir="0"        data-modo="compra">Empréstimo Externo</option>
+        <option value="efx_aqbens"  data-iof="3.5"  data-ir="0"        data-modo="compra" data-iof-dentro="1">Efx Aquisição de Bens e Serviços</option>
       </optgroup>
       <optgroup label="Venda">
         <option value="exportacao"  data-iof="0"    data-ir="0"        data-modo="venda">Exportação de Mercadoria</option>
@@ -223,7 +224,7 @@
 </div>
 
 <script>
-let modo = 'compra', iofAtual = 0, irAtual = 0, tipoAtual = '';
+let modo = 'compra', iofAtual = 0, irAtual = 0, tipoAtual = '', iofDentro = false;
 let historico = [], lastResult = {};
 
 function setModo(m){
@@ -241,6 +242,7 @@ function onTipoChange(){
   const opt = sel.options[sel.selectedIndex];
   iofAtual = parseFloat(opt.dataset.iof || 0);
   irAtual = parseFloat(opt.dataset.ir || 0);
+  iofDentro = opt.dataset.iofDentro === '1';
   tipoAtual = sel.value;
   const modoTipo = opt.dataset.modo || 'compra';
   setModo(modoTipo);
@@ -253,9 +255,13 @@ function onTipoChange(){
   const box = document.getElementById('impostosBox');
   if(sel.value){
     box.style.display = 'block';
-    document.getElementById('iofLabel').textContent = iofAtual.toFixed(2)+'%';
+    document.getElementById('iofLabel').textContent = iofAtual.toFixed(2)+'%' + (iofDentro ? ' (por dentro)' : '');
     document.getElementById('irLabel').textContent = irAtual>0 ? irAtual.toFixed(5)+'%' : '0%';
   } else { box.style.display = 'none'; }
+  if(sel.value === 'efx_aqbens'){
+    document.getElementById('moedaEntrada').value = 'BRL';
+    document.getElementById('moedaSaida').value = 'EUR';
+  }
   atualizarConversao();
 }
 
@@ -293,12 +299,20 @@ function atualizarConversao(){
   if(!taxa || !val){ res.style.display='none'; return; }
   let amount, brlConversion, irVal, iofVal, totalBRL;
   if(entrada==='BRL'){
-    amount = calcAmount(val, taxa);
-    brlConversion = amount * taxa;
-    irVal = brlConversion * (irAtual/100);
-    iofVal = brlConversion * (iofAtual/100);
-    totalBRL = brlConversion + irVal + iofVal;
-    document.getElementById('volumeResultadoText').innerHTML = `Amount: <strong>${saida} ${fmt(amount)}</strong>` + (irAtual>0||iofAtual>0 ? ` · Total: R$ ${fmt(totalBRL)}` : '');
+    if(iofDentro){
+      brlConversion = val / (1 + iofAtual/100);
+      iofVal = val - brlConversion;
+      irVal = 0;
+      amount = brlConversion / taxa;
+      totalBRL = val;
+    } else {
+      amount = calcAmount(val, taxa);
+      brlConversion = amount * taxa;
+      irVal = brlConversion * (irAtual/100);
+      iofVal = brlConversion * (iofAtual/100);
+      totalBRL = brlConversion + irVal + iofVal;
+    }
+    document.getElementById('volumeResultadoText').innerHTML = `Amount: <strong>${saida} ${fmt(amount)}</strong>` + (iofAtual>0 ? ` · IOF: R$ ${fmt(iofVal)}` : '');
   } else {
     amount = val;
     brlConversion = amount * taxa;
@@ -342,18 +356,28 @@ function calcular(){
   const taxaCliente = calcTaxa(spot, spread);
   const inputVal = parseFloat(document.getElementById('valorInput').value);
 
-  let amount, brlConversion;
+  let amount, brlConversion, irVal, iofVal, totalBRL;
   if(entrada==='BRL'){
-    amount = calcAmount(inputVal, taxaCliente);
-    brlConversion = amount * taxaCliente;
+    if(iofDentro){
+      brlConversion = inputVal / (1 + iofAtual/100);
+      iofVal = inputVal - brlConversion;
+      irVal = 0;
+      amount = brlConversion / taxaCliente;
+      totalBRL = inputVal;
+    } else {
+      amount = calcAmount(inputVal, taxaCliente);
+      brlConversion = amount * taxaCliente;
+      irVal = brlConversion * (irAtual/100);
+      iofVal = brlConversion * (iofAtual/100);
+      totalBRL = brlConversion + irVal + iofVal;
+    }
   } else {
     amount = inputVal;
     brlConversion = amount * taxaCliente;
+    irVal = brlConversion * (irAtual/100);
+    iofVal = brlConversion * (iofAtual/100);
+    totalBRL = brlConversion + irVal + iofVal;
   }
-
-  const irVal = brlConversion * (irAtual/100);
-  const iofVal = brlConversion * (iofAtual/100);
-  const totalBRL = brlConversion + irVal + iofVal;
 
   lastResult = {tipoLabel,tipoAtual,clienteSel,dataOp,refOp,modo,entrada,saida,taxaCliente,amount,brlConversion,iofAtual,irAtual,iofVal,irVal,totalBRL};
 
