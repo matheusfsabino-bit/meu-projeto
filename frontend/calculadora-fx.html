@@ -115,7 +115,6 @@
         <option value="imp_merc"    data-iof="0"    data-ir="0"        data-modo="compra">Importação de Mercadoria</option>
         <option value="imp_serv"    data-iof="3.5"  data-ir="0"        data-modo="compra">Importação de Serviço</option>
         <option value="inv_ext"     data-iof="1.1"  data-ir="0"        data-modo="compra">Investimento no Exterior</option>
-        <option value="efx_jogos"   data-iof="3.5"  data-ir="17.64706" data-modo="compra">EFX Jogos e Apostas</option>
         <option value="manut_res"   data-iof="3.5"  data-ir="0"        data-modo="compra">Manutenção de Residentes no Exterior</option>
         <option value="transf_prop" data-iof="1.1"  data-ir="0"        data-modo="compra">Transferência Conta Própria no Exterior</option>
         <option value="emp_ext"     data-iof="3.5"  data-ir="0"        data-modo="compra">Empréstimo Externo</option>
@@ -429,7 +428,6 @@ function copiarResumo(){
 
 // Init
 document.getElementById('dataOp').value = new Date().toISOString().split('T')[0];
-document.getElementById('tipoOp').value = 'efx_jogos';
 onTipoChange();
 renderHistorico();
 </script>
