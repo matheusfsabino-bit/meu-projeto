@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Câmbio</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; padding: 24px; }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 24px; }
+  .section-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
+  .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .card input, .card select, .card textarea { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #1a1a1a; outline: none; font-family: inherit; }
+  .card textarea { font-size: 13px; font-weight: 400; resize: none; height: 52px; line-height: 1.5; }
+  .card select { cursor: pointer; }
+  .card input::placeholder, .card textarea::placeholder { color: #bbb; font-weight: 400; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .client-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .client-bar select { flex: 1; font-size: 14px; font-weight: 500; padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 10px; background: #fff; color: #1a1a1a; cursor: pointer; }
+  .client-bar input { flex: 1; font-size: 14px; padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 10px; background: #fff; color: #1a1a1a; display: none; outline: none; }
+  .client-bar input::placeholder { color: #bbb; }
+  .add-btn { padding: 10px 14px; border: 1px solid #e5e5e5; border-radius: 10px; background: #fff; color: #888; cursor: pointer; font-size: 13px; white-space: nowrap; }
+  .save-btn { padding: 10px 14px; border: 1px solid #9FE1CB; border-radius: 10px; background: #E1F5EE; color: #0F6E56; cursor: pointer; font-size: 13px; white-space: nowrap; display: none; }
+  .toggle-cv { display: grid; grid-template-columns: 1fr 1fr; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .toggle-cv button { padding: 12px; border: 1px solid transparent; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; line-height: 1.4; }
+  .toggle-cv button small { display: block; font-size: 10px; font-weight: 400; opacity: .85; margin-top: 2px; }
+  .btn-venda-active { background: #A32D2D; color: #fff; border-color: #791F1F; }
+  .btn-compra-active { background: #1D9E75; color: #fff; border-color: #0F6E56; }
+  .btn-inactive { background: #f5f5f5; color: #aaa; border: 1px solid #e5e5e5; }
+  .modo-banner { border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; font-weight: 500; text-align: center; display: none; }
+  .modo-banner.compra { background: #E1F5EE; color: #085041; border: 1px solid #9FE1CB; }
+  .modo-banner.venda { background: #FCEBEB; color: #791F1F; border: 1px solid #F09595; }
+  .formula-hint { font-size: 11px; color: #aaa; margin-bottom: 10px; padding: 8px 12px; background: #f5f5f5; border-radius: 8px; }
+  .formula-hint code { font-family: 'Courier New', monospace; font-size: 11px; color: #1a1a1a; }
+  .taxa-preview { background: #f5f5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #888; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .taxa-preview strong { color: #993C1D; font-size: 14px; }
+  .impostos-box { background: #f5f5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; }
+  .imp-badge { font-size: 11px; font-weight: 500; border-radius: 3px; padding: 2px 6px; }
+  .imp-iof { background: #FAEEDA; color: #854F0B; }
+  .imp-ir { background: #FAECE7; color: #993C1D; }
+  .volume-box { border: 1px solid #e5e5e5; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .volume-header { padding: 8px 12px; background: #f9f9f9; border-bottom: 1px solid #e5e5e5; font-size: 12px; color: #888; font-weight: 500; }
+  .volume-body { padding: 12px; }
+  .moeda-toggle-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .moeda-toggle-row label { font-size: 11px; color: #aaa; white-space: nowrap; }
+  .moeda-select { font-size: 13px; font-weight: 500; padding: 6px 10px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; color: #1a1a1a; cursor: pointer; flex: 1; }
+  .arrow-icon { font-size: 16px; color: #aaa; }
+  .volume-input-wrap { position: relative; margin-bottom: 8px; }
+  .volume-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 500; color: #aaa; pointer-events: none; z-index: 1; }
+  .volume-input-wrap input { padding-left: 52px !important; width: 100%; font-size: 15px; font-weight: 500; padding-top: 10px; padding-bottom: 10px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; color: #1a1a1a; outline: none; }
+  .volume-resultado { padding: 8px 12px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #888; display: none; }
+  .volume-resultado strong { color: #1a1a1a; font-size: 13px; }
+  .calc-btn { display: block; width: 100%; padding: 12px; background: #1a1a1a; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; margin-bottom: 20px; margin-top: 6px; }
+  .calc-btn:hover { background: #333; }
+  .result-box { border: 1px solid #e5e5e5; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .result-header { padding: 12px 16px; background: #f9f9f9; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; }
+  .result-header-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .result-header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .result-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .result-header-client { font-size: 12px; font-weight: 500; color: #888; background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; padding: 4px 10px; }
+  .result-header-date { font-size: 11px; color: #aaa; }
+  .rrow { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
+  .rrow:last-child { border-bottom: none; }
+  .rkey { font-size: 12px; color: #888; }
+  .rval { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+  .rval.taxa { color: #993C1D; }
+  .rval.total { font-size: 15px; }
+  .hl-green { background: #E1F5EE; }
+  .hl-green .rkey { color: #0F6E56; font-weight: 500; }
+  .hl-green .rval { color: #085041; }
+  .hl-red { background: #FCEBEB; }
+  .hl-red .rkey { color: #A32D2D; font-weight: 500; }
+  .hl-red .rval { color: #791F1F; }
+  .badge { display: inline-block; font-size: 11px; border-radius: 4px; padding: 2px 8px; font-weight: 500; }
+  .badge-compra { background: #E1F5EE; color: #0F6E56; }
+  .badge-venda { background: #FCEBEB; color: #A32D2D; }
+  .divider-label { padding: 6px 16px; font-size: 11px; font-weight: 500; color: #aaa; background: #f9f9f9; border-bottom: 1px solid #f0f0f0; text-transform: uppercase; letter-spacing: .04em; }
+  .action-row { display: flex; gap: 8px; margin-bottom: 20px; }
+  .copy-btn { flex: 1; padding: 9px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; font-size: 13px; font-weight: 500; color: #888; cursor: pointer; }
+  .copy-btn.copied { border-color: #9FE1CB; color: #0F6E56; background: #E1F5EE; }
+  .hist-item { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .hist-left .hist-tipo { font-size: 12px; font-weight: 500; color: #1a1a1a; }
+  .hist-left .hist-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .hist-right { text-align: right; }
+  .hist-right .hist-total { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+  .hist-right .hist-taxa { font-size: 11px; color: #aaa; }
+  .hist-empty { font-size: 13px; color: #aaa; text-align: center; padding: 16px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Calculadora de Câmbio</h1>
+
+  <p class="section-title">Cliente</p>
+  <div class="client-bar">
+    <select id="clienteSelect"><option value="">— Selecionar cliente —</option></select>
+    <input type="text" id="clienteInput" placeholder="Nome do cliente...">
+    <button class="add-btn" id="addBtn" onclick="toggleAddCliente()">+ Novo</button>
+    <button class="save-btn" id="saveBtn" onclick="salvarCliente()">Salvar</button>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><div class="card-label">Data da operação</div><input type="date" id="dataOp"></div>
+    <div class="card"><div class="card-label">Nº contrato / referência</div><input type="text" id="refOp" placeholder="Ex: FX-2026-001"></div>
+  </div>
+
+  <p class="section-title">Natureza da operação</p>
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-label">Tipo</div>
+    <select id="tipoOp" onchange="onTipoChange()">
+      <option value="">— Selecionar —</option>
+      <optgroup label="Compra">
+        <option value="imp_merc"    data-iof="0"    data-ir="0"        data-modo="compra">Importação de Mercadoria</option>
+        <option value="imp_serv"    data-iof="3.5"  data-ir="0"        data-modo="compra">Importação de Serviço</option>
+        <option value="inv_ext"     data-iof="1.1"  data-ir="0"        data-modo="compra">Investimento no Exterior</option>
+        <option value="efx_jogos"   data-iof="3.5"  data-ir="17.64706" data-modo="compra">EFX Jogos e Apostas</option>
+        <option value="manut_res"   data-iof="3.5"  data-ir="0"        data-modo="compra">Manutenção de Residentes no Exterior</option>
+        <option value="transf_prop" data-iof="1.1"  data-ir="0"        data-modo="compra">Transferência Conta Própria no Exterior</option>
+        <option value="emp_ext"     data-iof="3.5"  data-ir="0"        data-modo="compra">Empréstimo Externo</option>
+      </optgroup>
+      <optgroup label="Venda">
+        <option value="exportacao"  data-iof="0"    data-ir="0"        data-modo="venda">Exportação de Mercadoria</option>
+        <option value="exp_serv"    data-iof="0"    data-ir="0"        data-modo="venda">Exportação de Serviço</option>
+        <option value="ied"         data-iof="0.38" data-ir="0"        data-modo="venda">Investimento Estrangeiro Direto (IED)</option>
+        <option value="dividendos"  data-iof="0"    data-ir="0"        data-modo="venda">Pagamento de Dividendos ao Exterior</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="modo-banner" id="modoBanner"></div>
+
+  <div class="toggle-cv">
+    <button id="btnVenda" onclick="setModo('venda')" class="btn-inactive">Venda<small>Cliente vende moeda estrangeira</small></button>
+    <button id="btnCompra" onclick="setModo('compra')" class="btn-compra-active">Compra<small>Cliente compra moeda estrangeira</small></button>
+  </div>
+
+  <div class="impostos-box" id="impostosBox" style="display:none">
+    <span style="font-size:12px;color:#888">Impostos sobre BRL Conversion:</span>
+    <div style="display:flex;gap:16px;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:6px"><span class="imp-badge imp-iof">IOF</span><span id="iofLabel" style="font-size:12px">—</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><span class="imp-badge imp-ir">IR</span><span id="irLabel" style="font-size:12px">—</span></div>
+    </div>
+  </div>
+
+  <div class="formula-hint"><code id="formulaText">Taxa cliente = Spot × (1 + spread%)</code></div>
+
+  <div class="grid2">
+    <div class="card"><div class="card-label">Spot</div><input type="number" id="spot" step="0.0001" placeholder="0,0000" oninput="atualizarPreview()"></div>
+    <div class="card"><div class="card-label">Spread (%)</div><input type="number" id="spread" step="0.01" placeholder="0,00" oninput="atualizarPreview()"></div>
+  </div>
+
+  <div class="taxa-preview">Taxa cliente: <strong id="taxaPreview">—</strong></div>
+
+  <div class="volume-box">
+    <div class="volume-header">Volume da operação</div>
+    <div class="volume-body">
+      <div class="moeda-toggle-row">
+        <label>De</label>
+        <select class="moeda-select" id="moedaEntrada" onchange="atualizarConversao()">
+          <option value="BRL">BRL — Real</option>
+          <option value="USD">USD — Dólar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — Libra</option>
+          <option value="JPY">JPY — Iene</option>
+          <option value="CHF">CHF — Franco Suíço</option>
+        </select>
+        <span class="arrow-icon">→</span>
+        <label>Para</label>
+        <select class="moeda-select" id="moedaSaida" onchange="atualizarConversao()">
+          <option value="USD">USD — Dólar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — Libra</option>
+          <option value="JPY">JPY — Iene</option>
+          <option value="CHF">CHF — Franco Suíço</option>
+          <option value="BRL">BRL — Real</option>
+        </select>
+      </div>
+      <div class="volume-input-wrap">
+        <span class="volume-prefix" id="volumePrefix">R$</span>
+        <input type="number" id="valorInput" step="1000" placeholder="0,00" oninput="atualizarConversao()">
+      </div>
+      <div class="volume-resultado" id="volumeResultado">→ <strong id="volumeResultadoText">—</strong></div>
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calcular()">Calcular ↗</button>
+
+  <div id="results" style="display:none;">
+    <p class="section-title">Resumo da operação</p>
+    <div class="result-box">
+      <div class="result-header">
+        <div>
+          <div class="result-header-title" id="resTipo">—</div>
+          <div class="result-header-sub" id="resSub">—</div>
+        </div>
+        <div class="result-header-right">
+          <div class="result-header-client" id="resCliente" style="display:none"></div>
+          <div class="result-header-date" id="resData"></div>
+        </div>
+      </div>
+      <div class="rrow" id="resRefRow" style="display:none"><span class="rkey">Referência</span><span class="rval" id="resRef">—</span></div>
+      <div class="rrow"><span class="rkey">Operação</span><span class="rval" id="resModo">—</span></div>
+      <div class="rrow"><span class="rkey">Currency</span><span class="rval" id="resCurrency">—</span></div>
+      <div class="rrow"><span class="rkey">Amount</span><span class="rval" id="resAmount">—</span></div>
+      <div class="rrow"><span class="rkey">FX Rate</span><span class="rval taxa" id="resTaxa">—</span></div>
+      <div class="rrow"><span class="rkey">BRL Conversion</span><span class="rval" id="resBRLConversion">—</span></div>
+      <div id="impostosResult" style="display:none;">
+        <div class="rrow"><span class="rkey">IR (<span id="resIrPct">—</span>%)</span><span class="rval" id="resIrVal">—</span></div>
+        <div class="rrow"><span class="rkey">IOF (<span id="resIofPct">—</span>%)</span><span class="rval" id="resIofVal">—</span></div>
+      </div>
+      <div class="rrow hl-green" id="rowTotal"><span class="rkey">Total Amount BRL</span><span class="rval total" id="resTotal">—</span></div>
+    </div>
+    <div class="action-row">
+      <button class="copy-btn" id="copyBtn" onclick="copiarResumo()">Copiar resumo</button>
+    </div>
+  </div>
+
+  <div id="historicoSection">
+    <p class="section-title">Histórico da sessão</p>
+    <div id="historicoList"><div class="hist-empty">Nenhuma operação calculada ainda</div></div>
+  </div>
+</div>
+
+<script>
+let modo = 'compra', iofAtual = 0, irAtual = 0, tipoAtual = '';
+let historico = [], lastResult = {};
+
+function setModo(m){
+  modo = m;
+  document.getElementById('btnCompra').className = m==='compra' ? 'btn-compra-active' : 'btn-inactive';
+  document.getElementById('btnVenda').className = m==='venda' ? 'btn-venda-active' : 'btn-inactive';
+  document.getElementById('formulaText').textContent = m==='compra'
+    ? 'Taxa cliente = Spot × (1 + spread%)'
+    : 'Taxa cliente = Spot ÷ (1 + spread%)';
+  atualizarPreview();
+}
+
+function onTipoChange(){
+  const sel = document.getElementById('tipoOp');
+  const opt = sel.options[sel.selectedIndex];
+  iofAtual = parseFloat(opt.dataset.iof || 0);
+  irAtual = parseFloat(opt.dataset.ir || 0);
+  tipoAtual = sel.value;
+  const modoTipo = opt.dataset.modo || 'compra';
+  setModo(modoTipo);
+  const banner = document.getElementById('modoBanner');
+  if(sel.value){
+    banner.style.display = 'block';
+    banner.className = `modo-banner ${modoTipo}`;
+    banner.textContent = modoTipo==='compra' ? 'Cliente compra moeda estrangeira' : 'Cliente vende moeda estrangeira';
+  } else { banner.style.display = 'none'; }
+  const box = document.getElementById('impostosBox');
+  if(sel.value){
+    box.style.display = 'block';
+    document.getElementById('iofLabel').textContent = iofAtual.toFixed(2)+'%';
+    document.getElementById('irLabel').textContent = irAtual>0 ? irAtual.toFixed(5)+'%' : '0%';
+  } else { box.style.display = 'none'; }
+  atualizarConversao();
+}
+
+function calcTaxa(spot, spread){
+  if(modo==='compra') return parseFloat((spot*(1+spread/100)).toFixed(5));
+  return parseFloat((spot/(1+spread/100)).toFixed(5));
+}
+
+function getTaxa(){
+  const s = document.getElementById('taxaPreview').textContent.replace(/\./g,'').replace(',','.');
+  return parseFloat(s) || 0;
+}
+
+function calcAmount(valorMN, taxa){
+  // Amount = Valor MN / (1 + IR%) / FX Rate
+  return valorMN / (1 + irAtual/100) / taxa;
+}
+
+function atualizarPreview(){
+  const spot = parseFloat(document.getElementById('spot').value) || 0;
+  const spread = parseFloat(document.getElementById('spread').value) || 0;
+  if(!spot){ document.getElementById('taxaPreview').textContent='—'; document.getElementById('volumeResultado').style.display='none'; return; }
+  const taxa = calcTaxa(spot, spread);
+  document.getElementById('taxaPreview').textContent = taxa.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5});
+  atualizarConversao();
+}
+
+function atualizarConversao(){
+  const taxa = getTaxa();
+  const val = parseFloat(document.getElementById('valorInput').value) || 0;
+  const entrada = document.getElementById('moedaEntrada').value;
+  const saida = document.getElementById('moedaSaida').value;
+  document.getElementById('volumePrefix').textContent = entrada==='BRL' ? 'R$' : entrada;
+  const res = document.getElementById('volumeResultado');
+  if(!taxa || !val){ res.style.display='none'; return; }
+  let amount, brlConversion, irVal, iofVal, totalBRL;
+  if(entrada==='BRL'){
+    amount = calcAmount(val, taxa);
+    brlConversion = amount * taxa;
+    irVal = brlConversion * (irAtual/100);
+    iofVal = brlConversion * (iofAtual/100);
+    totalBRL = brlConversion + irVal + iofVal;
+    document.getElementById('volumeResultadoText').innerHTML = `Amount: <strong>${saida} ${fmt(amount)}</strong>` + (irAtual>0||iofAtual>0 ? ` · Total: R$ ${fmt(totalBRL)}` : '');
+  } else {
+    amount = val;
+    brlConversion = amount * taxa;
+    irVal = brlConversion * (irAtual/100);
+    iofVal = brlConversion * (iofAtual/100);
+    totalBRL = brlConversion + irVal + iofVal;
+    document.getElementById('volumeResultadoText').innerHTML = `BRL Conversion: <strong>R$ ${fmt(brlConversion)}</strong>` + (irAtual>0||iofAtual>0 ? ` · Total: R$ ${fmt(totalBRL)}` : '');
+  }
+  res.style.display = 'block';
+}
+
+function fmt(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function formatarData(val){ if(!val) return ''; const [y,m,d]=val.split('-'); return `${d}/${m}/${y}`; }
+
+function toggleAddCliente(){
+  const inp=document.getElementById('clienteInput'), sel=document.getElementById('clienteSelect');
+  const saveBtn=document.getElementById('saveBtn'), addBtn=document.getElementById('addBtn');
+  const show = inp.style.display==='none' || inp.style.display==='';
+  inp.style.display=show?'block':'none'; sel.style.display=show?'none':'block';
+  saveBtn.style.display=show?'block':'none'; addBtn.textContent=show?'Cancelar':'+ Novo';
+  if(show) inp.focus();
+}
+
+function salvarCliente(){
+  const inp=document.getElementById('clienteInput'), nome=inp.value.trim();
+  if(!nome) return;
+  const sel=document.getElementById('clienteSelect'), opt=document.createElement('option');
+  opt.value=nome; opt.textContent=nome; sel.appendChild(opt); sel.value=nome; inp.value=''; toggleAddCliente();
+}
+
+function calcular(){
+  const spot = parseFloat(document.getElementById('spot').value);
+  const spread = parseFloat(document.getElementById('spread').value);
+  const entrada = document.getElementById('moedaEntrada').value;
+  const saida = document.getElementById('moedaSaida').value;
+  const tipoSel = document.getElementById('tipoOp');
+  const tipoLabel = tipoSel.options[tipoSel.selectedIndex].text;
+  const clienteSel = document.getElementById('clienteSelect').value;
+  const dataOp = document.getElementById('dataOp').value;
+  const refOp = document.getElementById('refOp').value.trim();
+  const taxaCliente = calcTaxa(spot, spread);
+  const inputVal = parseFloat(document.getElementById('valorInput').value);
+
+  let amount, brlConversion;
+  if(entrada==='BRL'){
+    amount = calcAmount(inputVal, taxaCliente);
+    brlConversion = amount * taxaCliente;
+  } else {
+    amount = inputVal;
+    brlConversion = amount * taxaCliente;
+  }
+
+  const irVal = brlConversion * (irAtual/100);
+  const iofVal = brlConversion * (iofAtual/100);
+  const totalBRL = brlConversion + irVal + iofVal;
+
+  lastResult = {tipoLabel,tipoAtual,clienteSel,dataOp,refOp,modo,entrada,saida,taxaCliente,amount,brlConversion,iofAtual,irAtual,iofVal,irVal,totalBRL};
+
+  document.getElementById('resTipo').textContent = tipoLabel || 'Operação FX';
+  document.getElementById('resSub').textContent = `${saida} · FX Rate: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5})}`;
+  document.getElementById('resModo').innerHTML = `<span class="badge ${modo==='compra'?'badge-compra':'badge-venda'}">${modo==='compra'?'Compra':'Venda'}</span>`;
+  document.getElementById('resCurrency').textContent = saida;
+  document.getElementById('resAmount').textContent = `${saida} ${fmt(amount)}`;
+  document.getElementById('resTaxa').textContent = taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5});
+  document.getElementById('resBRLConversion').textContent = 'R$ '+fmt(brlConversion);
+
+  const clienteEl = document.getElementById('resCliente');
+  if(clienteSel){ clienteEl.textContent=clienteSel; clienteEl.style.display='block'; } else { clienteEl.style.display='none'; }
+  document.getElementById('resData').textContent = formatarData(dataOp);
+  const refRow = document.getElementById('resRefRow');
+  if(refOp){ refRow.style.display='flex'; document.getElementById('resRef').textContent=refOp; } else { refRow.style.display='none'; }
+
+  const hasImpostos = iofAtual>0 || irAtual>0;
+  document.getElementById('impostosResult').style.display = hasImpostos ? 'block' : 'none';
+  if(hasImpostos){
+    document.getElementById('resIrPct').textContent = irAtual.toFixed(5);
+    document.getElementById('resIrVal').textContent = 'R$ '+fmt(irVal);
+    document.getElementById('resIofPct').textContent = iofAtual.toFixed(2);
+    document.getElementById('resIofVal').textContent = 'R$ '+fmt(iofVal);
+  }
+
+  document.getElementById('rowTotal').className = `rrow ${modo==='compra'?'hl-green':'hl-red'}`;
+  document.getElementById('resTotal').textContent = 'R$ '+fmt(totalBRL);
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('copyBtn').className = 'copy-btn';
+  document.getElementById('copyBtn').textContent = 'Copiar resumo';
+
+  historico.unshift({tipoLabel,clienteSel,saida,taxaCliente,totalBRL,modo,dataOp});
+  renderHistorico();
+}
+
+function renderHistorico(){
+  const list = document.getElementById('historicoList');
+  if(!historico.length){ list.innerHTML='<div class="hist-empty">Nenhuma operação calculada ainda</div>'; return; }
+  list.innerHTML = historico.map(op => `
+    <div class="hist-item">
+      <div class="hist-left">
+        <div class="hist-tipo">${op.tipoLabel}${op.clienteSel?' · '+op.clienteSel:''}</div>
+        <div class="hist-sub">${op.saida} · <span class="badge ${op.modo==='compra'?'badge-compra':'badge-venda'}">${op.modo==='compra'?'Compra':'Venda'}</span>${op.dataOp?' · '+formatarData(op.dataOp):''}</div>
+      </div>
+      <div class="hist-right">
+        <div class="hist-total">R$ ${fmt(op.totalBRL)}</div>
+        <div class="hist-taxa">FX ${op.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5})}</div>
+      </div>
+    </div>`).join('');
+}
+
+function copiarResumo(){
+  const r = lastResult; if(!r.tipoLabel) return;
+  let txt = `OPERAÇÃO FX\n${'-'.repeat(30)}\n`;
+  if(r.clienteSel) txt += `Cliente: ${r.clienteSel}\n`;
+  if(r.dataOp) txt += `Data: ${formatarData(r.dataOp)}\n`;
+  if(r.refOp) txt += `Ref: ${r.refOp}\n`;
+  txt += `Natureza: ${r.tipoLabel}\nOperação: ${r.modo==='compra'?'Compra':'Venda'}\n`;
+  txt += `Currency: ${r.saida}\nAmount: ${r.saida} ${fmt(r.amount)}\n`;
+  txt += `FX Rate: ${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5})}\n`;
+  txt += `BRL Conversion: R$ ${fmt(r.brlConversion)}\n`;
+  if(r.irAtual>0) txt += `IR (${r.irAtual.toFixed(5)}%): R$ ${fmt(r.irVal)}\n`;
+  if(r.iofAtual>0) txt += `IOF (${r.iofAtual.toFixed(2)}%): R$ ${fmt(r.iofVal)}\n`;
+  txt += `Total Amount BRL: R$ ${fmt(r.totalBRL)}\n`;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent='Copiado!'; btn.className='copy-btn copied';
+    setTimeout(() => { btn.textContent='Copiar resumo'; btn.className='copy-btn'; }, 2000);
+  });
+}
+
+// Init
+document.getElementById('dataOp').value = new Date().toISOString().split('T')[0];
+document.getElementById('tipoOp').value = 'efx_jogos';
+onTipoChange();
+renderHistorico();
+</script>
+</body>
+</html>

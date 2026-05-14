@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora FX — Auren</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; padding: 24px; }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 24px; color: #1a1a1a; }
+  .section-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
+  .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 14px; }
+  .card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .card input, .card select { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #1a1a1a; outline: none; }
+  .card input[type="date"] { font-size: 14px; }
+  .card input::placeholder { color: #bbb; font-weight: 400; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .nome-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .spots-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .spot-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 14px; }
+  .spot-card.maxima { border-top: 3px solid #9FE1CB; }
+  .spot-card.minima { border-top: 3px solid #B5D4F4; }
+  .spot-label { font-size: 12px; font-weight: 500; color: #888; margin-bottom: 6px; }
+  .spot-card input { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #1a1a1a; outline: none; }
+  .taxa-preview { background: #f5f5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #888; display: flex; align-items: center; gap: 6px; }
+  .taxa-preview strong { color: #993C1D; font-size: 14px; }
+  .calc-btn { display: block; width: 100%; padding: 12px; background: #1a1a1a; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; margin-bottom: 20px; margin-top: 6px; }
+  .calc-btn:hover { background: #333; }
+  .unified-card { border: 1px solid #e5e5e5; border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+  .unified-header { padding: 12px 16px; background: #f9f9f9; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; }
+  .unified-header-name { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+  .unified-header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .unified-header-date { font-size: 13px; font-weight: 500; color: #888; }
+  .results-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .result-card { overflow: hidden; }
+  .result-card.maxima { border-right: 1px solid #e5e5e5; }
+  .result-col-header { padding: 10px 14px; background: #f9f9f9; border-bottom: 1px solid #e5e5e5; border-top: 3px solid transparent; }
+  .result-col-header.maxima { border-top-color: #9FE1CB; }
+  .result-col-header.minima { border-top-color: #B5D4F4; }
+  .result-col-title { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .result-col-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .rrow { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid #f0f0f0; }
+  .rrow:last-child { border-bottom: none; }
+  .rkey { font-size: 12px; color: #888; }
+  .rval { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+  .rval.taxa { color: #993C1D; }
+  .rval.spread { color: #185FA5; }
+  .rval.receita { color: #1D9E75; }
+  .rrow.highlight { background: #E1F5EE; }
+  .rrow.highlight .rkey { color: #0F6E56; font-weight: 500; }
+  .rrow.highlight .rval { color: #085041; font-size: 14px; }
+  .diff-card { background: #f9f9f9; border: 1px solid #e5e5e5; border-radius: 10px; padding: 14px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .diff-item { text-align: center; }
+  .diff-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .diff-val { font-size: 16px; font-weight: 600; color: #1D9E75; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Calculadora FX — Auren</h1>
+
+  <p class="section-title" style="margin-bottom:8px">Identificação</p>
+  <div class="nome-row">
+    <div class="card">
+      <div class="card-label">Nome da cotação</div>
+      <input type="text" id="nomeCotacao" placeholder="Ex: Terça-feira...">
+    </div>
+    <div class="card">
+      <div class="card-label">Data</div>
+      <input type="date" id="dataCotacao">
+    </div>
+  </div>
+
+  <p class="section-title" style="margin-bottom:8px">Configuração</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-label">Volume (USD)</div>
+      <input type="number" id="volume" value="9000000" step="100000">
+    </div>
+    <div class="card">
+      <div class="card-label">% Receita Auren</div>
+      <input type="number" id="percAuren" value="50" step="1" min="1" max="100">
+    </div>
+  </div>
+
+  <p class="section-title" style="margin-bottom:8px">Cotações do dia</p>
+  <div class="spots-row">
+    <div class="spot-card maxima">
+      <div class="spot-label">Spot — Máxima do dia</div>
+      <input type="number" id="spotMax" value="4.9103" step="0.0001" oninput="atualizarPreview()">
+    </div>
+    <div class="spot-card minima">
+      <div class="spot-label">Spot — Mínima do dia</div>
+      <input type="number" id="spotMin" value="4.8823" step="0.0001">
+    </div>
+  </div>
+
+  <div class="taxa-preview">
+    Taxa cliente (máxima × 1,005): <strong id="taxaPreview">—</strong>
+    <span style="font-size:11px;color:#bbb">— igual nos dois cenários</span>
+  </div>
+
+  <button class="calc-btn" onclick="calcular()">Calcular ↗</button>
+
+  <div id="results" style="display:none;">
+    <div class="unified-card">
+      <div class="unified-header">
+        <div>
+          <div class="unified-header-name" id="resultTitle">—</div>
+          <div class="unified-header-sub" id="resultSubtitle"></div>
+        </div>
+        <div class="unified-header-date" id="resultDate"></div>
+      </div>
+      <div class="results-row" id="resultsRow"></div>
+    </div>
+
+    <p class="section-title" style="margin-bottom:8px">Diferencial — mínima vs máxima</p>
+    <div class="diff-card" id="diffCard"></div>
+  </div>
+</div>
+
+<script>
+function fmt(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function atualizarPreview(){
+  const s = parseFloat(document.getElementById('spotMax').value) || 0;
+  if(!s){ document.getElementById('taxaPreview').textContent='—'; return; }
+  const t = s * 1.005;
+  document.getElementById('taxaPreview').textContent = t.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5});
+}
+
+function formatarData(val){
+  if(!val) return '';
+  const [y,m,d] = val.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function calcular(){
+  const volume = parseFloat(document.getElementById('volume').value);
+  const percAuren = parseFloat(document.getElementById('percAuren').value) / 100;
+  const spotMax = parseFloat(document.getElementById('spotMax').value);
+  const spotMin = parseFloat(document.getElementById('spotMin').value);
+  const taxaCliente = spotMax * 1.005;
+  const nome = document.getElementById('nomeCotacao').value.trim();
+  const data = document.getElementById('dataCotacao').value;
+
+  atualizarPreview();
+
+  function calc(spot){
+    const spreadDisplay = Math.abs((1-(spot/taxaCliente))*-1)*100;
+    const receitaTotal = (taxaCliente - spot) * volume;
+    const receitaAuren = receitaTotal * percAuren;
+    const totalBRL = taxaCliente * volume;
+    return { spot, spreadDisplay, taxaCliente, receitaTotal, receitaAuren, totalBRL };
+  }
+
+  const max = calc(spotMax);
+  const min = calc(spotMin);
+
+  document.getElementById('resultTitle').textContent = nome || 'Análise FX';
+  document.getElementById('resultSubtitle').textContent = `Taxa cliente: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:5,maximumFractionDigits:5})} · Volume: USD ${fmt(volume)}`;
+  document.getElementById('resultDate').textContent = formatarData(data);
+
+  function renderCol(r, tipo, cssClass){
+    return `<div class="result-card ${cssClass}">
+      <div class="result-col-header ${cssClass}">
+        <div class="result-col-title">${tipo}</div>
+        <div class="result-col-sub">Spot: ${r.spot.toFixed(4)}</div>
+      </div>
+      <div class="rrow"><span class="rkey">Spot</span><span class="rval">${r.spot.toFixed(4)}</span></div>
+      <div class="rrow"><span class="rkey">Spread</span><span class="rval spread">${r.spreadDisplay.toFixed(2)}%</span></div>
+      <div class="rrow"><span class="rkey">Taxa cliente</span><span class="rval taxa">${r.taxaCliente.toFixed(5)}</span></div>
+      <div class="rrow"><span class="rkey">Valor ME</span><span class="rval">USD ${fmt(volume)}</span></div>
+      <div class="rrow"><span class="rkey">Receita Total</span><span class="rval receita">R$ ${fmt(r.receitaTotal)}</span></div>
+      <div class="rrow"><span class="rkey">Receita Auren (${(percAuren*100).toFixed(0)}%)</span><span class="rval receita">R$ ${fmt(r.receitaAuren)}</span></div>
+      <div class="rrow highlight"><span class="rkey">Total Amount BRL</span><span class="rval">${fmt(r.totalBRL)}</span></div>
+    </div>`;
+  }
+
+  document.getElementById('resultsRow').innerHTML =
+    renderCol(max, 'Máxima do dia', 'maxima') +
+    renderCol(min, 'Mínima do dia', 'minima');
+
+  const diffReceita = min.receitaTotal - max.receitaTotal;
+  const diffAuren = min.receitaAuren - max.receitaAuren;
+  const diffSpread = min.spreadDisplay - max.spreadDisplay;
+
+  document.getElementById('diffCard').innerHTML = `
+    <div class="diff-item">
+      <div class="diff-label">Ganho em spread</div>
+      <div class="diff-val">+${diffSpread.toFixed(2)}%</div>
+    </div>
+    <div class="diff-item">
+      <div class="diff-label">Ganho receita total</div>
+      <div class="diff-val">+R$ ${fmt(diffReceita)}</div>
+    </div>
+    <div class="diff-item">
+      <div class="diff-label">Ganho receita Auren</div>
+      <div class="diff-val">+R$ ${fmt(diffAuren)}</div>
+    </div>`;
+
+  document.getElementById('results').style.display = 'block';
+}
+
+// Init
+document.getElementById('dataCotacao').value = new Date().toISOString().split('T')[0];
+atualizarPreview();
+</script>
+</body>
+</html>
