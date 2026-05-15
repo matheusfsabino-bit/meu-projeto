@@ -83,16 +83,36 @@
   .comunicado-loading-dot:nth-child(2){ animation-delay:.2s; }
   .comunicado-loading-dot:nth-child(3){ animation-delay:.4s; }
   @keyframes dotpulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
-  .arte-card { background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%); border-radius:14px; padding:28px 26px 24px; color:#fff; }
-  .arte-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
-  .arte-logo { font-size:15px; font-weight:800; letter-spacing:.14em; color:#fff; }
-  .arte-tag { font-size:10px; font-weight:600; background:rgba(255,255,255,.15); border-radius:4px; padding:3px 9px; letter-spacing:.07em; text-transform:uppercase; color:rgba(255,255,255,.8); }
-  .arte-titulo { font-size:22px; font-weight:800; line-height:1.25; color:#fff; margin-bottom:20px; letter-spacing:-.01em; }
-  .arte-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; }
-  .arte-chip { font-size:11px; font-weight:700; letter-spacing:.08em; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:4px 12px; color:rgba(255,255,255,.9); }
-  .arte-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,.1); padding-top:14px; }
-  .arte-date { font-size:11px; color:rgba(255,255,255,.4); }
-  .arte-brand { font-size:11px; font-weight:700; letter-spacing:.1em; color:rgba(255,255,255,.3); }
+  .arte-card {
+    position:relative; overflow:hidden; border-radius:14px; padding:26px 24px 22px; color:#fff;
+    background-color:#03030F;
+    background-image:
+      radial-gradient(ellipse at 15% 15%, rgba(0,90,255,.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 80%, rgba(0,40,180,.15) 0%, transparent 50%),
+      linear-gradient(rgba(0,80,255,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,80,255,.055) 1px, transparent 1px);
+    background-size: auto, auto, 28px 28px, 28px 28px;
+  }
+  .arte-card::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background: linear-gradient(135deg, rgba(0,100,255,.08) 0%, transparent 50%, rgba(0,60,200,.06) 100%);
+  }
+  .arte-corner { position:absolute; width:18px; height:18px; border-color:rgba(0,120,255,.5); border-style:solid; }
+  .arte-corner-tl { top:14px; left:14px; border-width:2px 0 0 2px; }
+  .arte-corner-tr { top:14px; right:14px; border-width:2px 2px 0 0; }
+  .arte-corner-bl { bottom:14px; left:14px; border-width:0 0 2px 2px; }
+  .arte-corner-br { bottom:14px; right:14px; border-width:0 2px 2px 0; }
+  .arte-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; position:relative; }
+  .arte-logo { font-size:14px; font-weight:800; letter-spacing:.18em; color:#fff; text-shadow:0 0 18px rgba(60,140,255,.9); display:flex; align-items:center; gap:7px; }
+  .arte-logo-dot { width:6px; height:6px; border-radius:50%; background:#3B8AFF; box-shadow:0 0 8px #3B8AFF; flex-shrink:0; }
+  .arte-tag { font-size:9px; font-weight:700; background:rgba(0,100,255,.18); border:1px solid rgba(0,120,255,.35); border-radius:4px; padding:3px 9px; letter-spacing:.1em; text-transform:uppercase; color:rgba(100,170,255,.9); }
+  .arte-titulo { font-size:22px; font-weight:800; line-height:1.22; color:#fff; margin-bottom:18px; letter-spacing:-.02em; position:relative; }
+  .arte-titulo-line { display:block; width:32px; height:2px; background:linear-gradient(90deg,#3B8AFF,transparent); border-radius:2px; margin-bottom:12px; }
+  .arte-chips { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:22px; position:relative; }
+  .arte-chip { font-size:10px; font-weight:700; letter-spacing:.1em; background:rgba(0,90,255,.14); border:1px solid rgba(0,120,255,.3); border-radius:5px; padding:4px 11px; color:#7BB8FF; }
+  .arte-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(0,80,255,.18); padding-top:13px; position:relative; }
+  .arte-date { font-size:10px; color:rgba(255,255,255,.35); letter-spacing:.04em; }
+  .arte-brand { font-size:10px; font-weight:800; letter-spacing:.16em; color:rgba(80,150,255,.45); }
   .comunicado-actions { display:flex; gap:8px; margin-top:14px; }
   .btn-action { flex:1; padding:10px; background:#F2F2F7; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; color:#212121; transition:background .15s; }
   .btn-action:hover { background:#E5E5EA; }
@@ -1208,15 +1228,21 @@ function renderArteComunicado(r){
     </div>
     <div id="arteWrap" class="arte-wrap-feed">
       <div class="arte-card" id="arteCard">
+        <div class="arte-corner arte-corner-tl"></div>
+        <div class="arte-corner arte-corner-tr"></div>
+        <div class="arte-corner arte-corner-bl"></div>
+        <div class="arte-corner arte-corner-br"></div>
         <div class="arte-header">
-          <span class="arte-logo">AUREX</span>
-          <span class="arte-tag">Câmbio</span>
+          <span class="arte-logo"><span class="arte-logo-dot"></span>AUREX</span>
+          <span class="arte-tag">FX Insight</span>
         </div>
-        <div class="arte-titulo">${r.titulo}</div>
+        <div class="arte-titulo">
+          <span class="arte-titulo-line"></span>${r.titulo}
+        </div>
         <div class="arte-chips">${(r.chips||[]).map(c=>`<span class="arte-chip">${c}</span>`).join('')}</div>
         <div class="arte-footer">
           <span class="arte-date">${hoje}</span>
-          <span class="arte-brand">AUREX.COM.BR</span>
+          <span class="arte-brand">AUREX.CAPITAL</span>
         </div>
       </div>
     </div>
@@ -1284,21 +1310,29 @@ function abrirArteJanela(){
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800&display=swap">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:#0D0D0D;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:'Inter',sans-serif;}
-    .arte-card{background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%);border-radius:16px;padding:30px 28px 26px;color:#fff;width:100%;max-width:460px;}
-    .arte-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
-    .arte-logo{font-size:15px;font-weight:800;letter-spacing:.14em;}
-    .arte-tag{font-size:10px;font-weight:600;background:rgba(255,255,255,.15);border-radius:4px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.8);}
-    .arte-titulo{font-size:24px;font-weight:800;line-height:1.2;color:#fff;margin-bottom:22px;letter-spacing:-.02em;}
-    .arte-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px;}
-    .arte-chip{font-size:11px;font-weight:700;letter-spacing:.08em;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 13px;color:rgba(255,255,255,.9);}
-    .arte-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;}
-    .arte-date{font-size:11px;color:rgba(255,255,255,.4);}
-    .arte-brand{font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);}
-    .hint{color:#444;font-size:11px;font-family:sans-serif;margin-top:14px;text-align:center;}
+    body{background:#080810;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:'Inter',sans-serif;}
+    .arte-card{position:relative;overflow:hidden;border-radius:16px;padding:30px 28px 24px;color:#fff;width:100%;max-width:460px;background-color:#03030F;background-image:radial-gradient(ellipse at 15% 15%,rgba(0,90,255,.22) 0%,transparent 55%),radial-gradient(ellipse at 85% 80%,rgba(0,40,180,.15) 0%,transparent 50%),linear-gradient(rgba(0,80,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,80,255,.055) 1px,transparent 1px);background-size:auto,auto,28px 28px,28px 28px;}
+    .arte-card::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(0,100,255,.08) 0%,transparent 50%,rgba(0,60,200,.06) 100%);}
+    .arte-corner{position:absolute;width:18px;height:18px;border-color:rgba(0,120,255,.5);border-style:solid;}
+    .arte-corner-tl{top:14px;left:14px;border-width:2px 0 0 2px;}
+    .arte-corner-tr{top:14px;right:14px;border-width:2px 2px 0 0;}
+    .arte-corner-bl{bottom:14px;left:14px;border-width:0 0 2px 2px;}
+    .arte-corner-br{bottom:14px;right:14px;border-width:0 2px 2px 0;}
+    .arte-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;position:relative;}
+    .arte-logo{font-size:14px;font-weight:800;letter-spacing:.18em;color:#fff;text-shadow:0 0 18px rgba(60,140,255,.9);display:flex;align-items:center;gap:7px;}
+    .arte-logo-dot{width:6px;height:6px;border-radius:50%;background:#3B8AFF;box-shadow:0 0 8px #3B8AFF;flex-shrink:0;}
+    .arte-tag{font-size:9px;font-weight:700;background:rgba(0,100,255,.18);border:1px solid rgba(0,120,255,.35);border-radius:4px;padding:3px 9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(100,170,255,.9);}
+    .arte-titulo{font-size:26px;font-weight:800;line-height:1.2;color:#fff;margin-bottom:20px;letter-spacing:-.02em;position:relative;}
+    .arte-titulo-line{display:block;width:32px;height:2px;background:linear-gradient(90deg,#3B8AFF,transparent);border-radius:2px;margin-bottom:12px;}
+    .arte-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px;position:relative;}
+    .arte-chip{font-size:10px;font-weight:700;letter-spacing:.1em;background:rgba(0,90,255,.14);border:1px solid rgba(0,120,255,.3);border-radius:5px;padding:5px 12px;color:#7BB8FF;}
+    .arte-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(0,80,255,.18);padding-top:13px;position:relative;}
+    .arte-date{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em;}
+    .arte-brand{font-size:10px;font-weight:800;letter-spacing:.16em;color:rgba(80,150,255,.45);}
+    .hint{color:#333;font-size:11px;font-family:sans-serif;margin-top:16px;text-align:center;}
   </style></head><body>
   ${card.outerHTML}
-  <p class="hint">Use a ferramenta de recorte do Windows (Win + Shift + S) para salvar</p>
+  <p class="hint">Win + Shift + S para recortar</p>
   </body></html>`);
   w.document.close();
 }
