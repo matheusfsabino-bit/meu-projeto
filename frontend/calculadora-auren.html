@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora FX — Auren</title>
+<title>Calculadora FX — Aurex</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; padding: 24px; }
@@ -58,7 +58,7 @@
 </head>
 <body>
 <div class="container">
-  <h1>Calculadora FX — Auren</h1>
+  <h1>Calculadora FX — Aurex</h1>
 
   <p class="section-title" style="margin-bottom:8px">Identificação</p>
   <div class="nome-row">
@@ -79,8 +79,8 @@
       <input type="number" id="volume" value="9000000" step="100000">
     </div>
     <div class="card">
-      <div class="card-label">% Receita Auren</div>
-      <input type="number" id="percAuren" value="50" step="1" min="1" max="100">
+      <div class="card-label">% Receita Aurex</div>
+      <input type="number" id="percAurex" value="50" step="1" min="1" max="100">
     </div>
   </div>
 
@@ -138,7 +138,7 @@ function formatarData(val){
 
 function calcular(){
   const volume = parseFloat(document.getElementById('volume').value);
-  const percAuren = parseFloat(document.getElementById('percAuren').value) / 100;
+  const percAurex = parseFloat(document.getElementById('percAurex').value) / 100;
   const spotMax = parseFloat(document.getElementById('spotMax').value);
   const spotMin = parseFloat(document.getElementById('spotMin').value);
   const taxaCliente = spotMax * 1.005;
@@ -150,9 +150,9 @@ function calcular(){
   function calc(spot){
     const spreadDisplay = Math.abs((1-(spot/taxaCliente))*-1)*100;
     const receitaTotal = (taxaCliente - spot) * volume;
-    const receitaAuren = receitaTotal * percAuren;
+    const receitaAurex = receitaTotal * percAurex;
     const totalBRL = taxaCliente * volume;
-    return { spot, spreadDisplay, taxaCliente, receitaTotal, receitaAuren, totalBRL };
+    return { spot, spreadDisplay, taxaCliente, receitaTotal, receitaAurex, totalBRL };
   }
 
   const max = calc(spotMax);
@@ -173,7 +173,7 @@ function calcular(){
       <div class="rrow"><span class="rkey">Taxa cliente</span><span class="rval taxa">${r.taxaCliente.toFixed(5)}</span></div>
       <div class="rrow"><span class="rkey">Valor ME</span><span class="rval">USD ${fmt(volume)}</span></div>
       <div class="rrow"><span class="rkey">Receita Total</span><span class="rval receita">R$ ${fmt(r.receitaTotal)}</span></div>
-      <div class="rrow"><span class="rkey">Receita Auren (${(percAuren*100).toFixed(0)}%)</span><span class="rval receita">R$ ${fmt(r.receitaAuren)}</span></div>
+      <div class="rrow"><span class="rkey">Receita Aurex (${(percAurex*100).toFixed(0)}%)</span><span class="rval receita">R$ ${fmt(r.receitaAurex)}</span></div>
       <div class="rrow highlight"><span class="rkey">Total Amount BRL</span><span class="rval">${fmt(r.totalBRL)}</span></div>
     </div>`;
   }
@@ -183,7 +183,7 @@ function calcular(){
     renderCol(min, 'Mínima do dia', 'minima');
 
   const diffReceita = min.receitaTotal - max.receitaTotal;
-  const diffAuren = min.receitaAuren - max.receitaAuren;
+  const diffAurex = min.receitaAurex - max.receitaAurex;
   const diffSpread = min.spreadDisplay - max.spreadDisplay;
 
   document.getElementById('diffCard').innerHTML = `
@@ -196,8 +196,8 @@ function calcular(){
       <div class="diff-val">+R$ ${fmt(diffReceita)}</div>
     </div>
     <div class="diff-item">
-      <div class="diff-label">Ganho receita Auren</div>
-      <div class="diff-val">+R$ ${fmt(diffAuren)}</div>
+      <div class="diff-label">Ganho receita Aurex</div>
+      <div class="diff-val">+R$ ${fmt(diffAurex)}</div>
     </div>`;
 
   document.getElementById('results').style.display = 'block';
