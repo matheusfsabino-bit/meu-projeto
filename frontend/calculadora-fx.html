@@ -637,11 +637,11 @@ function onParChange(){
 }
 
 const RSS_FEEDS = [
-  { url: 'https://www.infomoney.com.br/feed/',                    source: 'InfoMoney' },
-  { url: 'https://www.infomoney.com.br/mercados/feed/',           source: 'InfoMoney · Mercados' },
-  { url: 'https://www.infomoney.com.br/guias/criptomoedas/feed/', source: 'InfoMoney · Cripto' },
-  { url: 'https://br.investing.com/rss/news.rss',                 source: 'Investing.com' },
-  { url: 'https://br.investing.com/rss/news_301.rss',             source: 'Investing.com · Forex' },
+  { url: 'https://www.infomoney.com.br/feed/',                      source: 'InfoMoney' },
+  { url: 'https://www.infomoney.com.br/mercados/feed/',             source: 'InfoMoney · Mercados' },
+  { url: 'https://www.infomoney.com.br/guias/criptomoedas/feed/',   source: 'InfoMoney · Cripto' },
+  { url: 'https://agenciabrasil.ebc.com.br/rss/economia/feed.xml', source: 'Agência Brasil' },
+  { url: 'https://feeds.reuters.com/reuters/businessNews',          source: 'Reuters' },
 ];
 
 const KEYWORDS = {
@@ -675,17 +675,20 @@ function tempoRelativo(pubDate){
 function stripHtml(html){ return (html||'').replace(/<[^>]*>/g,'').trim().slice(0,160); }
 
 async function fetchFeed(feed){
-  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;
-  const r = await fetch(proxy);
-  const json = await r.json();
-  const doc = new DOMParser().parseFromString(json.contents, 'text/xml');
+  const proxy = `https://corsproxy.io/?${encodeURIComponent(feed.url)}`;
+  const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+  if(!r.ok) return [];
+  const text = await r.text();
+  const doc = new DOMParser().parseFromString(text, 'text/xml');
+  if(doc.querySelector('parsererror')) return [];
   const items = [...doc.querySelectorAll('item')];
   return items.map(item => {
     const g = s => item.querySelector(s)?.textContent?.trim() || '';
     const title = g('title'), desc = g('description'), link = g('link'), pub = g('pubDate');
+    if(!title) return null;
     const cat = categorizarNoticia(title, desc);
     return { title, summary: stripHtml(desc), link, pubDate: new Date(pub), source: feed.source, cat };
-  });
+  }).filter(Boolean);
 }
 
 async function carregarNews(){
