@@ -194,7 +194,14 @@
   .cli-docs-count { font-size:11px; color:#AEAEB2; margin-right:4px; }
   .cli-empty { font-size:13px; color:#AEAEB2; text-align:center; padding:32px 0; }
   /* Gráficos */
-  .graf-container { width:100%; height:560px; border-radius:10px; overflow:hidden; border:1px solid #E5E5EA; display:block; }
+  .graf-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .graf-mini-card { border:1px solid #E5E5EA; border-radius:10px; overflow:hidden; }
+  .graf-mini-header { padding:8px 14px; background:#F9F9FB; border-bottom:1px solid #E5E5EA; display:flex; justify-content:space-between; align-items:center; }
+  .graf-mini-title { font-size:12px; font-weight:600; color:#212121; }
+  .graf-mini-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; }
+  .graf-mini-tag.fx { background:#E0E5FF; color:#000FFA; }
+  .graf-mini-tag.juros { background:#DFFAF1; color:#007A56; }
+  .graf-mini-iframe { height:220px; width:100%; display:block; border:none; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -600,16 +607,7 @@
   </div><!-- /panel-aureon -->
 
   <div id="panel-graficos" class="app-panel">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
-        <span style="font-size:11px;background:#E0E5FF;color:#000FFA;padding:3px 9px;border-radius:4px;font-weight:600">USD/BRL</span>
-        <span style="font-size:11px;background:#E0E5FF;color:#000FFA;padding:3px 9px;border-radius:4px;font-weight:600">EUR/BRL</span>
-        <span style="font-size:11px;background:#DFFAF1;color:#007A56;padding:3px 9px;border-radius:4px;font-weight:600">Juros BR</span>
-        <span style="font-size:11px;background:#DFFAF1;color:#007A56;padding:3px 9px;border-radius:4px;font-weight:600">Juros EUA</span>
-      </div>
-      <span style="font-size:11px;color:#AEAEB2">Variação % comparada</span>
-    </div>
-    <iframe id="tvContainer" class="graf-container"></iframe>
+    <div class="graf-grid" id="grafGrid"></div>
   </div><!-- /panel-graficos -->
 
 </div>
@@ -701,6 +699,13 @@ async function carregarNews(){
 
 let grafCarregado = false;
 
+const GRAF_PAINEIS = [
+  { symbol: 'FX_IDC:USDBRL',      title: 'USD / BRL',          tag: 'FX',    tagClass: 'fx',    interval: 'D', style: '1' },
+  { symbol: 'FX_IDC:EURBRL',      title: 'EUR / BRL',          tag: 'FX',    tagClass: 'fx',    interval: 'D', style: '1' },
+  { symbol: 'ECONOMICS:BRINTR',   title: 'Taxa de Juros — BR', tag: 'Juros', tagClass: 'juros', interval: 'M', style: '2' },
+  { symbol: 'ECONOMICS:USINTR',   title: 'Taxa de Juros — EUA',tag: 'Juros', tagClass: 'juros', interval: 'M', style: '2' },
+];
+
 function switchTab(tab){
   document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active',
     (tab==='calculadora' && b.textContent==='Fx Aurex') ||
@@ -711,13 +716,22 @@ function switchTab(tab){
     (tab==='graficos'    && b.textContent==='Gráficos')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
-  if(tab === 'graficos' && !grafCarregado){ grafCarregado = true; initGrafico(); }
+  if(tab === 'graficos' && !grafCarregado){ grafCarregado = true; initGraficos(); }
 }
 
-function initGrafico(){
-  const c = document.getElementById('tvContainer'); if(!c) return;
-  const compare = ['FX_IDC:EURBRL','ECONOMICS:BRINTR','ECONOMICS:USINTR'].map(encodeURIComponent).join('%2C');
-  c.src = `https://s.tradingview.com/widgetembed/?symbol=FX_IDC%3AUSDBRL&interval=M&theme=light&locale=pt_BR&style=2&compare=${compare}&show_popup_button=1&hide_side_toolbar=0&timezone=America%2FSao_Paulo&enable_publishing=0`;
+function initGraficos(){
+  const grid = document.getElementById('grafGrid'); if(!grid) return;
+  grid.innerHTML = GRAF_PAINEIS.map(p => {
+    const sym = encodeURIComponent(p.symbol);
+    const src = `https://s.tradingview.com/widgetembed/?symbol=${sym}&interval=${p.interval}&theme=light&locale=pt_BR&style=${p.style}&hide_top_toolbar=0&hide_side_toolbar=1&timezone=America%2FSao_Paulo&enable_publishing=0&show_popup_button=1`;
+    return `<div class="graf-mini-card">
+      <div class="graf-mini-header">
+        <span class="graf-mini-title">${p.title}</span>
+        <span class="graf-mini-tag ${p.tagClass}">${p.tag}</span>
+      </div>
+      <iframe src="${src}" class="graf-mini-iframe" allowtransparency="true" allowfullscreen></iframe>
+    </div>`;
+  }).join('');
 }
 
 function filtrarNews(cat){
