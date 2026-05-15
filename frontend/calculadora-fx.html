@@ -671,19 +671,17 @@ function tempoRelativo(pubDate){
 function stripHtml(html){ return (html||'').replace(/<[^>]*>/g,'').trim().slice(0,160); }
 
 async function fetchFeed(feed){
-  const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
-  const r = await fetch(url);
+  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;
+  const r = await fetch(proxy);
   const json = await r.json();
-  if(json.status !== 'ok') return [];
-  return json.items.map(item => ({
-    title:   item.title,
-    summary: stripHtml(item.description),
-    source:  feed.source,
-    time:    tempoRelativo(item.pubDate),
-    link:    item.link,
-    cat:     categorizarNoticia(item.title, item.description),
-    pubDate: new Date(item.pubDate).getTime(),
-  }));
+  const doc = new DOMParser().parseFromString(json.contents, 'text/xml');
+  const items = [...doc.querySelectorAll('item')];
+  return items.map(item => {
+    const g = s => item.querySelector(s)?.textContent?.trim() || '';
+    const title = g('title'), desc = g('description'), link = g('link'), pub = g('pubDate');
+    const cat = categorizarNoticia(title, desc);
+    return { title, summary: stripHtml(desc), link, pubDate: new Date(pub), source: feed.source, cat };
+  });
 }
 
 async function carregarNews(){
