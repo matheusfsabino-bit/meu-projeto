@@ -673,7 +673,9 @@ const KEYWORDS = {
   ],
   geopolitica:['trump','putin','xi jinping','zelensky','geopolítica','sanção','embargo',
     'diplomacia','relações exteriores','otan','nato','onu','g7','g20','brics','cúpula',
-    'acordo internacional','política externa','eleição nos eua','eleição na europa'],
+    'acordo internacional','política externa','eleição nos eua','eleição na europa',
+    'guerra','conflito armado','conflito','ataque militar','invasão','tropas','exército',
+    'míssil','drone militar','cessar-fogo','ucrânia','rússia','israel','hamas','oriente médio','taiwan'],
   macro:      [
     'lula','governo federal','ministério','projeto de lei','reforma','pec','arcabouço fiscal',
     'orçamento','gasto público','privatização','câmara dos deputados','senado federal',
@@ -686,11 +688,12 @@ const KEYWORDS = {
 
 function categorizarNoticia(title, desc){
   const text = (title + ' ' + (desc||'')).toLowerCase();
-  const ordem = ['cripto','conflitos','cambio','mercado','geopolitica','macro'];
-  for(const cat of ordem){
-    if(KEYWORDS[cat].some(k => text.includes(k))) return cat;
+  const scores = Object.fromEntries(Object.keys(KEYWORDS).map(cat => [cat, 0]));
+  for(const [cat, kws] of Object.entries(KEYWORDS)){
+    for(const k of kws){ if(text.includes(k)) scores[cat]++; }
   }
-  return 'mercado';
+  const melhor = Object.entries(scores).sort((a,b) => b[1]-a[1])[0];
+  return melhor[1] > 0 ? melhor[0] : 'mercado';
 }
 
 function tempoRelativo(pubDate){
