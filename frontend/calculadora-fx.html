@@ -201,6 +201,11 @@
   .graf-chart-panel { display:none; }
   .graf-chart-panel.active { display:block; }
   .graf-widget-wrap { width:100%; height:520px; border-radius:10px; overflow:hidden; }
+  .graf-hint { margin-top:10px; border:1px solid #E5E5EA; border-radius:10px; overflow:hidden; }
+  .graf-hint-row { display:flex; align-items:flex-start; gap:10px; padding:8px 14px; border-bottom:1px solid #F2F2F7; font-size:12px; line-height:1.45; }
+  .graf-hint-row:last-child { border-bottom:none; }
+  .graf-hint-icon { font-size:13px; font-weight:700; min-width:14px; margin-top:1px; }
+  .graf-hint-text { color:#444; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -704,8 +709,16 @@ const GRAF_PAINEIS = [
   { symbol: 'FX_IDC:EURBRL',   title: 'EUR / BRL',  interval: '60', style: '1' },
   { symbol: 'FX_IDC:EURUSD',   title: 'EUR / USD',  interval: '60', style: '1' },
   { symbol: 'BMFBOVESPA:IBOV', title: 'IBOV',       interval: '60', style: '1' },
-  { symbol: 'BMFBOVESPA:IMAB11', title: 'Juros BR',   interval: 'D',  style: '1' },
-  { symbol: 'NASDAQ:TLT',       title: 'Juros EUA',  interval: 'D',  style: '1' },
+  { symbol: 'BMFBOVESPA:IMAB11', title: 'Juros BR',  interval: 'D', style: '1', hint: [
+    { icon: '▲', color: '#00CC8C', text: 'IMAB11 sobe → mercado precifica <b>queda de juros</b> (Copom dovish). BRL tende a enfraquecer.' },
+    { icon: '▼', color: '#FF4B5A', text: 'IMAB11 cai → mercado precifica <b>alta de juros</b> (Copom hawkish). BRL tende a fortalecer.' },
+    { icon: '—', color: '#888',    text: 'ETF de Tesouro IPCA+. Preço inversamente proporcional à taxa de juros real brasileira.' },
+  ]},
+  { symbol: 'NASDAQ:TLT',       title: 'Juros EUA', interval: 'D', style: '1', hint: [
+    { icon: '▲', color: '#00CC8C', text: 'TLT sobe → mercado precifica <b>corte do Fed</b>. USD enfraquece, pressão de alta no BRL.' },
+    { icon: '▼', color: '#FF4B5A', text: 'TLT cai → mercado precifica <b>alta do Fed</b>. USD fortalece, pressão de baixa no BRL.' },
+    { icon: '—', color: '#888',    text: 'ETF de Treasuries 20Y+. Preço inversamente proporcional ao yield de longo prazo dos EUA.' },
+  ]},
 ];
 
 function switchTab(tab){
@@ -728,11 +741,14 @@ function initGraficos(){
   subtabs.innerHTML = GRAF_PAINEIS.map((p,i) =>
     `<button class="graf-subtab${i===0?' active':''}" onclick="switchGrafTab(${i})">${p.title}</button>`
   ).join('');
-  wrap.innerHTML = GRAF_PAINEIS.map((p,i) =>
-    `<div class="graf-chart-panel${i===0?' active':''}" id="grafPanel${i}">
-      <div class="graf-widget-wrap" id="grafWidget${i}"></div>
-    </div>`
-  ).join('');
+  wrap.innerHTML = GRAF_PAINEIS.map((p,i) => {
+    const hintHtml = p.hint ? `<div class="graf-hint">${p.hint.map(h =>
+      `<div class="graf-hint-row"><span class="graf-hint-icon" style="color:${h.color}">${h.icon}</span><span class="graf-hint-text">${h.text}</span></div>`
+    ).join('')}</div>` : '';
+    return `<div class="graf-chart-panel${i===0?' active':''}" id="grafPanel${i}">
+      <div class="graf-widget-wrap" id="grafWidget${i}"></div>${hintHtml}
+    </div>`;
+  }).join('');
   const criarWidgets = () => GRAF_PAINEIS.forEach((p,i) => {
     new TradingView.widget({
       container_id: `grafWidget${i}`,
