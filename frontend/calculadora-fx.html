@@ -211,6 +211,54 @@
   .au-diff-val { font-size: 16px; font-weight: 600; color: #00CC8C; }
   .rval.au-receita { color: #00CC8C; font-weight: 500; }
   .rval.au-spread { color: #000FFA; font-weight: 500; }
+  /* Backup bar */
+  .backup-bar { display:flex; justify-content:space-between; align-items:center; padding:8px 0 4px; margin-bottom:4px; }
+  .backup-btn { font-size:12px; font-weight:500; padding:5px 12px; border:1px solid #E5E5EA; border-radius:6px; background:#fff; color:#888; cursor:pointer; font-family:inherit; transition:all .15s; }
+  .backup-btn:hover { border-color:#000FFA; color:#000FFA; }
+  /* Modal */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-box { background:#fff; border-radius:14px; padding:24px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.25); }
+  .modal-title { font-size:16px; font-weight:700; color:#212121; margin-bottom:6px; }
+  .modal-desc { font-size:12px; color:#888; line-height:1.5; margin-bottom:16px; }
+  .modal-label { display:block; font-size:10px; font-weight:600; color:#AEAEB2; text-transform:uppercase; letter-spacing:.05em; margin:12px 0 4px; }
+  .modal-input { width:100%; padding:10px 12px; border:1px solid #E5E5EA; border-radius:8px; font-size:14px; color:#212121; font-family:inherit; outline:none; box-sizing:border-box; }
+  .modal-input:focus { border-color:#000FFA; }
+  .modal-msg { font-size:12px; margin-top:8px; min-height:18px; }
+  .modal-msg.err { color:#FF4B5A; } .modal-msg.ok { color:#007A56; }
+  .modal-actions { display:flex; gap:8px; margin-top:16px; }
+  .modal-btn-p { flex:1; padding:11px; background:#000FFA; border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; }
+  .modal-btn-p:hover { background:#3340FF; }
+  .modal-btn-s { flex:1; padding:11px; background:#F2F2F7; border:none; border-radius:8px; color:#888; font-size:13px; font-weight:500; cursor:pointer; font-family:inherit; }
+  /* Relatórios */
+  .rel-filter-bar { display:flex; gap:10px; align-items:center; margin-bottom:20px; flex-wrap:wrap; }
+  .rel-select { font-size:14px; font-weight:500; padding:9px 12px; border:1px solid #E5E5EA; border-radius:8px; background:#fff; color:#212121; font-family:inherit; cursor:pointer; }
+  .rel-gen-btn { padding:9px 16px; background:#000FFA; border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; }
+  .rel-gen-btn:hover { background:#3340FF; }
+  .rel-print-btn { padding:9px 14px; background:#fff; border:1px solid #E5E5EA; border-radius:8px; color:#888; font-size:13px; cursor:pointer; font-family:inherit; }
+  .rel-summary-card { background:#fff; border:1px solid #E5E5EA; border-radius:10px; padding:16px; margin-bottom:16px; }
+  .rel-summary-title { font-size:13px; font-weight:600; color:#212121; margin-bottom:12px; }
+  .rel-kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; }
+  .rel-kpi { background:#F9F9FB; border-radius:8px; padding:12px; text-align:center; }
+  .rel-kpi-label { font-size:10px; color:#AEAEB2; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+  .rel-kpi-val { font-size:17px; font-weight:700; }
+  .rel-kpi-val.kv-blue { color:#000FFA; } .rel-kpi-val.kv-green { color:#007A56; }
+  .rel-kpi-val.kv-orange { color:#9A6200; } .rel-kpi-val.kv-red { color:#FF4B5A; }
+  .rel-cli-card { background:#fff; border:1px solid #E5E5EA; border-radius:10px; overflow:hidden; margin-bottom:10px; }
+  .rel-cli-header { padding:12px 16px; background:#F9F9FB; border-bottom:1px solid #E5E5EA; display:flex; justify-content:space-between; align-items:flex-start; }
+  .rel-cli-name { font-size:14px; font-weight:600; color:#212121; }
+  .rel-cli-sub { font-size:11px; color:#AEAEB2; margin-top:2px; }
+  .rel-cli-liq { font-size:15px; font-weight:700; color:#007A56; }
+  .rel-row { display:flex; justify-content:space-between; padding:8px 16px; border-bottom:1px solid #F0F0F5; font-size:12px; }
+  .rel-row:last-child { border-bottom:none; }
+  .rel-row .rk { color:#888; } .rel-row .rv { font-weight:500; }
+  .rel-row.rel-hl { background:#E0E5FF; }
+  .rel-row.rel-hl .rk { color:#000FFA; font-weight:500; } .rel-row.rel-hl .rv { color:#0011CC; font-weight:600; }
+  .rel-empty { text-align:center; padding:40px 0; font-size:13px; color:#AEAEB2; }
+  @media print {
+    .app-header,.app-tabs,.rel-filter-bar,.backup-bar { display:none !important; }
+    .app-panel { display:none !important; }
+    #panel-relatorios { display:block !important; }
+  }
 </style>
 </head>
 <body>
@@ -226,10 +274,19 @@
     <h1>Hub Aurex</h1>
   </div>
 
+  <div class="backup-bar">
+    <span style="font-size:11px;color:#AEAEB2">🔒 Dados locais — apenas neste dispositivo</span>
+    <div style="display:flex;gap:6px">
+      <button class="backup-btn" onclick="abrirBackup('export')">↓ Backup</button>
+      <button class="backup-btn" onclick="abrirBackup('import')">↑ Restaurar</button>
+    </div>
+  </div>
+
   <nav class="app-tabs">
     <button class="app-tab active" onclick="switchTab('calculadora')">Fx Aurex</button>
     <button class="app-tab" onclick="switchTab('aureon')">Fx Delta</button>
     <button class="app-tab" onclick="switchTab('clientes')">Clientes</button>
+    <button class="app-tab" onclick="switchTab('relatorios')">Relatórios</button>
     <button class="app-tab" onclick="switchTab('news')">News Aurex</button>
   </nav>
 
@@ -391,6 +448,16 @@
   </div><!-- /subpanel-historico -->
 
   </div><!-- /panel-calculadora -->
+
+  <div id="panel-relatorios" class="app-panel">
+    <div class="rel-filter-bar">
+      <select class="rel-select" id="relMes"></select>
+      <select class="rel-select" id="relAno"></select>
+      <button class="rel-gen-btn" onclick="gerarRelatorio()">Gerar relatório</button>
+      <button class="rel-print-btn" onclick="window.print()">🖨 Imprimir</button>
+    </div>
+    <div id="relResultados"><div class="rel-empty">Selecione o período e clique em Gerar.</div></div>
+  </div><!-- /panel-relatorios -->
 
   <div id="panel-clientes" class="app-panel">
     <div class="cli-form-card">
@@ -579,7 +646,7 @@ async function carregarNews(){
 }
 
 function switchTab(tab){
-  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', (tab==='calculadora' && b.textContent==='Fx Aurex') || (tab==='news' && b.textContent==='News Aurex') || (tab==='aureon' && b.textContent==='Fx Delta') || (tab==='clientes' && b.textContent==='Clientes')));
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', (tab==='calculadora' && b.textContent==='Fx Aurex') || (tab==='news' && b.textContent==='News Aurex') || (tab==='aureon' && b.textContent==='Fx Delta') || (tab==='clientes' && b.textContent==='Clientes') || (tab==='relatorios' && b.textContent==='Relatórios')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
 }
@@ -804,12 +871,18 @@ function calcular(){
   document.getElementById('copyBtn').className = 'copy-btn';
   document.getElementById('copyBtn').textContent = 'Copiar resumo';
 
+  const clienteVinculado = clientes.find(c => c.nome === clienteSel);
+  const clienteId = clienteVinculado ? clienteVinculado.id : null;
+  const receitaSpread = Math.abs(taxaCliente - spot) * amount;
   historico.unshift({
     id: Date.now(),
-    tipoLabel, tipoAtual, clienteSel, dataOp, refOp,
+    tipoLabel, tipoAtual, clienteSel, clienteId, dataOp, refOp,
     modo, entrada, saida,
+    spot, spreadPct: spread,
     taxaCliente, amount, brlConversion,
     iofAtual, irAtual, iofVal, irVal, totalBRL,
+    receitaSpread,
+    criadoEm: new Date().toISOString(),
     status: 'pendente'
   });
   salvarHistoricoLS();
@@ -927,6 +1000,164 @@ function renderHistoricoCompleto(){
         : `<button class="hist-cancelar-btn" onclick="cancelarEfetivacao(${op.id})">Cancelar efetivação</button>`}
     </div>`;
   }).join('');
+}
+
+// ── Backup (AES-256-GCM + PBKDF2) ────────────────
+const BP_MAGIC = new Uint8Array([0x41,0x55,0x52,0x45,0x58,0x30,0x31]); // AUREX01
+
+function abrirBackup(modo){
+  document.getElementById('backupModal').style.display='flex';
+  document.getElementById('bpExport').style.display=modo==='export'?'block':'none';
+  document.getElementById('bpImport').style.display=modo==='import'?'block':'none';
+  ['bpSenha','bpConfirm','bpImportSenha'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['bpMsg','bpImportMsg'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='';el.className='modal-msg';}});
+}
+function fecharBackup(){ document.getElementById('backupModal').style.display='none'; }
+
+async function bp_chave(senha, sal){
+  const mat = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), {name:'PBKDF2'}, false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:sal,iterations:200000,hash:'SHA-256'}, mat, {name:'AES-GCM',length:256}, false, ['encrypt','decrypt']);
+}
+
+async function exportarBackup(){
+  const msg = document.getElementById('bpMsg');
+  const senha = document.getElementById('bpSenha').value;
+  const conf  = document.getElementById('bpConfirm').value;
+  if(!senha){ msg.className='modal-msg err'; msg.textContent='Digite uma senha.'; return; }
+  if(senha.length<8){ msg.className='modal-msg err'; msg.textContent='Mínimo 8 caracteres.'; return; }
+  if(senha!==conf){ msg.className='modal-msg err'; msg.textContent='As senhas não coincidem.'; return; }
+  msg.className='modal-msg'; msg.textContent='Coletando arquivos...';
+  // read all files from IDB
+  const arquivos = [];
+  try {
+    const db = await getIDB();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction('files','readonly'), req=tx.objectStore('files').getAll();
+      req.onsuccess=()=>{
+        for(const f of req.result){
+          const arr=new Uint8Array(f.conteudo); let bin='';
+          for(let i=0;i<arr.length;i++) bin+=String.fromCharCode(arr[i]);
+          arquivos.push({...f,conteudo:btoa(bin)});
+        }
+        res();
+      };
+      req.onerror=()=>rej(req.error);
+    });
+  } catch(e){ console.warn(e); }
+  msg.textContent='Criptografando...';
+  try {
+    const sal=crypto.getRandomValues(new Uint8Array(16));
+    const iv =crypto.getRandomValues(new Uint8Array(12));
+    const chave=await bp_chave(senha,sal);
+    const payload=JSON.stringify({historico,clientes,arquivos,v:'1',ts:new Date().toISOString()});
+    const cifrado=await crypto.subtle.encrypt({name:'AES-GCM',iv},chave,new TextEncoder().encode(payload));
+    const out=new Uint8Array(BP_MAGIC.length+16+12+cifrado.byteLength);
+    let off=0; out.set(BP_MAGIC,off);off+=BP_MAGIC.length; out.set(sal,off);off+=16; out.set(iv,off);off+=12; out.set(new Uint8Array(cifrado),off);
+    const url=URL.createObjectURL(new Blob([out],{type:'application/octet-stream'}));
+    const a=document.createElement('a');
+    a.href=url; a.download=`aurex-backup-${new Date().toISOString().split('T')[0]}.aurex`; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    msg.className='modal-msg ok'; msg.textContent='Backup exportado com sucesso!';
+    setTimeout(fecharBackup,1500);
+  } catch(e){ msg.className='modal-msg err'; msg.textContent='Erro ao criptografar.'; }
+}
+
+async function importarBackup(){
+  const msg=document.getElementById('bpImportMsg');
+  const file=document.getElementById('bpFile').files[0];
+  const senha=document.getElementById('bpImportSenha').value;
+  if(!file){ msg.className='modal-msg err'; msg.textContent='Selecione um arquivo .aurex.'; return; }
+  if(!senha){ msg.className='modal-msg err'; msg.textContent='Digite a senha do backup.'; return; }
+  msg.className='modal-msg'; msg.textContent='Descriptografando...';
+  try {
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    if(!BP_MAGIC.every((b,i)=>bytes[i]===b)){ msg.className='modal-msg err'; msg.textContent='Arquivo inválido.'; return; }
+    let off=BP_MAGIC.length;
+    const sal=bytes.slice(off,off+16);off+=16;
+    const iv=bytes.slice(off,off+12);off+=12;
+    const cifrado=bytes.slice(off);
+    const chave=await bp_chave(senha,sal);
+    const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},chave,cifrado);
+    const data=JSON.parse(new TextDecoder().decode(dec));
+    historico=data.historico||[]; clientes=data.clientes||[];
+    salvarHistoricoLS(); salvarClientesLS();
+    if(data.arquivos?.length){
+      msg.textContent='Restaurando arquivos...';
+      for(const f of data.arquivos){
+        const bin=atob(f.conteudo); const arr=new Uint8Array(bin.length);
+        for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+        await idbSalvar({...f,conteudo:arr.buffer});
+      }
+    }
+    renderHistoricoCompleto(); renderClientes(); atualizarSeletorClientes();
+    msg.className='modal-msg ok'; msg.textContent='Dados restaurados com sucesso!';
+    setTimeout(fecharBackup,1500);
+  } catch(e){ msg.className='modal-msg err'; msg.textContent='Senha incorreta ou arquivo corrompido.'; }
+}
+
+// ── Relatórios ────────────────────────────────────
+function initRelFiltros(){
+  const mes=document.getElementById('relMes'); if(!mes) return;
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  mes.innerHTML=meses.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  const ano=document.getElementById('relAno'), y=new Date().getFullYear();
+  for(let a=y;a>=y-4;a--){ const o=document.createElement('option');o.value=a;o.textContent=a;ano.appendChild(o); }
+  mes.value=new Date().getMonth(); ano.value=y;
+}
+
+function gerarRelatorio(){
+  const mes=parseInt(document.getElementById('relMes').value);
+  const ano=parseInt(document.getElementById('relAno').value);
+  const el=document.getElementById('relResultados');
+  const mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const ops=historico.filter(op=>{
+    if(op.status!=='efetivada') return false;
+    const d=op.dataOp?new Date(op.dataOp+'T12:00:00'):new Date(op.id);
+    return d.getMonth()===mes && d.getFullYear()===ano;
+  });
+  if(!ops.length){ el.innerHTML='<div class="rel-empty">Nenhuma operação efetivada neste período.</div>'; return; }
+  // agrupar por cliente
+  const grupos={};
+  for(const op of ops){
+    const key=op.clienteId||op.clienteSel||'__sem__';
+    const cfg=op.clienteId?clientes.find(c=>c.id===op.clienteId):clientes.find(c=>c.nome===op.clienteSel);
+    if(!grupos[key]) grupos[key]={nome:op.clienteSel||'Sem cliente',ops:[],cfg};
+    grupos[key].ops.push(op);
+  }
+  let totReceita=0,totFee=0,totRebate=0,totLiq=0;
+  const blocos=Object.values(grupos).map(g=>{
+    const receita=g.ops.reduce((s,o)=>s+(o.receitaSpread||0),0);
+    const feePct=g.cfg?.feeBanco||0, rebPct=g.cfg?.rebate||0;
+    const feeVal=receita*feePct/100;
+    const minhaRec=receita-feeVal;
+    const rebVal=minhaRec*rebPct/100;
+    const liq=minhaRec-rebVal;
+    totReceita+=receita;totFee+=feeVal;totRebate+=rebVal;totLiq+=liq;
+    const banco=g.cfg?.banco||'', ind=g.cfg?.indicador||'';
+    return `<div class="rel-cli-card">
+      <div class="rel-cli-header">
+        <div>
+          <div class="rel-cli-name">${g.nome}</div>
+          <div class="rel-cli-sub">${g.ops.length} op${g.ops.length!==1?'s':''}${banco?' · '+banco:''}${ind?' · via '+ind:''}</div>
+        </div>
+        <div class="rel-cli-liq">R$ ${fmt(liq)}</div>
+      </div>
+      <div class="rel-row"><span class="rk">Receita spread</span><span class="rv">R$ ${fmt(receita)}</span></div>
+      ${feePct?`<div class="rel-row"><span class="rk">Fee ${banco||'banco'} (${feePct}% do total)</span><span class="rv" style="color:#FF4B5A">− R$ ${fmt(feeVal)}</span></div><div class="rel-row"><span class="rk">Receita líquida</span><span class="rv">R$ ${fmt(minhaRec)}</span></div>`:''}
+      ${rebPct?`<div class="rel-row"><span class="rk">Rebate ${ind||'indicador'} (${rebPct}% da líquida)</span><span class="rv" style="color:#FF4B5A">− R$ ${fmt(rebVal)}</span></div>`:''}
+      <div class="rel-row rel-hl"><span class="rk">Resultado final</span><span class="rv">R$ ${fmt(liq)}</span></div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`
+    <div class="rel-summary-card">
+      <div class="rel-summary-title">${mesesNome[mes]} ${ano} — ${ops.length} operação${ops.length!==1?'s':''} efetivada${ops.length!==1?'s':''}</div>
+      <div class="rel-kpi-row">
+        <div class="rel-kpi"><div class="rel-kpi-label">Receita total</div><div class="rel-kpi-val kv-blue">R$ ${fmt(totReceita)}</div></div>
+        <div class="rel-kpi"><div class="rel-kpi-label">Fee bancos</div><div class="rel-kpi-val kv-orange">R$ ${fmt(totFee)}</div></div>
+        <div class="rel-kpi"><div class="rel-kpi-label">Rebates</div><div class="rel-kpi-val kv-orange">R$ ${fmt(totRebate)}</div></div>
+        <div class="rel-kpi"><div class="rel-kpi-label">Resultado líquido</div><div class="rel-kpi-val kv-green">R$ ${fmt(totLiq)}</div></div>
+      </div>
+    </div>${blocos}`;
 }
 
 // ── Clientes ──────────────────────────────────────
@@ -1162,6 +1393,37 @@ onTipoChange();
 renderHistoricoCompleto();
 renderClientes();
 atualizarSeletorClientes();
+initRelFiltros();
 </script>
+<div id="backupModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharBackup()">
+  <div class="modal-box">
+    <div id="bpExport">
+      <div class="modal-title">Exportar backup seguro</div>
+      <div class="modal-desc">Criptografia AES-256-GCM com chave derivada via PBKDF2 (200.000 iterações). Sem a senha, nenhum terceiro consegue acessar os dados.</div>
+      <label class="modal-label">Senha</label>
+      <input type="password" class="modal-input" id="bpSenha" placeholder="Mínimo 8 caracteres...">
+      <label class="modal-label">Confirmar senha</label>
+      <input type="password" class="modal-input" id="bpConfirm" placeholder="Repita a senha...">
+      <div class="modal-msg" id="bpMsg"></div>
+      <div class="modal-actions">
+        <button class="modal-btn-s" onclick="fecharBackup()">Cancelar</button>
+        <button class="modal-btn-p" onclick="exportarBackup()">↓ Exportar</button>
+      </div>
+    </div>
+    <div id="bpImport" style="display:none">
+      <div class="modal-title">Restaurar backup</div>
+      <div class="modal-desc">Selecione o arquivo <strong>.aurex</strong> e digite a senha usada na exportação.</div>
+      <label class="modal-label">Arquivo .aurex</label>
+      <input type="file" class="modal-input" id="bpFile" accept=".aurex" style="padding:8px;font-size:13px">
+      <label class="modal-label">Senha do backup</label>
+      <input type="password" class="modal-input" id="bpImportSenha" placeholder="Senha do backup...">
+      <div class="modal-msg" id="bpImportMsg"></div>
+      <div class="modal-actions">
+        <button class="modal-btn-s" onclick="fecharBackup()">Cancelar</button>
+        <button class="modal-btn-p" onclick="importarBackup()">↑ Restaurar</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
