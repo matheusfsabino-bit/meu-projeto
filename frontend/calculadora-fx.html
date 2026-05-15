@@ -607,11 +607,11 @@
   <div id="panel-graficos" class="app-panel">
     <div class="graf-toolbar">
       <div class="graf-par-group">
-        <button class="graf-par-btn active" onclick="mudarPar('FX:USDBRL',this)">USD/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX:EURBRL',this)">EUR/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX:GBPBRL',this)">GBP/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX:EURUSD',this)">EUR/USD</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX:GBPUSD',this)">GBP/USD</button>
+        <button class="graf-par-btn active" onclick="mudarPar('OANDA:USDBRL',this)">USD/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('OANDA:EURBRL',this)">EUR/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('OANDA:GBPBRL',this)">GBP/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('OANDA:EURUSD',this)">EUR/USD</button>
+        <button class="graf-par-btn" onclick="mudarPar('OANDA:GBPUSD',this)">GBP/USD</button>
       </div>
     </div>
     <div id="tvContainer" class="graf-container"></div>
@@ -704,7 +704,7 @@ async function carregarNews(){
   }
 }
 
-let grafParAtual = 'FX:USDBRL', grafCarregado = false;
+let grafParAtual = 'OANDA:USDBRL', grafCarregado = false;
 
 function switchTab(tab){
   document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active',
