@@ -80,10 +80,9 @@
   .volume-box { border: 1px solid #E5E5EA; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
   .volume-header { padding: 8px 12px; background: #F9F9FB; border-bottom: 1px solid #E5E5EA; font-size: 12px; color: #888; font-weight: 500; }
   .volume-body { padding: 12px; }
-  .moeda-toggle-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-  .moeda-toggle-row label { font-size: 11px; color: #AEAEB2; white-space: nowrap; }
-  .moeda-select { font-size: 13px; font-weight: 500; padding: 6px 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: #fff; color: #212121; cursor: pointer; flex: 1; font-family: inherit; }
-  .arrow-icon { font-size: 16px; color: #AEAEB2; }
+  .par-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .par-label { font-size: 11px; color: #AEAEB2; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.06em; }
+  .par-select { font-size: 15px; font-weight: 600; padding: 8px 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: #fff; color: #212121; cursor: pointer; flex: 1; font-family: inherit; letter-spacing: 0.03em; }
   .volume-input-wrap { position: relative; margin-bottom: 8px; }
   .volume-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 500; color: #AEAEB2; pointer-events: none; z-index: 1; }
   .volume-input-wrap input { padding-left: 52px !important; width: 100%; font-size: 15px; font-weight: 500; padding-top: 10px; padding-bottom: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: #fff; color: #212121; outline: none; font-family: inherit; }
@@ -209,25 +208,27 @@
   <div class="volume-box">
     <div class="volume-header">Volume da operação</div>
     <div class="volume-body">
-      <div class="moeda-toggle-row">
-        <label>De</label>
-        <select class="moeda-select" id="moedaEntrada" onchange="atualizarConversao()">
-          <option value="BRL">BRL — Real</option>
-          <option value="USD">USD — Dólar</option>
-          <option value="EUR">EUR — Euro</option>
-          <option value="GBP">GBP — Libra</option>
-          <option value="JPY">JPY — Iene</option>
-          <option value="CHF">CHF — Franco Suíço</option>
-        </select>
-        <span class="arrow-icon">→</span>
-        <label>Para</label>
-        <select class="moeda-select" id="moedaSaida" onchange="atualizarConversao()">
-          <option value="USD">USD — Dólar</option>
-          <option value="EUR">EUR — Euro</option>
-          <option value="GBP">GBP — Libra</option>
-          <option value="JPY">JPY — Iene</option>
-          <option value="CHF">CHF — Franco Suíço</option>
-          <option value="BRL">BRL — Real</option>
+      <div class="par-row">
+        <span class="par-label">Par</span>
+        <select class="par-select" id="parMoeda" onchange="onParChange()">
+          <optgroup label="Real Brasileiro">
+            <option value="BRL/USD">BRL / USD</option>
+            <option value="USD/BRL">USD / BRL</option>
+            <option value="BRL/EUR">BRL / EUR</option>
+            <option value="EUR/BRL">EUR / BRL</option>
+            <option value="BRL/GBP">BRL / GBP</option>
+            <option value="GBP/BRL">GBP / BRL</option>
+            <option value="BRL/JPY">BRL / JPY</option>
+            <option value="JPY/BRL">JPY / BRL</option>
+            <option value="BRL/CHF">BRL / CHF</option>
+            <option value="CHF/BRL">CHF / BRL</option>
+          </optgroup>
+          <optgroup label="Cross">
+            <option value="EUR/USD">EUR / USD</option>
+            <option value="USD/EUR">USD / EUR</option>
+            <option value="GBP/USD">GBP / USD</option>
+            <option value="USD/GBP">USD / GBP</option>
+          </optgroup>
         </select>
       </div>
       <div class="volume-input-wrap">
@@ -302,6 +303,18 @@
 <script>
 let modo = 'compra', iofAtual = 0, irAtual = 0, tipoAtual = '', iofDentro = false;
 let newsCatAtiva = 'todos', newsData = [];
+
+function getParMoedas(){
+  const par = document.getElementById('parMoeda').value;
+  const [entrada, saida] = par.split('/');
+  return { entrada, saida };
+}
+
+function onParChange(){
+  const { entrada } = getParMoedas();
+  document.getElementById('volumePrefix').textContent = entrada === 'BRL' ? 'R$' : entrada;
+  atualizarConversao();
+}
 
 const RSS_FEEDS = [
   { url: 'https://www.infomoney.com.br/feed/',                    source: 'InfoMoney' },
@@ -437,8 +450,8 @@ function onTipoChange(){
     document.getElementById('irLabel').textContent = irAtual>0 ? irAtual.toFixed(5)+'%' : '0%';
   } else { box.style.display = 'none'; }
   if(sel.value === 'efx_aqbens'){
-    document.getElementById('moedaEntrada').value = 'BRL';
-    document.getElementById('moedaSaida').value = 'EUR';
+    document.getElementById('parMoeda').value = 'BRL/EUR';
+    onParChange();
   }
   atualizarConversao();
 }
@@ -470,8 +483,7 @@ function atualizarPreview(){
 function atualizarConversao(){
   const taxa = getTaxa();
   const val = parseFloat(document.getElementById('valorInput').value) || 0;
-  const entrada = document.getElementById('moedaEntrada').value;
-  const saida = document.getElementById('moedaSaida').value;
+  const { entrada, saida } = getParMoedas();
   document.getElementById('volumePrefix').textContent = entrada==='BRL' ? 'R$' : entrada;
   const res = document.getElementById('volumeResultado');
   if(!taxa || !val){ res.style.display='none'; return; }
@@ -524,8 +536,7 @@ function salvarCliente(){
 function calcular(){
   const spot = parseFloat(document.getElementById('spot').value);
   const spread = parseFloat(document.getElementById('spread').value);
-  const entrada = document.getElementById('moedaEntrada').value;
-  const saida = document.getElementById('moedaSaida').value;
+  const { entrada, saida } = getParMoedas();
   const tipoSel = document.getElementById('tipoOp');
   const tipoLabel = tipoSel.options[tipoSel.selectedIndex].text;
   const clienteSel = document.getElementById('clienteSelect').value;
