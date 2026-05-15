@@ -457,8 +457,8 @@ function onTipoChange(){
 }
 
 function calcTaxa(spot, spread){
-  if(modo==='compra') return parseFloat((spot*(1+spread/100)).toFixed(4));
-  return parseFloat((spot/(1+spread/100)).toFixed(4));
+  if(modo==='compra') return parseFloat((spot*(1+spread/100)).toFixed(6));
+  return parseFloat((spot/(1+spread/100)).toFixed(6));
 }
 
 function getTaxa(){
@@ -476,7 +476,7 @@ function atualizarPreview(){
   const spread = parseFloat(document.getElementById('spread').value) || 0;
   if(!spot){ document.getElementById('taxaPreview').textContent='—'; document.getElementById('volumeResultado').style.display='none'; return; }
   const taxa = calcTaxa(spot, spread);
-  document.getElementById('taxaPreview').textContent = taxa.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+  document.getElementById('taxaPreview').textContent = taxa.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6});
   atualizarConversao();
 }
 
@@ -571,11 +571,11 @@ function calcular(){
   lastResult = {tipoLabel,tipoAtual,clienteSel,dataOp,refOp,modo,entrada,saida,taxaCliente,amount,brlConversion,iofAtual,irAtual,iofVal,irVal,totalBRL};
 
   document.getElementById('resTipo').textContent = tipoLabel || 'Operação FX';
-  document.getElementById('resSub').textContent = `${saida} · FX Rate: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4})}`;
+  document.getElementById('resSub').textContent = `${saida} · FX Rate: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}`;
   document.getElementById('resModo').innerHTML = `<span class="badge ${modo==='compra'?'badge-compra':'badge-venda'}">${modo==='compra'?'Compra':'Venda'}</span>`;
   document.getElementById('resCurrency').textContent = saida;
   document.getElementById('resAmount').textContent = `${saida} ${fmt(amount)}`;
-  document.getElementById('resTaxa').textContent = taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+  document.getElementById('resTaxa').textContent = taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6});
   document.getElementById('resBRLConversion').textContent = 'R$ '+fmt(brlConversion);
 
   const clienteEl = document.getElementById('resCliente');
@@ -614,7 +614,7 @@ function renderHistorico(){
       </div>
       <div class="hist-right">
         <div class="hist-total">R$ ${fmt(op.totalBRL)}</div>
-        <div class="hist-taxa">FX ${op.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4})}</div>
+        <div class="hist-taxa">FX ${op.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</div>
       </div>
     </div>`).join('');
 }
@@ -627,7 +627,7 @@ function copiarResumo(){
   if(r.refOp) txt += `Ref: ${r.refOp}\n`;
   txt += `Natureza: ${r.tipoLabel}\nOperação: ${r.modo==='compra'?'Compra':'Venda'}\n`;
   txt += `Currency: ${r.saida}\nAmount: ${r.saida} ${fmt(r.amount)}\n`;
-  txt += `FX Rate: ${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4})}\n`;
+  txt += `FX Rate: ${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}\n`;
   txt += `BRL Conversion: R$ ${fmt(r.brlConversion)}\n`;
   if(r.irAtual>0) txt += `IR (${r.irAtual.toFixed(5)}%): R$ ${fmt(r.irVal)}\n`;
   if(r.iofAtual>0) txt += `IOF (${r.iofAtual.toFixed(2)}%): R$ ${fmt(r.iofVal)}\n`;
