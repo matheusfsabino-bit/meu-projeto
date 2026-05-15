@@ -915,6 +915,7 @@ const GRAF_PAINEIS = [
 
 let newsRefreshTimer = null;
 function switchTab(tab){
+  fecharModalComunicado();
   if(tab === 'news' && !newsRefreshTimer){
     newsRefreshTimer = setInterval(carregarNews, 15 * 60 * 1000);
   }
