@@ -697,7 +697,6 @@ async function carregarNews(){
   }
 }
 
-let grafCarregado = false;
 let grafAtivo = 0;
 
 const GRAF_PAINEIS = [
@@ -705,8 +704,8 @@ const GRAF_PAINEIS = [
   { symbol: 'FX_IDC:EURBRL',   title: 'EUR / BRL',  interval: '60', style: '1' },
   { symbol: 'FX_IDC:EURUSD',   title: 'EUR / USD',  interval: '60', style: '1' },
   { symbol: 'BMFBOVESPA:IBOV', title: 'IBOV',       interval: '60', style: '1' },
-  { symbol: 'TVC:BR10Y',       title: 'Juros BR',   interval: 'D',  style: '3' },
-  { symbol: 'TVC:US10Y',       title: 'Juros EUA',  interval: 'D',  style: '3' },
+  { symbol: 'ECONOMICS:BRINTR', title: 'Juros BR',   interval: 'M',  style: '3' },
+  { symbol: 'ECONOMICS:USINTR', title: 'Juros EUA',  interval: 'M',  style: '3' },
 ];
 
 function switchTab(tab){
@@ -719,7 +718,7 @@ function switchTab(tab){
     (tab==='graficos'    && b.textContent==='Gráficos')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
-  if(tab === 'graficos' && !grafCarregado){ grafCarregado = true; initGraficos(); }
+  if(tab === 'graficos') initGraficos();
 }
 
 function initGraficos(){
