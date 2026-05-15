@@ -803,7 +803,7 @@ function renderNews(){
     <a class="news-card" href="${n.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;cursor:pointer;">
       <div class="news-card-top">
         <span class="news-tag ${n.cat}">${catLabel[n.cat]}</span>
-        <span class="news-time">${n.time}</span>
+        <span class="news-time">${tempoRelativo(n.pubDate)}</span>
       </div>
       <div class="news-title">${n.title}</div>
       ${n.summary ? `<div class="news-summary">${n.summary}</div>` : ''}
