@@ -164,7 +164,9 @@
   .hist-delete-btn:hover { color: #FF4B5A; }
   .hist-full-card { position: relative; }
   .hist-full-empty { font-size: 13px; color: #AEAEB2; text-align: center; padding: 32px 0; }
-  .hist-summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .hist-summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .hist-filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .hist-filter-select { font-size:13px; font-weight:500; padding:8px 10px; border:1px solid #E5E5EA; border-radius:8px; background:#fff; color:#212121; font-family:inherit; cursor:pointer; flex:1; min-width:130px; }
   /* Clientes */
   .cli-form-card { background:#fff; border:1px solid #E5E5EA; border-radius:10px; padding:16px; margin-bottom:20px; }
   .cli-form-title { font-size:13px; font-weight:600; color:#212121; margin-bottom:14px; }
@@ -255,9 +257,15 @@
   .rel-row.rel-hl .rk { color:#000FFA; font-weight:500; } .rel-row.rel-hl .rv { color:#0011CC; font-weight:600; }
   .rel-empty { text-align:center; padding:40px 0; font-size:13px; color:#AEAEB2; }
   @media print {
-    .app-header,.app-tabs,.rel-filter-bar,.backup-bar { display:none !important; }
+    body { background: white !important; padding: 8px !important; }
+    .app-header, .app-tabs, .rel-filter-bar, .backup-bar { display:none !important; }
     .app-panel { display:none !important; }
     #panel-relatorios { display:block !important; }
+    .container { max-width: 100% !important; }
+    .rel-summary-card, .rel-cli-card { break-inside: avoid; page-break-inside: avoid; }
+    .rel-kpi-val { font-size: 14px !important; }
+    .rel-cli-liq { font-size: 13px !important; }
+    @page { margin: 1.5cm; }
   }
 </style>
 </head>
@@ -300,9 +308,6 @@
   <p class="section-title">Cliente</p>
   <div class="client-bar">
     <select id="clienteSelect"><option value="">— Selecionar cliente —</option></select>
-    <input type="text" id="clienteInput" placeholder="Nome do cliente...">
-    <button class="add-btn" id="addBtn" onclick="toggleAddCliente()">+ Novo</button>
-    <button class="save-btn" id="saveBtn" onclick="salvarCliente()">Salvar</button>
   </div>
 
   <div class="grid2">
@@ -440,6 +445,16 @@
   </div><!-- /subpanel-cotacao -->
 
   <div id="subpanel-historico" style="display:none">
+    <div class="hist-filter-bar">
+      <select class="hist-filter-select" id="filtroCliente" onchange="renderHistoricoCompleto()">
+        <option value="">Todos os clientes</option>
+      </select>
+      <select class="hist-filter-select" id="filtroStatus" onchange="renderHistoricoCompleto()">
+        <option value="todos">Todos os status</option>
+        <option value="pendente">Pendente</option>
+        <option value="efetivada">Efetivada</option>
+      </select>
+    </div>
     <div class="hist-summary-bar">
       <p class="section-title" style="margin:0">Operações registradas</p>
       <span id="histResumo" style="font-size:12px;color:#AEAEB2"></span>
@@ -454,7 +469,7 @@
       <select class="rel-select" id="relMes"></select>
       <select class="rel-select" id="relAno"></select>
       <button class="rel-gen-btn" onclick="gerarRelatorio()">Gerar relatório</button>
-      <button class="rel-print-btn" onclick="window.print()">🖨 Imprimir</button>
+      <button class="rel-print-btn" onclick="exportarPDF()">↓ Exportar PDF</button>
     </div>
     <div id="relResultados"><div class="rel-empty">Selecione o período e clique em Gerar.</div></div>
   </div><!-- /panel-relatorios -->
@@ -970,10 +985,27 @@ function renderHistoricoCompleto(){
   const pendentes = historico.filter(h => h.status === 'pendente').length;
   const badge = document.getElementById('histPendenteBadge');
   if(badge){ badge.textContent = pendentes; badge.style.display = pendentes > 0 ? 'inline' : 'none'; }
+  // popular filtro de clientes
+  const filtroCliEl = document.getElementById('filtroCliente');
+  if(filtroCliEl){
+    const cur = filtroCliEl.value;
+    while(filtroCliEl.options.length > 1) filtroCliEl.remove(1);
+    const nomes = [...new Set(historico.map(h => h.clienteSel).filter(Boolean))];
+    nomes.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; filtroCliEl.appendChild(o); });
+    if(nomes.includes(cur)) filtroCliEl.value = cur;
+  }
+  // aplicar filtros
+  const filtroStatus = document.getElementById('filtroStatus')?.value || 'todos';
+  const filtroCliente = filtroCliEl?.value || '';
+  const lista = historico.filter(h => {
+    if(filtroStatus !== 'todos' && h.status !== filtroStatus) return false;
+    if(filtroCliente && h.clienteSel !== filtroCliente) return false;
+    return true;
+  });
   const resumo = document.getElementById('histResumo');
-  if(resumo) resumo.textContent = `${historico.length} operaç${historico.length !== 1 ? 'ões' : 'ão'} · ${pendentes} pendente${pendentes !== 1 ? 's' : ''}`;
-  if(!historico.length){ el.innerHTML = '<div class="hist-full-empty">Nenhuma operação registrada ainda.</div>'; return; }
-  el.innerHTML = historico.map(op => {
+  if(resumo) resumo.textContent = `${lista.length} de ${historico.length} operaç${historico.length !== 1 ? 'ões' : 'ão'} · ${pendentes} pendente${pendentes !== 1 ? 's' : ''}`;
+  if(!lista.length){ el.innerHTML = '<div class="hist-full-empty">Nenhuma operação encontrada com esses filtros.</div>'; return; }
+  el.innerHTML = lista.map(op => {
     const isPendente = op.status === 'pendente';
     const hlClass = op.modo === 'compra' ? 'hhl-compra' : 'hhl-venda';
     const subInfo = [op.clienteSel, op.entrada && op.saida ? op.entrada+'/'+op.saida : op.saida, op.dataOp ? formatarData(op.dataOp) : '', op.refOp].filter(Boolean).join(' · ');
@@ -1233,6 +1265,7 @@ function renderClientes(){
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="cli-docs-count">${c.docs.length} doc${c.docs.length!==1?'s':''}</span>
+          <button class="cli-btn-icon" onclick="editarCliente(${c.id})" title="Editar cliente" style="color:#888;font-size:15px">✎</button>
           <button class="cli-btn-icon" onclick="excluirCliente(${c.id})" title="Excluir cliente">✕</button>
         </div>
       </div>
@@ -1308,6 +1341,42 @@ function getIDB(){
 function idbSalvar(obj){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').put(obj); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
 function idbBuscar(id){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readonly'); const r=tx.objectStore('files').get(id); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); })); }
 function idbExcluir(id){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').delete(id); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
+
+// ── Editar cliente ────────────────────────────────
+function editarCliente(id){
+  const c = clientes.find(x => x.id === id); if(!c) return;
+  document.getElementById('editCliId').value = id;
+  document.getElementById('editCliNome').value = c.nome || '';
+  document.getElementById('editCliCnpj').value = c.cnpj || '';
+  document.getElementById('editCliIndicador').value = c.indicador || '';
+  document.getElementById('editCliRebate').value = c.rebate || '';
+  document.getElementById('editCliBanco').value = c.banco || '';
+  document.getElementById('editCliFeeBanco').value = c.feeBanco || '';
+  document.getElementById('editClienteModal').style.display = 'flex';
+}
+
+function fecharEditCliente(){ document.getElementById('editClienteModal').style.display = 'none'; }
+
+function salvarEdicaoCliente(){
+  const id = parseInt(document.getElementById('editCliId').value);
+  const c = clientes.find(x => x.id === id); if(!c) return;
+  const nome = document.getElementById('editCliNome').value.trim();
+  if(!nome){ document.getElementById('editCliNome').focus(); return; }
+  c.nome = nome;
+  c.cnpj = document.getElementById('editCliCnpj').value.trim();
+  c.indicador = document.getElementById('editCliIndicador').value.trim();
+  c.rebate = parseFloat(document.getElementById('editCliRebate').value) || 0;
+  c.banco = document.getElementById('editCliBanco').value.trim();
+  c.feeBanco = parseFloat(document.getElementById('editCliFeeBanco').value) || 0;
+  salvarClientesLS(); renderClientes(); atualizarSeletorClientes(); fecharEditCliente();
+}
+
+// ── Exportar PDF ──────────────────────────────────
+function exportarPDF(){
+  const el = document.getElementById('relResultados');
+  if(el && el.querySelector('.rel-empty')){ alert('Gere o relatório antes de exportar.'); return; }
+  window.print();
+}
 
 // ── Aureon
 function auAtualizarPreview(){
@@ -1422,6 +1491,40 @@ initRelFiltros();
         <button class="modal-btn-s" onclick="fecharBackup()">Cancelar</button>
         <button class="modal-btn-p" onclick="importarBackup()">↑ Restaurar</button>
       </div>
+    </div>
+  </div>
+</div>
+<div id="editClienteModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharEditCliente()">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-title">Editar cliente</div>
+    <input type="hidden" id="editCliId">
+    <label class="modal-label">Nome da empresa</label>
+    <input type="text" class="modal-input" id="editCliNome" placeholder="Razão social...">
+    <label class="modal-label">CNPJ</label>
+    <input type="text" class="modal-input" id="editCliCnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="maskCnpj(this)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+      <div>
+        <label class="modal-label" style="margin-top:0">Indicador</label>
+        <input type="text" class="modal-input" id="editCliIndicador" placeholder="Nome do indicador...">
+      </div>
+      <div>
+        <label class="modal-label" style="margin-top:0">Rebate (% rec. líquida)</label>
+        <input type="number" class="modal-input" id="editCliRebate" placeholder="0,00" step="0.01" min="0" max="100">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <div>
+        <label class="modal-label" style="margin-top:0">Banco parceiro</label>
+        <input type="text" class="modal-input" id="editCliBanco" placeholder="Ex: Braza Bank...">
+      </div>
+      <div>
+        <label class="modal-label" style="margin-top:0">Fee banco (% rec. total)</label>
+        <input type="number" class="modal-input" id="editCliFeeBanco" placeholder="0,00" step="0.01" min="0" max="100">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-s" onclick="fecharEditCliente()">Cancelar</button>
+      <button class="modal-btn-p" onclick="salvarEdicaoCliente()">Salvar alterações</button>
     </div>
   </div>
 </div>
