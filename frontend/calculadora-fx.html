@@ -32,7 +32,9 @@
   .news-chip.conflitos.active { background: #FF4B5A; border-color: #FF4B5A; }
   .news-chip.cambio.active   { background: #185FA5; border-color: #185FA5; }
   .news-grid { display: flex; flex-direction: column; gap: 10px; }
-  .news-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .news-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; transition: border-color .15s, box-shadow .15s; }
+  .news-card:hover { border-color: #bbb; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .news-chip-badge { font-size: 10px; font-weight: 600; opacity: .7; margin-left: 3px; }
   .news-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .news-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; }
   .news-tag.mercado   { background: #E0E5FF; color: #000FFA; }
@@ -550,13 +552,13 @@
       <button onclick="carregarNews()" style="font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:6px;padding:4px 10px;cursor:pointer;">↻ Atualizar</button>
     </div>
     <div class="news-filter-row">
-      <button class="news-chip active" data-cat="todos" onclick="filtrarNews('todos')">Todos</button>
-      <button class="news-chip mercado" data-cat="mercado" onclick="filtrarNews('mercado')">Mercado</button>
-      <button class="news-chip geopolitica" data-cat="geopolitica" onclick="filtrarNews('geopolitica')">Geopolítica</button>
-      <button class="news-chip macro" data-cat="macro" onclick="filtrarNews('macro')">Macro / Micro</button>
-      <button class="news-chip cripto" data-cat="cripto" onclick="filtrarNews('cripto')">Criptomoeda</button>
-      <button class="news-chip conflitos" data-cat="conflitos" onclick="filtrarNews('conflitos')">Conflitos</button>
-      <button class="news-chip cambio" data-cat="cambio" onclick="filtrarNews('cambio')">Câmbio</button>
+      <button class="news-chip active" data-cat="todos" onclick="filtrarNews('todos')">Todos<span class="news-chip-badge" id="badge-todos"></span></button>
+      <button class="news-chip mercado" data-cat="mercado" onclick="filtrarNews('mercado')">Mercado<span class="news-chip-badge" id="badge-mercado"></span></button>
+      <button class="news-chip geopolitica" data-cat="geopolitica" onclick="filtrarNews('geopolitica')">Geopolítica<span class="news-chip-badge" id="badge-geopolitica"></span></button>
+      <button class="news-chip macro" data-cat="macro" onclick="filtrarNews('macro')">Macro / Micro<span class="news-chip-badge" id="badge-macro"></span></button>
+      <button class="news-chip cripto" data-cat="cripto" onclick="filtrarNews('cripto')">Criptomoeda<span class="news-chip-badge" id="badge-cripto"></span></button>
+      <button class="news-chip conflitos" data-cat="conflitos" onclick="filtrarNews('conflitos')">Conflitos<span class="news-chip-badge" id="badge-conflitos"></span></button>
+      <button class="news-chip cambio" data-cat="cambio" onclick="filtrarNews('cambio')">Câmbio<span class="news-chip-badge" id="badge-cambio"></span></button>
     </div>
     <div class="news-grid" id="newsGrid">
       <div class="news-placeholder">
@@ -806,7 +808,11 @@ const GRAF_PAINEIS = [
   ]},
 ];
 
+let newsRefreshTimer = null;
 function switchTab(tab){
+  if(tab === 'news' && !newsRefreshTimer){
+    newsRefreshTimer = setInterval(carregarNews, 15 * 60 * 1000);
+  }
   document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active',
     (tab==='calculadora' && b.textContent==='Fx Aurex') ||
     (tab==='news'        && b.textContent==='News Aurex') ||
@@ -871,9 +877,22 @@ function filtrarNews(cat){
   renderNews();
 }
 
+function atualizarBadges(){
+  const cats = ['mercado','geopolitica','macro','cripto','conflitos','cambio'];
+  const b = document.getElementById('badge-todos');
+  if(b) b.textContent = newsData.length ? newsData.length : '';
+  cats.forEach(cat => {
+    const el = document.getElementById('badge-' + cat);
+    if(!el) return;
+    const n = newsData.filter(x => x.cat === cat).length;
+    el.textContent = n || '';
+  });
+}
+
 function renderNews(){
   const grid = document.getElementById('newsGrid');
   const filtered = newsCatAtiva === 'todos' ? newsData : newsData.filter(n => n.cat === newsCatAtiva);
+  atualizarBadges();
   if(!filtered.length){
     grid.innerHTML = `<div class="news-placeholder"><div style="font-size:28px">📰</div><p>${newsData.length ? 'Nenhuma notícia nesta categoria.' : 'As notícias aparecerão aqui quando a integração com a API estiver configurada.'}</p></div>`;
     return;
