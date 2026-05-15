@@ -50,6 +50,58 @@
   .news-empty { text-align: center; padding: 40px 0; font-size: 13px; color: #AEAEB2; }
   .news-placeholder { background: #F2F2F7; border-radius: 10px; padding: 32px; text-align: center; }
   .news-placeholder p { font-size: 13px; color: #AEAEB2; line-height: 1.6; margin-top: 8px; }
+  /* SELEÇÃO DE NOTÍCIAS */
+  .news-select-bar { display:none; align-items:center; justify-content:space-between; padding:10px 14px; background:#fff; border:1px solid #E5E5EA; border-radius:10px; margin-bottom:14px; }
+  .news-select-bar.visible { display:flex; }
+  .news-select-info { font-size:13px; color:#888; }
+  .news-select-info strong { color:#212121; }
+  .news-card.selecionavel { cursor:pointer; }
+  .news-card.selecionado { border-color:#000FFA; box-shadow:0 0 0 2px rgba(0,15,250,.12); }
+  .news-card-check { width:20px; height:20px; border-radius:50%; border:2px solid #D1D1D6; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; background:#fff; }
+  .news-card.selecionado .news-card-check { background:#000FFA; border-color:#000FFA; }
+  .news-check-icon { display:none; color:#fff; font-size:11px; font-weight:800; line-height:1; }
+  .news-card.selecionado .news-check-icon { display:block; }
+  /* MODAL COMUNICADO */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2000; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:#fff; border-radius:16px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,.25); }
+  .modal-header { padding:20px 22px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F2F2F7; }
+  .modal-title { font-size:15px; font-weight:700; color:#212121; }
+  .modal-close { background:none; border:none; font-size:22px; color:#AEAEB2; cursor:pointer; line-height:1; padding:0; }
+  .modal-body { padding:20px 22px 24px; }
+  .modal-label { font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
+  .modal-apikey-wrap { position:relative; }
+  .modal-apikey { width:100%; padding:10px 36px 10px 12px; border:1px solid #E5E5EA; border-radius:8px; font-size:13px; font-family:monospace; outline:none; color:#212121; }
+  .modal-apikey:focus { border-color:#000FFA; }
+  .modal-apikey-eye { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:14px; color:#AEAEB2; }
+  .modal-hint { font-size:11px; color:#AEAEB2; margin-top:5px; }
+  .modal-hint a { color:#000FFA; }
+  .modal-artigos { border:1px solid #F2F2F7; border-radius:8px; overflow:hidden; margin-bottom:16px; }
+  .modal-artigo-row { padding:8px 12px; border-bottom:1px solid #F2F2F7; font-size:13px; color:#212121; line-height:1.4; }
+  .modal-artigo-row:last-child { border-bottom:none; }
+  .btn-gerar-modal { width:100%; padding:13px; background:#000FFA; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; letter-spacing:.01em; }
+  .btn-gerar-modal:disabled { opacity:.4; cursor:default; }
+  .btn-gerar-modal:hover:not(:disabled) { background:#0008DD; }
+  /* ARTE COMUNICADO */
+  .comunicado-loading { text-align:center; padding:36px 0; }
+  .comunicado-loading-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#000FFA; animation:dotpulse 1.2s infinite; margin:0 3px; }
+  .comunicado-loading-dot:nth-child(2){ animation-delay:.2s; }
+  .comunicado-loading-dot:nth-child(3){ animation-delay:.4s; }
+  @keyframes dotpulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+  .arte-card { background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%); border-radius:14px; padding:28px 26px 22px; color:#fff; margin-top:20px; }
+  .arte-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .arte-logo { font-size:16px; font-weight:800; letter-spacing:.12em; color:#fff; }
+  .arte-tag { font-size:10px; font-weight:600; background:rgba(255,255,255,.15); border-radius:4px; padding:3px 9px; letter-spacing:.07em; text-transform:uppercase; color:rgba(255,255,255,.85); }
+  .arte-text { font-size:14px; line-height:1.75; color:rgba(255,255,255,.93); }
+  .arte-divider { border:none; border-top:1px solid rgba(255,255,255,.12); margin:18px 0 14px; }
+  .arte-fontes { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .arte-fonte-tag { font-size:10px; color:rgba(255,255,255,.55); background:rgba(255,255,255,.08); border-radius:4px; padding:2px 8px; }
+  .arte-footer { display:flex; justify-content:space-between; align-items:center; }
+  .arte-date { font-size:11px; color:rgba(255,255,255,.4); }
+  .arte-brand { font-size:11px; font-weight:700; letter-spacing:.1em; color:rgba(255,255,255,.35); }
+  .comunicado-actions { display:flex; gap:8px; margin-top:14px; }
+  .btn-action { flex:1; padding:10px; background:#F2F2F7; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; color:#212121; transition:background .15s; }
+  .btn-action:hover { background:#E5E5EA; }
   .section-title { font-size: 11px; font-weight: 600; color: #AEAEB2; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
   .card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
   .card-label { font-size: 12px; color: #AEAEB2; margin-bottom: 4px; }
@@ -549,7 +601,17 @@
   <div id="panel-news" class="app-panel">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.08em">Notícias do mercado</span>
-      <button onclick="carregarNews()" style="font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:6px;padding:4px 10px;cursor:pointer;">↻ Atualizar</button>
+      <div style="display:flex;gap:8px;">
+        <button id="btnModoSelecao" onclick="toggleModoSelecao()" style="font-size:12px;color:#000FFA;background:none;border:1px solid #000FFA;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:600;">+ Comunicado</button>
+        <button onclick="carregarNews()" style="font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:6px;padding:4px 10px;cursor:pointer;">↻ Atualizar</button>
+      </div>
+    </div>
+    <div class="news-select-bar" id="newsSelectBar">
+      <span class="news-select-info" id="newsSelectInfo">Selecione até 3 notícias</span>
+      <div style="display:flex;gap:8px;">
+        <button onclick="fecharModoSelecao()" style="padding:6px 12px;font-size:12px;background:none;border:1px solid #E5E5EA;border-radius:6px;cursor:pointer;color:#888;">Cancelar</button>
+        <button id="btnGerarComunicado" onclick="abrirModalComunicado()" disabled style="padding:6px 14px;font-size:12px;font-weight:600;background:#000FFA;color:#fff;border:none;border-radius:6px;cursor:pointer;opacity:.4;">Gerar ↗</button>
+      </div>
     </div>
     <div class="news-filter-row">
       <button class="news-chip active" data-cat="todos" onclick="filtrarNews('todos')">Todos<span class="news-chip-badge" id="badge-todos"></span></button>
@@ -567,6 +629,17 @@
       </div>
     </div>
   </div><!-- /panel-news -->
+
+  <!-- Modal Comunicado -->
+  <div class="modal-overlay" id="modalComunicado" onclick="if(event.target===this)fecharModalComunicado()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Gerar Comunicado</span>
+        <button class="modal-close" onclick="fecharModalComunicado()">×</button>
+      </div>
+      <div class="modal-body" id="modalComunicadoBody"></div>
+    </div>
+  </div>
 
   <div id="panel-aureon" class="app-panel">
     <p class="section-title">Identificação</p>
@@ -921,25 +994,242 @@ function atualizarBadges(){
   });
 }
 
+let modoSelecao = false;
+let noticiasSelected = [];
+let _newsFiltered = [];
+let _ultimoTexto = '';
+
+function toggleModoSelecao(){
+  modoSelecao = true;
+  noticiasSelected = [];
+  document.getElementById('newsSelectBar').classList.add('visible');
+  document.getElementById('btnModoSelecao').style.display = 'none';
+  atualizarBarraSelecao();
+  renderNews();
+}
+
+function fecharModoSelecao(){
+  modoSelecao = false;
+  noticiasSelected = [];
+  document.getElementById('newsSelectBar').classList.remove('visible');
+  document.getElementById('btnModoSelecao').style.display = '';
+  renderNews();
+}
+
+function atualizarBarraSelecao(){
+  const n = noticiasSelected.length;
+  document.getElementById('newsSelectInfo').innerHTML = n === 0
+    ? 'Selecione até 3 notícias'
+    : `<strong>${n}</strong> de 3 selecionada${n>1?'s':''}`;
+  const btn = document.getElementById('btnGerarComunicado');
+  btn.disabled = n === 0;
+  btn.style.opacity = n === 0 ? '.4' : '1';
+}
+
+function toggleNoticiaSelected(idx){
+  const noticia = _newsFiltered[idx];
+  const pos = noticiasSelected.findIndex(s => s.title === noticia.title);
+  if(pos >= 0){
+    noticiasSelected.splice(pos, 1);
+  } else if(noticiasSelected.length < 3){
+    noticiasSelected.push(noticia);
+  }
+  atualizarBarraSelecao();
+  document.querySelectorAll('.news-card[data-idx]').forEach(card => {
+    const i = parseInt(card.dataset.idx);
+    const sel = noticiasSelected.some(s => s.title === _newsFiltered[i].title);
+    card.classList.toggle('selecionado', sel);
+  });
+}
+
 function renderNews(){
   const grid = document.getElementById('newsGrid');
   const filtered = newsCatAtiva === 'todos' ? newsData : newsData.filter(n => n.cat === newsCatAtiva);
+  _newsFiltered = filtered;
   atualizarBadges();
   if(!filtered.length){
     grid.innerHTML = `<div class="news-placeholder"><div style="font-size:28px">📰</div><p>${newsData.length ? 'Nenhuma notícia nesta categoria.' : 'As notícias aparecerão aqui quando a integração com a API estiver configurada.'}</p></div>`;
     return;
   }
   const catLabel = { mercado:'Mercado', geopolitica:'Geopolítica', macro:'Macro / Micro', cripto:'Criptomoeda', conflitos:'Conflitos', cambio:'Câmbio' };
-  grid.innerHTML = filtered.map(n => `
-    <a class="news-card" href="${n.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;cursor:pointer;">
-      <div class="news-card-top">
-        <span class="news-tag ${n.cat}">${catLabel[n.cat]}</span>
-        <span class="news-time">${tempoRelativo(n.pubDate)}</span>
+  if(modoSelecao){
+    grid.innerHTML = filtered.map((n, i) => {
+      const sel = noticiasSelected.some(s => s.title === n.title);
+      return `<div class="news-card selecionavel${sel?' selecionado':''}" data-idx="${i}" onclick="toggleNoticiaSelected(${i})">
+        <div class="news-card-top">
+          <span class="news-tag ${n.cat}">${catLabel[n.cat]}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="news-time">${tempoRelativo(n.pubDate)}</span>
+            <div class="news-card-check"><span class="news-check-icon">✓</span></div>
+          </div>
+        </div>
+        <div class="news-title">${n.title}</div>
+        ${n.summary ? `<div class="news-summary">${n.summary}</div>` : ''}
+        <div class="news-source">${n.source}</div>
+      </div>`;
+    }).join('');
+  } else {
+    grid.innerHTML = filtered.map(n => `
+      <a class="news-card" href="${n.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;cursor:pointer;">
+        <div class="news-card-top">
+          <span class="news-tag ${n.cat}">${catLabel[n.cat]}</span>
+          <span class="news-time">${tempoRelativo(n.pubDate)}</span>
+        </div>
+        <div class="news-title">${n.title}</div>
+        ${n.summary ? `<div class="news-summary">${n.summary}</div>` : ''}
+        <div class="news-source">${n.source}</div>
+      </a>`).join('');
+  }
+}
+
+/* ── COMUNICADO ── */
+function abrirModalComunicado(){
+  if(!noticiasSelected.length) return;
+  document.getElementById('modalComunicado').classList.add('open');
+  renderFormComunicado();
+}
+
+function fecharModalComunicado(){
+  document.getElementById('modalComunicado').classList.remove('open');
+}
+
+function renderFormComunicado(){
+  const apiKey = localStorage.getItem('aurex_claude_key') || '';
+  const body = document.getElementById('modalComunicadoBody');
+  body.innerHTML = `
+    <div style="margin-bottom:18px">
+      <div class="modal-label">Notícias selecionadas</div>
+      <div class="modal-artigos">${noticiasSelected.map(a =>
+        `<div class="modal-artigo-row">${a.title}</div>`).join('')}
       </div>
-      <div class="news-title">${n.title}</div>
-      ${n.summary ? `<div class="news-summary">${n.summary}</div>` : ''}
-      <div class="news-source">${n.source}</div>
-    </a>`).join('');
+    </div>
+    <div style="margin-bottom:18px">
+      <div class="modal-label">Chave da API Claude</div>
+      <div class="modal-apikey-wrap">
+        <input type="password" class="modal-apikey" id="modalApiKey" value="${apiKey}" placeholder="sk-ant-api03-...">
+        <button class="modal-apikey-eye" onclick="toggleApiKeyVis()" title="Mostrar/ocultar">👁</button>
+      </div>
+      <div class="modal-hint">Salva localmente no seu navegador. &nbsp;<a href="https://console.anthropic.com/settings/keys" target="_blank">Obter chave →</a></div>
+    </div>
+    <button class="btn-gerar-modal" onclick="executarGeracao()">Gerar comunicado com IA ↗</button>`;
+}
+
+function toggleApiKeyVis(){
+  const inp = document.getElementById('modalApiKey');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function executarGeracao(){
+  const apiKey = document.getElementById('modalApiKey').value.trim();
+  if(!apiKey){ alert('Informe a chave da API Claude'); return; }
+  localStorage.setItem('aurex_claude_key', apiKey);
+
+  const body = document.getElementById('modalComunicadoBody');
+  body.innerHTML = `<div class="comunicado-loading">
+    <div style="margin-bottom:12px;font-size:13px;color:#888">Gerando comunicado com IA</div>
+    <div><span class="comunicado-loading-dot"></span><span class="comunicado-loading-dot"></span><span class="comunicado-loading-dot"></span></div>
+  </div>`;
+
+  const prompt = noticiasSelected.map((a, i) =>
+    `Notícia ${i+1}: "${a.title}"\n${a.summary||''}`).join('\n\n');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        system: `Você é operador de câmbio da Aurex, empresa especializada em operações de câmbio no Brasil.
+Seu papel é comunicar à comunidade, de forma simples e direta, como eventos do mercado impactam o câmbio brasileiro (BRL/USD).
+Regras obrigatórias:
+- Máximo 120 palavras
+- Linguagem acessível, sem jargão técnico excessivo
+- Foco no impacto cambial: o que isso significa para o dólar e o real
+- Texto corrido, sem bullet points, sem hashtags, sem emojis
+- Tom: autoridade de operador de câmbio explicando ao cliente
+- NÃO mencione "Aurex" no texto`,
+        messages: [{ role:'user', content:`Com base nas notícias abaixo, escreva um comunicado explicando o impacto no mercado de câmbio:\n\n${prompt}` }]
+      })
+    });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.error?.message || `Erro ${res.status}`);
+    }
+    const data = await res.json();
+    _ultimoTexto = data.content[0].text;
+    renderArteComunicado(_ultimoTexto);
+  } catch(e){
+    body.innerHTML = `<div style="text-align:center;padding:24px 0">
+      <div style="font-size:13px;color:#FF4B5A;margin-bottom:16px">Erro: ${e.message}</div>
+      <button onclick="renderFormComunicado()" style="padding:8px 18px;background:#F2F2F7;border:none;border-radius:8px;cursor:pointer;font-size:13px">← Tentar novamente</button>
+    </div>`;
+  }
+}
+
+function renderArteComunicado(texto){
+  const body = document.getElementById('modalComunicadoBody');
+  const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  body.innerHTML = `
+    <div class="arte-card" id="arteCard">
+      <div class="arte-header">
+        <span class="arte-logo">AUREX</span>
+        <span class="arte-tag">Mercado de Câmbio</span>
+      </div>
+      <div class="arte-text">${texto}</div>
+      <hr class="arte-divider">
+      <div class="arte-fontes">${noticiasSelected.map(a =>
+        `<span class="arte-fonte-tag">${a.source}</span>`).join('')}
+      </div>
+      <div class="arte-footer">
+        <span class="arte-date">${hoje}</span>
+        <span class="arte-brand">AUREX.COM.BR</span>
+      </div>
+    </div>
+    <div class="comunicado-actions">
+      <button class="btn-action" id="btnCopiarTexto" onclick="copiarTextoComunicado()">📋 Copiar texto</button>
+      <button class="btn-action" onclick="abrirArteJanela()">🖼 Salvar arte</button>
+      <button class="btn-action" onclick="renderFormComunicado()">↺ Gerar novamente</button>
+    </div>`;
+}
+
+function copiarTextoComunicado(){
+  navigator.clipboard.writeText(_ultimoTexto).then(()=>{
+    const btn = document.getElementById('btnCopiarTexto');
+    btn.textContent = '✓ Copiado!';
+    setTimeout(()=>{ btn.textContent = '📋 Copiar texto'; }, 2000);
+  });
+}
+
+function abrirArteJanela(){
+  const card = document.getElementById('arteCard');
+  if(!card) return;
+  const w = window.open('','_blank','width=560,height=520,toolbar=0,menubar=0');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;box-sizing:border-box;}
+    .arte-card{background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%);border-radius:14px;padding:28px 26px 22px;color:#fff;width:100%;max-width:500px;}
+    .arte-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .arte-logo{font-size:16px;font-weight:800;letter-spacing:.12em;}
+    .arte-tag{font-size:10px;font-weight:600;background:rgba(255,255,255,.15);border-radius:4px;padding:3px 9px;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.85);}
+    .arte-text{font-size:14px;line-height:1.75;color:rgba(255,255,255,.93);}
+    .arte-divider{border:none;border-top:1px solid rgba(255,255,255,.12);margin:18px 0 14px;}
+    .arte-fontes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+    .arte-fonte-tag{font-size:10px;color:rgba(255,255,255,.55);background:rgba(255,255,255,.08);border-radius:4px;padding:2px 8px;}
+    .arte-footer{display:flex;justify-content:space-between;align-items:center;}
+    .arte-date{font-size:11px;color:rgba(255,255,255,.4);}
+    .arte-brand{font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.35);}
+    p{text-align:center;color:#555;font-size:12px;font-family:sans-serif;margin-top:16px;}
+  </style></head><body>
+  ${card.outerHTML}
+  <p>Pressione Print Screen ou use Ctrl+Shift+S para salvar</p>
+  </body></html>`);
+  w.document.close();
 }
 let historico = [], lastResult = {};
 
