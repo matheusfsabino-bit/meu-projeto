@@ -6,6 +6,7 @@
 <title>Hub Aurex</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #F2F2F7; color: #212121; min-height: 100vh; padding: 24px; }
@@ -95,6 +96,17 @@
   .comunicado-actions { display:flex; gap:8px; margin-top:14px; }
   .btn-action { flex:1; padding:10px; background:#F2F2F7; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; color:#212121; transition:background .15s; }
   .btn-action:hover { background:#E5E5EA; }
+  /* formatos da arte */
+  .arte-fmt-btn { padding:4px 10px; font-size:11px; font-weight:600; border:1px solid #E5E5EA; border-radius:6px; background:#fff; color:#888; cursor:pointer; transition:all .15s; font-family:inherit; }
+  .arte-fmt-btn.active { background:#212121; color:#fff; border-color:#212121; }
+  .arte-wrap-feed    { width:100%; aspect-ratio:1/1; margin-bottom:0; }
+  .arte-wrap-story   { width:60%; aspect-ratio:9/16; margin:0 auto; }
+  .arte-wrap-linkedin { width:100%; aspect-ratio:1.91/1; margin-bottom:0; }
+  .arte-wrap-feed .arte-card,
+  .arte-wrap-story .arte-card,
+  .arte-wrap-linkedin .arte-card { height:100%; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; margin-top:0; }
+  .arte-wrap-story .arte-titulo { font-size:26px; }
+  .arte-wrap-linkedin .arte-titulo { font-size:20px; }
   .section-title { font-size: 11px; font-weight: 600; color: #AEAEB2; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
   .card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
   .card-label { font-size: 12px; color: #AEAEB2; margin-bottom: 4px; }
@@ -1186,21 +1198,30 @@ function renderArteComunicado(r){
   const body = document.getElementById('comunicadoBody');
   const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
   body.innerHTML = `
-    <p style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Arte</p>
-    <div class="arte-card" id="arteCard">
-      <div class="arte-header">
-        <span class="arte-logo">AUREX</span>
-        <span class="arte-tag">Câmbio</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <p style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.07em;margin:0;">Arte</p>
+      <div style="display:flex;gap:6px;">
+        <button class="arte-fmt-btn active" id="fmtFeed" onclick="setFormato('feed')">Feed</button>
+        <button class="arte-fmt-btn" id="fmtStory" onclick="setFormato('story')">Story</button>
+        <button class="arte-fmt-btn" id="fmtLinkedin" onclick="setFormato('linkedin')">LinkedIn</button>
       </div>
-      <div class="arte-titulo">${r.titulo}</div>
-      <div class="arte-chips">${(r.chips||[]).map(c=>`<span class="arte-chip">${c}</span>`).join('')}</div>
-      <div class="arte-footer">
-        <span class="arte-date">${hoje}</span>
-        <span class="arte-brand">AUREX.COM.BR</span>
+    </div>
+    <div id="arteWrap" class="arte-wrap-feed">
+      <div class="arte-card" id="arteCard">
+        <div class="arte-header">
+          <span class="arte-logo">AUREX</span>
+          <span class="arte-tag">Câmbio</span>
+        </div>
+        <div class="arte-titulo">${r.titulo}</div>
+        <div class="arte-chips">${(r.chips||[]).map(c=>`<span class="arte-chip">${c}</span>`).join('')}</div>
+        <div class="arte-footer">
+          <span class="arte-date">${hoje}</span>
+          <span class="arte-brand">AUREX.COM.BR</span>
+        </div>
       </div>
     </div>
     <div class="comunicado-actions" style="margin-bottom:20px;">
-      <button class="btn-action" onclick="abrirArteJanela()">🖼 Salvar arte</button>
+      <button class="btn-action" id="btnDownload" onclick="baixarArte()">⬇ Baixar imagem</button>
     </div>
     <p style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Legenda do post</p>
     <div style="background:#F9F9FB;border:1px solid #E5E5EA;border-radius:10px;padding:14px 16px;font-size:13px;color:#212121;line-height:1.7;white-space:pre-wrap;margin-bottom:12px;">${r.legenda}</div>
@@ -1216,6 +1237,42 @@ function copiarTextoComunicado(){
     btn.textContent = '✓ Copiado!';
     setTimeout(()=>{ btn.textContent = '📋 Copiar texto'; }, 2000);
   });
+}
+
+let _formatoAtual = 'feed';
+function setFormato(fmt){
+  _formatoAtual = fmt;
+  document.querySelectorAll('.arte-fmt-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('fmt' + fmt.charAt(0).toUpperCase() + fmt.slice(1)).classList.add('active');
+  const wrap = document.getElementById('arteWrap');
+  if(wrap){
+    wrap.className = 'arte-wrap-' + fmt;
+  }
+}
+
+async function baixarArte(){
+  const card = document.getElementById('arteCard');
+  if(!card || !window.html2canvas) return;
+  const btn = document.getElementById('btnDownload');
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+  try {
+    const scale = _formatoAtual === 'story' ? 4 : 3;
+    const canvas = await html2canvas(card, {
+      scale,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+    });
+    const link = document.createElement('a');
+    link.download = `aurex-comunicado-${_formatoAtual}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Erro ao gerar imagem. Tente novamente.');
+  }
+  btn.textContent = '⬇ Baixar imagem';
+  btn.disabled = false;
 }
 
 function abrirArteJanela(){
