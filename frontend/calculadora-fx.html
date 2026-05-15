@@ -61,13 +61,7 @@
   .news-card.selecionado .news-card-check { background:#000FFA; border-color:#000FFA; }
   .news-check-icon { display:none; color:#fff; font-size:11px; font-weight:800; line-height:1; }
   .news-card.selecionado .news-check-icon { display:block; }
-  /* MODAL COMUNICADO */
-  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2000; align-items:center; justify-content:center; padding:20px; }
-  .modal-overlay.open { display:flex; }
-  .modal-box { background:#fff; border-radius:16px; width:100%; max-width:540px; max-height:92vh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,.25); }
-  .modal-header { padding:20px 22px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F2F2F7; }
-  .modal-title { font-size:15px; font-weight:700; color:#212121; }
-  .modal-close { background:none; border:none; font-size:22px; color:#AEAEB2; cursor:pointer; line-height:1; padding:0; }
+  /* COMUNICADO INLINE */
   .modal-body { padding:20px 22px 24px; }
   .modal-label { font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
   .modal-apikey-wrap { position:relative; }
@@ -625,21 +619,19 @@
     <div class="news-grid" id="newsGrid">
       <div class="news-placeholder">
         <div style="font-size:28px">📰</div>
-        <p>As notícias aparecerão aqui quando a integração com a API estiver configurada.<br>Por enquanto, este é o layout da aba.</p>
+        <p>As notícias aparecerão aqui quando a integração com a API estiver configurada.</p>
       </div>
+    </div>
+
+    <!-- Seção Comunicado — dentro do painel News -->
+    <div id="comunicadoSection" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+        <button onclick="fecharComunicadoSection()" style="background:none;border:none;font-size:18px;color:#888;cursor:pointer;padding:0;line-height:1;">←</button>
+        <span style="font-size:15px;font-weight:700;color:#212121;">Gerar Comunicado</span>
+      </div>
+      <div id="comunicadoBody"></div>
     </div>
   </div><!-- /panel-news -->
-
-  <!-- Modal Comunicado -->
-  <div class="modal-overlay" id="modalComunicado" onclick="if(event.target===this)fecharModalComunicado()">
-    <div class="modal-box">
-      <div class="modal-header">
-        <span class="modal-title">Gerar Comunicado</span>
-        <button class="modal-close" onclick="fecharModalComunicado()">×</button>
-      </div>
-      <div class="modal-body" id="modalComunicadoBody"></div>
-    </div>
-  </div>
 
   <div id="panel-aureon" class="app-panel">
     <p class="section-title">Identificação</p>
@@ -1086,17 +1078,25 @@ function renderNews(){
 /* ── COMUNICADO ── */
 function abrirModalComunicado(){
   if(!noticiasSelected.length) return;
-  document.getElementById('modalComunicado').classList.add('open');
+  document.getElementById('newsGrid').style.display = 'none';
+  document.querySelector('.news-filter-row').style.display = 'none';
+  document.getElementById('newsSelectBar').classList.remove('visible');
+  document.getElementById('comunicadoSection').style.display = 'block';
   renderFormComunicado();
 }
 
-function fecharModalComunicado(){
-  document.getElementById('modalComunicado').classList.remove('open');
+function fecharModalComunicado(){ fecharComunicadoSection(); }
+
+function fecharComunicadoSection(){
+  document.getElementById('comunicadoSection').style.display = 'none';
+  document.getElementById('newsGrid').style.display = '';
+  document.querySelector('.news-filter-row').style.display = '';
+  fecharModoSelecao();
 }
 
 function renderFormComunicado(){
   const apiKey = localStorage.getItem('aurex_claude_key') || '';
-  const body = document.getElementById('modalComunicadoBody');
+  const body = document.getElementById('comunicadoBody');
   body.innerHTML = `
     <div style="margin-bottom:18px">
       <div class="modal-label">Notícias selecionadas</div>
@@ -1125,7 +1125,7 @@ async function executarGeracao(){
   if(!apiKey){ alert('Informe a chave da API Claude'); return; }
   localStorage.setItem('aurex_claude_key', apiKey);
 
-  const body = document.getElementById('modalComunicadoBody');
+  const body = document.getElementById('comunicadoBody');
   body.innerHTML = `<div class="comunicado-loading">
     <div style="margin-bottom:12px;font-size:13px;color:#888">Gerando comunicado com IA</div>
     <div><span class="comunicado-loading-dot"></span><span class="comunicado-loading-dot"></span><span class="comunicado-loading-dot"></span></div>
@@ -1174,7 +1174,7 @@ Regras obrigatórias:
 }
 
 function renderArteComunicado(texto){
-  const body = document.getElementById('modalComunicadoBody');
+  const body = document.getElementById('comunicadoBody');
   const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
   body.innerHTML = `
     <div class="arte-card" id="arteCard">
