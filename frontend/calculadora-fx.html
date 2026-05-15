@@ -194,12 +194,7 @@
   .cli-docs-count { font-size:11px; color:#AEAEB2; margin-right:4px; }
   .cli-empty { font-size:13px; color:#AEAEB2; text-align:center; padding:32px 0; }
   /* Gráficos */
-  .graf-toolbar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
-  .graf-par-group { display:flex; gap:6px; flex-wrap:wrap; }
-  .graf-par-btn { padding:7px 14px; border:1px solid #E5E5EA; border-radius:8px; background:#fff; color:#888; font-size:13px; font-weight:500; cursor:pointer; font-family:inherit; transition:all .15s; }
-  .graf-par-btn:hover { border-color:#000FFA; color:#000FFA; }
-  .graf-par-btn.active { background:#000FFA; color:#fff; border-color:#000FFA; }
-  .graf-container { width:100%; height:520px; border-radius:10px; overflow:hidden; border:1px solid #E5E5EA; }
+  .graf-container { width:100%; height:560px; border-radius:10px; overflow:hidden; border:1px solid #E5E5EA; display:block; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -605,16 +600,16 @@
   </div><!-- /panel-aureon -->
 
   <div id="panel-graficos" class="app-panel">
-    <div class="graf-toolbar">
-      <div class="graf-par-group">
-        <button class="graf-par-btn active" onclick="mudarPar('FX_IDC:USDBRL',this)">USD/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX_IDC:EURBRL',this)">EUR/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX_IDC:GBPBRL',this)">GBP/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX:EURUSD',this)">EUR/USD</button>
-        <button class="graf-par-btn" onclick="mudarPar('FX:GBPUSD',this)">GBP/USD</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
+        <span style="font-size:11px;background:#E0E5FF;color:#000FFA;padding:3px 9px;border-radius:4px;font-weight:600">USD/BRL</span>
+        <span style="font-size:11px;background:#E0E5FF;color:#000FFA;padding:3px 9px;border-radius:4px;font-weight:600">EUR/BRL</span>
+        <span style="font-size:11px;background:#DFFAF1;color:#007A56;padding:3px 9px;border-radius:4px;font-weight:600">Juros BR</span>
+        <span style="font-size:11px;background:#DFFAF1;color:#007A56;padding:3px 9px;border-radius:4px;font-weight:600">Juros EUA</span>
       </div>
+      <span style="font-size:11px;color:#AEAEB2">Variação % comparada</span>
     </div>
-    <div id="tvContainer" class="graf-container"></div>
+    <iframe id="tvContainer" class="graf-container"></iframe>
   </div><!-- /panel-graficos -->
 
 </div>
@@ -704,7 +699,7 @@ async function carregarNews(){
   }
 }
 
-let grafParAtual = 'FX_IDC:USDBRL', grafCarregado = false;
+let grafCarregado = false;
 
 function switchTab(tab){
   document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active',
@@ -716,26 +711,13 @@ function switchTab(tab){
     (tab==='graficos'    && b.textContent==='Gráficos')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
-  if(tab === 'graficos' && !grafCarregado){ grafCarregado = true; initGrafico(grafParAtual); }
+  if(tab === 'graficos' && !grafCarregado){ grafCarregado = true; initGrafico(); }
 }
 
-function initGrafico(symbol){
+function initGrafico(){
   const c = document.getElementById('tvContainer'); if(!c) return;
-  const params = new URLSearchParams({
-    symbol, interval: 'D', theme: 'light', style: '1',
-    locale: 'pt_BR', timezone: 'America/Sao_Paulo',
-    toolbar_bg: 'f1f3f6', enable_publishing: '0',
-    allow_symbol_change: '1', hide_side_toolbar: '0'
-  });
-  c.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?${params}"
-    style="width:100%;height:100%;border:none;" allowtransparency="true" allowfullscreen></iframe>`;
-}
-
-function mudarPar(symbol, btn){
-  if(grafParAtual === symbol) return;
-  grafParAtual = symbol;
-  document.querySelectorAll('.graf-par-btn').forEach(b => b.classList.toggle('active', b === btn));
-  initGrafico(symbol);
+  const compare = ['FX_IDC:EURBRL','ECONOMICS:BRINTR','ECONOMICS:USINTR'].map(encodeURIComponent).join('%2C');
+  c.src = `https://s.tradingview.com/widgetembed/?symbol=FX_IDC%3AUSDBRL&interval=M&theme=light&locale=pt_BR&style=2&compare=${compare}&show_popup_button=1&hide_side_toolbar=0&timezone=America%2FSao_Paulo&enable_publishing=0`;
 }
 
 function filtrarNews(cat){
