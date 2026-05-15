@@ -123,6 +123,26 @@
   .hist-right .hist-total { font-size: 13px; font-weight: 500; color: #212121; }
   .hist-right .hist-taxa { font-size: 11px; color: #AEAEB2; }
   .hist-empty { font-size: 13px; color: #AEAEB2; text-align: center; padding: 16px 0; }
+  /* Aureon panel */
+  .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
+  .au-spot-card.max { border-top: 3px solid #000FFA; }
+  .au-spot-card.min { border-top: 3px solid #00CC8C; }
+  .au-spot-label { font-size: 12px; color: #AEAEB2; margin-bottom: 6px; font-weight: 500; }
+  .au-spot-card input { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #212121; outline: none; font-family: inherit; }
+  .au-results-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .au-result-card { overflow: hidden; }
+  .au-result-card.max { border-right: 1px solid #E5E5EA; }
+  .au-col-header { padding: 10px 14px; background: #F9F9FB; border-bottom: 1px solid #E5E5EA; border-top: 3px solid transparent; }
+  .au-col-header.max { border-top-color: #000FFA; }
+  .au-col-header.min { border-top-color: #00CC8C; }
+  .au-col-title { font-size: 13px; font-weight: 600; color: #212121; }
+  .au-col-sub { font-size: 11px; color: #AEAEB2; margin-top: 2px; }
+  .au-diff-card { background: #F9F9FB; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .au-diff-item { text-align: center; }
+  .au-diff-label { font-size: 11px; color: #AEAEB2; margin-bottom: 4px; }
+  .au-diff-val { font-size: 16px; font-weight: 600; color: #00CC8C; }
+  .rval.au-receita { color: #00CC8C; font-weight: 500; }
+  .rval.au-spread { color: #000FFA; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -141,6 +161,7 @@
   <nav class="app-tabs">
     <button class="app-tab active" onclick="switchTab('calculadora')">Calculadora</button>
     <button class="app-tab" onclick="switchTab('news')">News Aurex</button>
+    <button class="app-tab" onclick="switchTab('aureon')">Aureon</button>
   </nav>
 
   <div id="panel-calculadora" class="app-panel active">
@@ -297,6 +318,53 @@
       </div>
     </div>
   </div><!-- /panel-news -->
+
+  <div id="panel-aureon" class="app-panel">
+    <p class="section-title">Identificação</p>
+    <div class="grid2">
+      <div class="card"><div class="card-label">Nome da cotação</div><input type="text" id="au-nomeCotacao" placeholder="Ex: Terça-feira..."></div>
+      <div class="card"><div class="card-label">Data</div><input type="date" id="au-dataCotacao"></div>
+    </div>
+
+    <p class="section-title">Configuração</p>
+    <div class="grid2">
+      <div class="card"><div class="card-label">Volume (USD)</div><input type="number" id="au-volume" value="9000000" step="100000"></div>
+      <div class="card"><div class="card-label">% Receita Auren</div><input type="number" id="au-percAuren" value="50" step="1" min="1" max="100"></div>
+    </div>
+
+    <p class="section-title">Cotações do dia</p>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="au-spot-card max">
+        <div class="au-spot-label">Spot — Máxima do dia</div>
+        <input type="number" id="au-spotMax" step="0.0001" placeholder="0,0000" oninput="auAtualizarPreview()">
+      </div>
+      <div class="au-spot-card min">
+        <div class="au-spot-label">Spot — Mínima do dia</div>
+        <input type="number" id="au-spotMin" step="0.0001" placeholder="0,0000">
+      </div>
+    </div>
+
+    <div class="taxa-preview">Taxa cliente (máxima × 1,005): <strong id="au-taxaPreview">—</strong></div>
+
+    <button class="calc-btn" onclick="auCalcular()">Calcular ↗</button>
+
+    <div id="au-results" style="display:none;">
+      <p class="section-title">Resultado comparativo</p>
+      <div class="result-box">
+        <div class="result-header">
+          <div>
+            <div class="result-header-title" id="au-resultTitle">—</div>
+            <div class="result-header-sub" id="au-resultSub"></div>
+          </div>
+          <div class="result-header-date" id="au-resultDate"></div>
+        </div>
+        <div class="au-results-row" id="au-resultsRow"></div>
+      </div>
+
+      <p class="section-title" style="margin-top:14px;margin-bottom:8px">Diferencial — mínima vs máxima</p>
+      <div class="au-diff-card" id="au-diffCard"></div>
+    </div>
+  </div><!-- /panel-aureon -->
 
 </div>
 
@@ -639,8 +707,84 @@ function copiarResumo(){
   });
 }
 
+// Aureon
+function auAtualizarPreview(){
+  const s = parseFloat(document.getElementById('au-spotMax').value) || 0;
+  if(!s){ document.getElementById('au-taxaPreview').textContent='—'; return; }
+  const t = s * 1.005;
+  document.getElementById('au-taxaPreview').textContent = t.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6});
+}
+
+function auCalcular(){
+  const volume = parseFloat(document.getElementById('au-volume').value);
+  const percAuren = parseFloat(document.getElementById('au-percAuren').value) / 100;
+  const spotMax = parseFloat(document.getElementById('au-spotMax').value);
+  const spotMin = parseFloat(document.getElementById('au-spotMin').value);
+  if(!spotMax || !spotMin || !volume) return;
+  const taxaCliente = spotMax * 1.005;
+  const nome = document.getElementById('au-nomeCotacao').value.trim();
+  const data = document.getElementById('au-dataCotacao').value;
+  auAtualizarPreview();
+
+  function auCalc(spot){
+    const spreadPct = ((taxaCliente / spot) - 1) * 100;
+    const receitaTotal = (taxaCliente - spot) * volume;
+    const receitaAuren = receitaTotal * percAuren;
+    const totalBRL = taxaCliente * volume;
+    return { spot, spreadPct, taxaCliente, receitaTotal, receitaAuren, totalBRL };
+  }
+
+  const max = auCalc(spotMax);
+  const min = auCalc(spotMin);
+
+  document.getElementById('au-resultTitle').textContent = nome || 'Análise FX';
+  document.getElementById('au-resultSub').textContent = `Taxa cliente: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})} · Volume: USD ${fmt(volume)}`;
+  document.getElementById('au-resultDate').textContent = formatarData(data);
+
+  function auRenderCol(r, label, cssClass){
+    return `<div class="au-result-card ${cssClass}">
+      <div class="au-col-header ${cssClass}">
+        <div class="au-col-title">${label}</div>
+        <div class="au-col-sub">Spot: ${r.spot.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</div>
+      </div>
+      <div class="rrow"><span class="rkey">Spot</span><span class="rval">${r.spot.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</span></div>
+      <div class="rrow"><span class="rkey">Spread</span><span class="rval au-spread">${r.spreadPct.toFixed(4)}%</span></div>
+      <div class="rrow"><span class="rkey">Taxa cliente</span><span class="rval taxa">${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</span></div>
+      <div class="rrow"><span class="rkey">Volume ME</span><span class="rval">USD ${fmt(volume)}</span></div>
+      <div class="rrow"><span class="rkey">Receita Total</span><span class="rval au-receita">R$ ${fmt(r.receitaTotal)}</span></div>
+      <div class="rrow"><span class="rkey">Receita Auren (${(percAuren*100).toFixed(0)}%)</span><span class="rval au-receita">R$ ${fmt(r.receitaAuren)}</span></div>
+      <div class="rrow hl-green"><span class="rkey">Total Amount BRL</span><span class="rval">${fmt(r.totalBRL)}</span></div>
+    </div>`;
+  }
+
+  document.getElementById('au-resultsRow').innerHTML =
+    auRenderCol(max, 'Máxima do dia', 'max') +
+    auRenderCol(min, 'Mínima do dia', 'min');
+
+  const diffReceita = min.receitaTotal - max.receitaTotal;
+  const diffAuren = min.receitaAuren - max.receitaAuren;
+  const diffSpread = min.spreadPct - max.spreadPct;
+
+  document.getElementById('au-diffCard').innerHTML = `
+    <div class="au-diff-item">
+      <div class="au-diff-label">Ganho em spread</div>
+      <div class="au-diff-val">${diffSpread >= 0 ? '+' : ''}${diffSpread.toFixed(4)}%</div>
+    </div>
+    <div class="au-diff-item">
+      <div class="au-diff-label">Ganho receita total</div>
+      <div class="au-diff-val">${diffReceita >= 0 ? '+' : '−'}R$ ${fmt(Math.abs(diffReceita))}</div>
+    </div>
+    <div class="au-diff-item">
+      <div class="au-diff-label">Ganho receita Auren</div>
+      <div class="au-diff-val">${diffAuren >= 0 ? '+' : '−'}R$ ${fmt(Math.abs(diffAuren))}</div>
+    </div>`;
+
+  document.getElementById('au-results').style.display = 'block';
+}
+
 // Init
 document.getElementById('dataOp').value = new Date().toISOString().split('T')[0];
+document.getElementById('au-dataCotacao').value = new Date().toISOString().split('T')[0];
 onTipoChange();
 renderHistorico();
 </script>
