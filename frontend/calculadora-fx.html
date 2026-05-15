@@ -636,12 +636,13 @@ function onParChange(){
   atualizarConversao();
 }
 
+const GN = 'https://news.google.com/rss/search?hl=pt-BR&gl=BR&ceid=BR:pt-419&q=';
 const RSS_FEEDS = [
-  { url: 'https://www.infomoney.com.br/feed/',                      source: 'InfoMoney' },
-  { url: 'https://www.infomoney.com.br/mercados/feed/',             source: 'InfoMoney · Mercados' },
-  { url: 'https://www.infomoney.com.br/guias/criptomoedas/feed/',   source: 'InfoMoney · Cripto' },
-  { url: 'https://agenciabrasil.ebc.com.br/rss/economia/feed.xml', source: 'Agência Brasil' },
-  { url: 'https://feeds.reuters.com/reuters/businessNews',          source: 'Reuters' },
+  { url: GN + encodeURIComponent('mercado financeiro bolsa ações brasil'), source: 'Google News · Mercado' },
+  { url: GN + encodeURIComponent('câmbio dólar real BRL taxa'), source: 'Google News · Câmbio' },
+  { url: GN + encodeURIComponent('economia brasil inflação juros PIB'), source: 'Google News · Economia' },
+  { url: GN + encodeURIComponent('bitcoin ethereum cripto blockchain'), source: 'Google News · Cripto' },
+  { url: GN + encodeURIComponent('guerra conflito geopolítica mundo'), source: 'Google News · Mundo' },
 ];
 
 const KEYWORDS = {
@@ -713,8 +714,8 @@ function tempoRelativo(pubDate){
 function stripHtml(html){ return (html||'').replace(/<[^>]*>/g,'').trim().slice(0,160); }
 
 async function fetchFeed(feed){
-  const proxy = `https://corsproxy.io/?${encodeURIComponent(feed.url)}`;
-  const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+  const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
+  const r = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
   if(!r.ok) return [];
   const text = await r.text();
   const doc = new DOMParser().parseFromString(text, 'text/xml');
@@ -724,8 +725,9 @@ async function fetchFeed(feed){
     const g = s => item.querySelector(s)?.textContent?.trim() || '';
     const title = g('title'), desc = g('description'), link = g('link'), pub = g('pubDate');
     if(!title) return null;
+    const source = item.querySelector('source')?.textContent?.trim() || feed.source;
     const cat = categorizarNoticia(title, desc);
-    return { title, summary: stripHtml(desc), link, pubDate: new Date(pub), source: feed.source, cat };
+    return { title, summary: stripHtml(desc), link, pubDate: new Date(pub), source, cat };
   }).filter(Boolean);
 }
 
