@@ -200,7 +200,7 @@
   .graf-subtab:hover:not(.active) { background:#F2F2F7; }
   .graf-chart-panel { display:none; }
   .graf-chart-panel.active { display:block; }
-  .graf-full-iframe { width:100%; height:520px; display:block; border:none; border-radius:10px; }
+  .graf-widget-wrap { width:100%; height:520px; border-radius:10px; overflow:hidden; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -701,12 +701,12 @@ let grafCarregado = false;
 let grafAtivo = 0;
 
 const GRAF_PAINEIS = [
-  { symbol: 'FX_IDC:USDBRL',        title: 'USD / BRL',   interval: '60', style: '1' },
-  { symbol: 'FX_IDC:EURBRL',        title: 'EUR / BRL',   interval: '60', style: '1' },
-  { symbol: 'FX_IDC:EURUSD',        title: 'EUR / USD',   interval: '60', style: '1' },
-  { symbol: 'BMFBOVESPA:IBOV',      title: 'IBOV',        interval: '60', style: '1' },
-  { symbol: 'BMFBOVESPA:DI1!',      title: 'Juros BR',    interval: 'D',  style: '1' },
-  { symbol: 'CBOE:TNX',             title: 'Juros EUA',   interval: 'D',  style: '1' },
+  { symbol: 'FX_IDC:USDBRL',   title: 'USD / BRL',  interval: '60', style: '1' },
+  { symbol: 'FX_IDC:EURBRL',   title: 'EUR / BRL',  interval: '60', style: '1' },
+  { symbol: 'FX_IDC:EURUSD',   title: 'EUR / USD',  interval: '60', style: '1' },
+  { symbol: 'BMFBOVESPA:IBOV', title: 'IBOV',       interval: '60', style: '1' },
+  { symbol: 'TVC:BR10Y',       title: 'Juros BR',   interval: 'D',  style: '3' },
+  { symbol: 'TVC:US10Y',       title: 'Juros EUA',  interval: 'D',  style: '3' },
 ];
 
 function switchTab(tab){
@@ -729,13 +729,34 @@ function initGraficos(){
   subtabs.innerHTML = GRAF_PAINEIS.map((p,i) =>
     `<button class="graf-subtab${i===0?' active':''}" onclick="switchGrafTab(${i})">${p.title}</button>`
   ).join('');
-  wrap.innerHTML = GRAF_PAINEIS.map((p,i) => {
-    const sym = encodeURIComponent(p.symbol);
-    const src = `https://s.tradingview.com/widgetembed/?symbol=${sym}&interval=${p.interval}&theme=light&locale=pt_BR&style=${p.style}&hide_top_toolbar=0&hide_side_toolbar=1&timezone=America%2FSao_Paulo&enable_publishing=0&show_popup_button=1`;
-    return `<div class="graf-chart-panel${i===0?' active':''}" id="grafPanel${i}">
-      <iframe src="${src}" class="graf-full-iframe" allowtransparency="true" allowfullscreen></iframe>
-    </div>`;
-  }).join('');
+  wrap.innerHTML = GRAF_PAINEIS.map((p,i) =>
+    `<div class="graf-chart-panel${i===0?' active':''}" id="grafPanel${i}">
+      <div class="graf-widget-wrap" id="grafWidget${i}"></div>
+    </div>`
+  ).join('');
+  const criarWidgets = () => GRAF_PAINEIS.forEach((p,i) => {
+    new TradingView.widget({
+      container_id: `grafWidget${i}`,
+      symbol: p.symbol,
+      interval: p.interval,
+      width: '100%',
+      height: 520,
+      theme: 'light',
+      locale: 'pt_BR',
+      timezone: 'America/Sao_Paulo',
+      style: p.style,
+      hide_side_toolbar: true,
+      enable_publishing: false,
+      allow_symbol_change: true,
+    });
+  });
+  if(window.TradingView){ criarWidgets(); }
+  else {
+    const s = document.createElement('script');
+    s.src = 'https://s3.tradingview.com/tv.js';
+    s.onload = criarWidgets;
+    document.head.appendChild(s);
+  }
 }
 
 function switchGrafTab(idx){
