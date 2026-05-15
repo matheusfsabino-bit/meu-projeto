@@ -256,6 +256,18 @@
   .rel-row.rel-hl { background:#E0E5FF; }
   .rel-row.rel-hl .rk { color:#000FFA; font-weight:500; } .rel-row.rel-hl .rv { color:#0011CC; font-weight:600; }
   .rel-empty { text-align:center; padding:40px 0; font-size:13px; color:#AEAEB2; }
+  .rel-subtabs { display:flex; gap:0; border-bottom:1px solid #E5E5EA; margin-bottom:16px; }
+  .rel-subtab { padding:8px 16px; font-size:12px; font-weight:600; color:#AEAEB2; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; font-family:inherit; transition:color .15s; }
+  .rel-subtab:hover { color:#555; }
+  .rel-subtab.active { color:#000FFA; border-bottom-color:#000FFA; }
+  .rel-ind-card { background:#fff; border:1px solid #E5E5EA; border-radius:10px; overflow:hidden; margin-bottom:12px; }
+  .rel-ind-header { padding:12px 16px; background:#DFFAF1; border-bottom:1px solid #B8EDD9; display:flex; justify-content:space-between; align-items:flex-start; }
+  .rel-ind-name { font-size:14px; font-weight:700; color:#007A56; }
+  .rel-ind-sub { font-size:11px; color:#3aaa82; margin-top:2px; }
+  .rel-ind-rebate { font-size:15px; font-weight:700; color:#007A56; }
+  .rel-ind-cli-header { padding:8px 16px; background:#F9F9FB; border-bottom:1px solid #E5E5EA; font-size:11px; font-weight:600; color:#AEAEB2; text-transform:uppercase; letter-spacing:.04em; }
+  .rel-row.rel-hl-green { background:#DFFAF1; }
+  .rel-row.rel-hl-green .rk { color:#007A56; font-weight:500; } .rel-row.rel-hl-green .rv { color:#005c3d; font-weight:700; }
   @media print {
     body { background: white !important; padding: 8px !important; }
     .app-header, .app-tabs, .rel-filter-bar, .backup-bar { display:none !important; }
@@ -468,9 +480,16 @@
   </div><!-- /panel-calculadora -->
 
   <div id="panel-relatorios" class="app-panel">
+    <div class="rel-subtabs">
+      <button class="rel-subtab active" onclick="switchRelSubTab('escritorio')">Escritório</button>
+      <button class="rel-subtab" onclick="switchRelSubTab('indicador')">Por Indicador</button>
+    </div>
     <div class="rel-filter-bar">
       <select class="rel-select" id="relMes"></select>
       <select class="rel-select" id="relAno"></select>
+      <select class="rel-select" id="relIndicador" style="display:none">
+        <option value="">Todos os indicadores</option>
+      </select>
       <button class="rel-gen-btn" onclick="gerarRelatorio()">Gerar relatório</button>
       <button class="rel-print-btn" onclick="exportarPDF()">↓ Exportar PDF</button>
     </div>
@@ -1128,13 +1147,22 @@ async function importarBackup(){
         await idbSalvar({...f,conteudo:arr.buffer});
       }
     }
-    renderHistoricoCompleto(); renderClientes(); atualizarSeletorClientes();
+    renderHistoricoCompleto(); renderClientes(); atualizarSeletorClientes(); atualizarSelectIndicadores();
     msg.className='modal-msg ok'; msg.textContent='Dados restaurados com sucesso!';
     setTimeout(fecharBackup,1500);
   } catch(e){ msg.className='modal-msg err'; msg.textContent='Senha incorreta ou arquivo corrompido.'; }
 }
 
 // ── Relatórios ────────────────────────────────────
+let relSubTab = 'escritorio';
+
+function switchRelSubTab(tab){
+  relSubTab = tab;
+  document.querySelectorAll('.rel-subtab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().includes(tab === 'escritorio' ? 'escritório' : 'indicador')));
+  document.getElementById('relIndicador').style.display = tab === 'indicador' ? 'block' : 'none';
+  document.getElementById('relResultados').innerHTML = '<div class="rel-empty">Selecione o período e clique em Gerar.</div>';
+}
+
 function initRelFiltros(){
   const mes=document.getElementById('relMes'); if(!mes) return;
   const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1145,6 +1173,7 @@ function initRelFiltros(){
 }
 
 function gerarRelatorio(){
+  if(relSubTab === 'indicador'){ gerarRelatorioIndicador(); return; }
   const mes=parseInt(document.getElementById('relMes').value);
   const ano=parseInt(document.getElementById('relAno').value);
   const el=document.getElementById('relResultados');
@@ -1199,6 +1228,89 @@ function gerarRelatorio(){
     </div>${blocos}`;
 }
 
+function atualizarSelectIndicadores(){
+  const sel = document.getElementById('relIndicador'); if(!sel) return;
+  const cur = sel.value;
+  while(sel.options.length > 1) sel.remove(1);
+  const nomes = [...new Set(clientes.map(c => c.indicador).filter(Boolean))].sort();
+  nomes.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
+  if(nomes.includes(cur)) sel.value = cur;
+}
+
+function gerarRelatorioIndicador(){
+  const mes = parseInt(document.getElementById('relMes').value);
+  const ano = parseInt(document.getElementById('relAno').value);
+  const indFiltro = document.getElementById('relIndicador').value;
+  const el = document.getElementById('relResultados');
+  const mesesNome = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const ops = historico.filter(op => {
+    if(op.status !== 'efetivada') return false;
+    const d = op.dataOp ? new Date(op.dataOp+'T12:00:00') : new Date(op.id);
+    return d.getMonth() === mes && d.getFullYear() === ano;
+  });
+  if(!ops.length){ el.innerHTML = '<div class="rel-empty">Nenhuma operação efetivada neste período.</div>'; return; }
+
+  // agrupar por indicador → clientes → operações
+  const grupos = {};
+  for(const op of ops){
+    const cfg = op.clienteId ? clientes.find(c => c.id === op.clienteId) : clientes.find(c => c.nome === op.clienteSel);
+    const ind = cfg?.indicador || '';
+    if(!ind) continue;
+    if(indFiltro && ind !== indFiltro) continue;
+    if(!grupos[ind]) grupos[ind] = { indicador: ind, clientes: {} };
+    const cliKey = op.clienteId || op.clienteSel || '__';
+    if(!grupos[ind].clientes[cliKey]) grupos[ind].clientes[cliKey] = { nome: op.clienteSel || 'Sem nome', cfg, ops: [] };
+    grupos[ind].clientes[cliKey].ops.push(op);
+  }
+
+  if(!Object.keys(grupos).length){
+    el.innerHTML = '<div class="rel-empty">Nenhuma operação com indicador neste período.</div>'; return;
+  }
+
+  let totRebateGeral = 0;
+  const blocos = Object.values(grupos).map(g => {
+    let totReceitaInd = 0, totFeeInd = 0, totLiqInd = 0, totRebateInd = 0;
+    const cliCards = Object.values(g.clientes).map(gc => {
+      const receita = gc.ops.reduce((s,o) => s + (o.receitaSpread||0), 0);
+      const feePct = gc.cfg?.feeBanco || 0;
+      const rebPct = gc.cfg?.rebate || 0;
+      const feeVal = receita * feePct / 100;
+      const liq = receita - feeVal;
+      const rebVal = liq * rebPct / 100;
+      totReceitaInd += receita; totFeeInd += feeVal; totLiqInd += liq; totRebateInd += rebVal;
+      const banco = gc.cfg?.banco || '';
+      return `<div class="rel-ind-cli-header">${gc.nome} · ${gc.ops.length} op${gc.ops.length!==1?'s':''}</div>
+        <div class="rel-row"><span class="rk">Receita spread</span><span class="rv">R$ ${fmt(receita)}</span></div>
+        ${feePct?`<div class="rel-row"><span class="rk">Fee ${banco||'banco'} (${feePct}%)</span><span class="rv" style="color:#FF4B5A">− R$ ${fmt(feeVal)}</span></div><div class="rel-row"><span class="rk">Receita líquida</span><span class="rv">R$ ${fmt(liq)}</span></div>`:''}
+        <div class="rel-row rel-hl-green"><span class="rk">Rebate indicador (${rebPct}%)</span><span class="rv">R$ ${fmt(rebVal)}</span></div>`;
+    }).join('');
+    totRebateGeral += totRebateInd;
+    const nClis = Object.keys(g.clientes).length;
+    const nOps = Object.values(g.clientes).reduce((s,gc) => s + gc.ops.length, 0);
+    return `<div class="rel-ind-card">
+      <div class="rel-ind-header">
+        <div>
+          <div class="rel-ind-name">🤝 ${g.indicador}</div>
+          <div class="rel-ind-sub">${nClis} cliente${nClis!==1?'s':''} · ${nOps} operaç${nOps!==1?'ões':'ão'}</div>
+        </div>
+        <div class="rel-ind-rebate">R$ ${fmt(totRebateInd)}</div>
+      </div>
+      ${cliCards}
+      ${nClis > 1 ? `<div class="rel-row" style="background:#f0fdf8;border-top:1px solid #B8EDD9"><span class="rk" style="font-weight:600;color:#007A56">Total rebate ${g.indicador}</span><span class="rv" style="color:#005c3d;font-weight:700">R$ ${fmt(totRebateInd)}</span></div>` : ''}
+    </div>`;
+  }).join('');
+
+  const nTotInd = Object.keys(grupos).length;
+  el.innerHTML = `
+    <div class="rel-summary-card">
+      <div class="rel-summary-title">${mesesNome[mes]} ${ano} — Relatório por indicador${indFiltro?' · '+indFiltro:''}</div>
+      <div class="rel-kpi-row">
+        <div class="rel-kpi"><div class="rel-kpi-label">Indicadores</div><div class="rel-kpi-val kv-blue">${nTotInd}</div></div>
+        <div class="rel-kpi"><div class="rel-kpi-label">Total rebates</div><div class="rel-kpi-val kv-green">R$ ${fmt(totRebateGeral)}</div></div>
+      </div>
+    </div>${blocos}`;
+}
+
 // ── Clientes ──────────────────────────────────────
 let clientes = [], cliFilesTemp = [], _seq = Date.now();
 function nextId(){ return _seq++; }
@@ -1243,7 +1355,7 @@ async function cadastrarCliente(){
     docs.push({id:docId,nome:file.name,tipo:file.type,tamanho:file.size});
   }
   clientes.unshift({id:clienteId,nome,cnpj,indicador,rebate,banco,feeBanco,docs});
-  salvarClientesLS(); renderClientes(); atualizarSeletorClientes();
+  salvarClientesLS(); renderClientes(); atualizarSeletorClientes(); atualizarSelectIndicadores();
   document.getElementById('cliNome').value='';
   document.getElementById('cliCnpj').value='';
   document.getElementById('cliIndicador').value='';
@@ -1381,7 +1493,7 @@ function salvarEdicaoCliente(){
   c.rebate = parseFloat(document.getElementById('editCliRebate').value) || 0;
   c.banco = document.getElementById('editCliBanco').value.trim();
   c.feeBanco = parseFloat(document.getElementById('editCliFeeBanco').value) || 0;
-  salvarClientesLS(); renderClientes(); atualizarSeletorClientes(); fecharEditCliente();
+  salvarClientesLS(); renderClientes(); atualizarSeletorClientes(); atualizarSelectIndicadores(); fecharEditCliente();
 }
 
 // ── Exportar PDF ──────────────────────────────────
@@ -1475,6 +1587,7 @@ onTipoChange();
 renderHistoricoCompleto();
 renderClientes();
 atualizarSeletorClientes();
+atualizarSelectIndicadores();
 initRelFiltros();
 </script>
 <div id="backupModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharBackup()">
