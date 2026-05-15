@@ -454,6 +454,9 @@
         <option value="pendente">Pendente</option>
         <option value="efetivada">Efetivada</option>
       </select>
+      <input type="date" class="hist-filter-select" id="filtroDe" onchange="renderHistoricoCompleto()" title="De" style="flex:0 0 auto;min-width:130px">
+      <input type="date" class="hist-filter-select" id="filtroAte" onchange="renderHistoricoCompleto()" title="Até" style="flex:0 0 auto;min-width:130px">
+      <button onclick="limparFiltrosDatas()" style="padding:8px 10px;border:1px solid #E5E5EA;border-radius:8px;background:#fff;color:#AEAEB2;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0" title="Limpar datas">✕ datas</button>
     </div>
     <div class="hist-summary-bar">
       <p class="section-title" style="margin:0">Operações registradas</p>
@@ -997,9 +1000,13 @@ function renderHistoricoCompleto(){
   // aplicar filtros
   const filtroStatus = document.getElementById('filtroStatus')?.value || 'todos';
   const filtroCliente = filtroCliEl?.value || '';
+  const filtroDe = document.getElementById('filtroDe')?.value || '';
+  const filtroAte = document.getElementById('filtroAte')?.value || '';
   const lista = historico.filter(h => {
     if(filtroStatus !== 'todos' && h.status !== filtroStatus) return false;
     if(filtroCliente && h.clienteSel !== filtroCliente) return false;
+    if(filtroDe && h.dataOp && h.dataOp < filtroDe) return false;
+    if(filtroAte && h.dataOp && h.dataOp > filtroAte) return false;
     return true;
   });
   const resumo = document.getElementById('histResumo');
@@ -1341,6 +1348,12 @@ function getIDB(){
 function idbSalvar(obj){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').put(obj); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
 function idbBuscar(id){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readonly'); const r=tx.objectStore('files').get(id); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); })); }
 function idbExcluir(id){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').delete(id); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
+
+function limparFiltrosDatas(){
+  const de = document.getElementById('filtroDe'), ate = document.getElementById('filtroAte');
+  if(de) de.value = ''; if(ate) ate.value = '';
+  renderHistoricoCompleto();
+}
 
 // ── Editar cliente ────────────────────────────────
 function editarCliente(id){
