@@ -399,6 +399,17 @@
         <div class="card"><div class="card-label">Nome da empresa</div><input type="text" id="cliNome" placeholder="Razão social..."></div>
         <div class="card"><div class="card-label">CNPJ</div><input type="text" id="cliCnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="maskCnpj(this)"></div>
       </div>
+      <p class="section-title" style="margin-top:14px;margin-bottom:8px">Estrutura comercial</p>
+      <div class="grid2">
+        <div class="card"><div class="card-label">Indicador</div><input type="text" id="cliIndicador" placeholder="Nome do indicador..."></div>
+        <div class="card"><div class="card-label">Rebate ao indicador (%)</div><input type="number" id="cliRebate" placeholder="0,00" step="0.01" min="0" max="100"></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-label">Banco parceiro</div><input type="text" id="cliBanco" placeholder="Ex: Braza Bank..."></div>
+        <div class="card"><div class="card-label">Fee do banco (% receita total)</div><input type="number" id="cliFeeBanco" placeholder="0,00" step="0.01" min="0" max="100"></div>
+      </div>
+
+      <p class="section-title" style="margin-top:14px;margin-bottom:8px">Documentação</p>
       <div class="cli-upload-area" onclick="document.getElementById('cliFileInput').click()">
         <input type="file" id="cliFileInput" multiple style="display:none" onchange="onCliFileSelect(this)">
         <div class="cli-upload-label">Arraste ou <span>clique para selecionar documentos</span></div>
@@ -951,16 +962,24 @@ async function cadastrarCliente(){
   const nome=document.getElementById('cliNome').value.trim();
   const cnpj=document.getElementById('cliCnpj').value.trim();
   if(!nome){ document.getElementById('cliNome').focus(); return; }
+  const indicador=document.getElementById('cliIndicador').value.trim();
+  const rebate=parseFloat(document.getElementById('cliRebate').value)||0;
+  const banco=document.getElementById('cliBanco').value.trim();
+  const feeBanco=parseFloat(document.getElementById('cliFeeBanco').value)||0;
   const clienteId=nextId(), docs=[];
   for(const file of cliFilesTemp){
     const docId=nextId(), buf=await file.arrayBuffer();
     await idbSalvar({id:docId,clienteId,nome:file.name,tipo:file.type,tamanho:file.size,conteudo:buf});
     docs.push({id:docId,nome:file.name,tipo:file.type,tamanho:file.size});
   }
-  clientes.unshift({id:clienteId,nome,cnpj,docs});
+  clientes.unshift({id:clienteId,nome,cnpj,indicador,rebate,banco,feeBanco,docs});
   salvarClientesLS(); renderClientes(); atualizarSeletorClientes();
   document.getElementById('cliNome').value='';
   document.getElementById('cliCnpj').value='';
+  document.getElementById('cliIndicador').value='';
+  document.getElementById('cliRebate').value='';
+  document.getElementById('cliBanco').value='';
+  document.getElementById('cliFeeBanco').value='';
   cliFilesTemp=[]; renderCliPending();
 }
 
@@ -986,6 +1005,10 @@ function renderClientes(){
           <button class="cli-btn-icon" onclick="excluirCliente(${c.id})" title="Excluir cliente">✕</button>
         </div>
       </div>
+      ${(c.indicador||c.banco) ? `<div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;border-top:1px solid #F0F0F5;background:#FAFAFA">
+        ${c.banco ? `<span style="font-size:11px;background:#E0E5FF;color:#0011CC;padding:2px 8px;border-radius:4px;font-weight:500">🏦 ${c.banco}${c.feeBanco?` · ${c.feeBanco}% fee`:''}` : ''}
+        ${c.indicador ? `<span style="font-size:11px;background:#DFFAF1;color:#007A56;padding:2px 8px;border-radius:4px;font-weight:500">🤝 ${c.indicador}${c.rebate?` · ${c.rebate}% rebate`:''}` : ''}
+      </div>` : ''}
       <div class="cli-docs-section">
         ${c.docs.map(d=>`
           <div class="cli-doc-row">
