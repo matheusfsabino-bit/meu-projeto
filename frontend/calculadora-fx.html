@@ -638,11 +638,23 @@ function onParChange(){
 
 const GN = 'https://news.google.com/rss/search?hl=pt-BR&gl=BR&ceid=BR:pt-419&q=';
 const RSS_FEEDS = [
+  // Google News — queries temáticas
   { url: GN + encodeURIComponent('mercado financeiro bolsa ações brasil'), source: 'Google News · Mercado' },
-  { url: GN + encodeURIComponent('câmbio dólar real BRL taxa'), source: 'Google News · Câmbio' },
-  { url: GN + encodeURIComponent('economia brasil inflação juros PIB'), source: 'Google News · Economia' },
+  { url: GN + encodeURIComponent('câmbio dólar real BRL taxa ptax'), source: 'Google News · Câmbio' },
+  { url: GN + encodeURIComponent('economia brasil inflação juros PIB selic'), source: 'Google News · Economia' },
   { url: GN + encodeURIComponent('bitcoin ethereum cripto blockchain'), source: 'Google News · Cripto' },
   { url: GN + encodeURIComponent('guerra conflito geopolítica mundo'), source: 'Google News · Mundo' },
+  { url: GN + encodeURIComponent('petróleo ouro commodities agronegócio'), source: 'Google News · Commodities' },
+  { url: GN + encodeURIComponent('fed fomc copom banco central decisão juros'), source: 'Google News · Bancos Centrais' },
+  { url: GN + encodeURIComponent('ibovespa bovespa ações resultados trimestrais'), source: 'Google News · Ibovespa' },
+  { url: GN + encodeURIComponent('trump tarifas protecionismo comércio exterior'), source: 'Google News · Geopolítica' },
+  // Feeds diretos
+  { url: 'https://www.infomoney.com.br/feed/', source: 'InfoMoney' },
+  { url: 'https://g1.globo.com/rss/g1/economia/', source: 'G1 Economia' },
+  { url: 'https://feeds.folha.uol.com.br/mercado/rss091.xml', source: 'Folha Mercado' },
+  { url: 'https://agenciabrasil.ebc.com.br/economia/feed', source: 'Agência Brasil' },
+  { url: 'https://www.moneytimes.com.br/feed/', source: 'Money Times' },
+  { url: 'https://br.investing.com/rss/news_301.rss', source: 'Investing.com' },
 ];
 
 const KEYWORDS = {
@@ -765,7 +777,7 @@ async function carregarNews(){
   const cutoff = Date.now() - 5 * 24 * 60 * 60 * 1000;
   const seen = new Set();
   newsData = all
-    .filter(n => n.pubDate >= cutoff)
+    .filter(n => isNaN(n.pubDate) || n.pubDate >= cutoff)
     .filter(n => { const key = n.title.slice(0,60); if(seen.has(key)) return false; seen.add(key); return true; })
     .sort((a,b) => b.pubDate - a.pubDate);
   renderNews();
