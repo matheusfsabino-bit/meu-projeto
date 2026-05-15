@@ -646,28 +646,47 @@ const RSS_FEEDS = [
 
 const KEYWORDS = {
   cripto:     ['bitcoin','ethereum','cripto','blockchain','btc','eth','binance','coinbase','altcoin','defi','nft','web3','stablecoin','solana','xrp','litecoin'],
-  conflitos:  ['guerra','conflito','ataque','militar','ucrânia','rússia','israel','hamas','oriente médio','bombardeio','tropas','exército','nato','otan','míssil','drone','cessar-fogo'],
-  geopolitica:['trump','biden','putin','xi jinping','geopolítica','sanção','embargo','diplomacia','relações exteriores','otan','onu','g7','g20','brics','parlamento','congresso','senado','eleição','voto','partido'],
+  conflitos:  ['guerra','conflito','ataque','bombardeio','tropas','exército','míssil','drone','cessar-fogo','ofensiva','invasão'],
   cambio:     [
-    // moedas
-    'dólar','euro','libra','iene','yuan','renminbi','franco suíço','dólar australiano','dólar canadense','peso','rand','lira turca','rublo',
-    // pares e índices
-    'usd','eur','gbp','jpy','cny','chf','aud','cad','brl','dxy','dollar index','eurodólar',
-    // mercado fx
-    'câmbio','forex','fx','ptax','taxa de câmbio','dólar comercial','dólar turismo','cotação do dólar','cotação do euro','operação de câmbio','mercado cambial',
-    // política monetária que move câmbio
-    'intervenção cambial','reservas internacionais','banco central do brasil','bacen','federal reserve','fed','bce','banco central europeu','boe','boj','política monetária',
-    'taxa de juros','diferencial de juros','carry trade','fluxo cambial','fluxo de capitais','remessa','remessas ao exterior',
-    // movimentos
-    'apreciação do real','depreciação do real','dólar sobe','dólar cai','real se valoriza','real se desvaloriza',
+    'câmbio','ptax','taxa de câmbio','dólar comercial','dólar turismo','mercado cambial','fluxo cambial',
+    'alta do dólar','queda do dólar','dólar sobe','dólar cai','dólar fecha','dólar abre','dólar dispara',
+    'real se valoriza','real se desvaloriza','real cai','real sobe','depreciação do real','apreciação do real',
+    'euro sobe','euro cai','libra cai','libra sobe','iene','yuan cai','yuan sobe',
+    'carry trade','diferencial de juros','curva de juros','yield curve','treasury','treasuries',
+    'juros americanos','juros nos eua','juros na zona do euro',
+    'fomc','copom','decisão do fed','reunião do fed','corte de juros pelo fed','alta de juros pelo fed',
+    'powell','decisão do bce','fed decide','bce decide','bank of england','banco do japão',
+    'intervenção cambial','reservas internacionais','remessa ao exterior','fluxo de capitais',
+    'dollar index','dxy','política monetária do fed','política monetária do bce',
   ],
-  macro:      ['pib','inflação','ipca','igpm','selic','desemprego','emprego','fmi','ocde','recessão','crescimento econômico','déficit','superávit','balança comercial','exportação','importação'],
-  mercado:    ['ibovespa','bolsa','ações','nasdaq','dow jones','s&p','nikkei','petrobras','vale','itaú','bradesco','ambev','resultados','dividendos','ipo','oferta','índice','alta','queda','pregão','commodities','petróleo','ouro','minério'],
+  mercado:    [
+    'petr3','petr4','vale3','itub4','bbdc4','abev3','wege3','rent3','mglu3','lren3','cyre3',
+    'prio3','prio','roxo3','roxo34','embr3','suzb3','rail3','vivt3','tims3','csan3','brfs3',
+    'rdor3','hapv3','flry3','radl3','tots3','ggbr4','usim5','csna3','smft3','pssa3',
+    'meli34','amzo34','aapl34','msft34','nvdc34','gogl34',
+    'petrobras','vale','itaú','bradesco','ambev','weg','localiza','cyrela','embraer','suzano',
+    'rumo','vivo','tim','cosan','brf','jbs','minerva','rede dor','hapvida','fleury',
+    'raia drogasil','totvs','caixa seguridade','banco do brasil','btg pactual','xp inc',
+    'ibovespa','bolsa de valores','nasdaq','dow jones','s&p 500','nikkei','pregão',
+    'ações','dividendos','ipo','oferta pública','resultado trimestral','balanço','lucro',
+    'prejuízo','ebitda','guidance','commodities','petróleo','ouro','minério de ferro',
+  ],
+  geopolitica:['trump','putin','xi jinping','zelensky','geopolítica','sanção','embargo',
+    'diplomacia','relações exteriores','otan','nato','onu','g7','g20','brics','cúpula',
+    'acordo internacional','política externa','eleição nos eua','eleição na europa'],
+  macro:      [
+    'lula','governo federal','ministério','projeto de lei','reforma','pec','arcabouço fiscal',
+    'orçamento','gasto público','privatização','câmara dos deputados','senado federal',
+    'plenário','votação','medida provisória','haddad','tesouro nacional',
+    'pib','inflação','ipca','igpm','selic','desemprego','emprego','caged','pnad',
+    'fmi','banco mundial','ocde','recessão','crescimento econômico','déficit','superávit',
+    'balança comercial','exportação','importação','indústria','agronegócio','política fiscal',
+  ],
 };
 
 function categorizarNoticia(title, desc){
   const text = (title + ' ' + (desc||'')).toLowerCase();
-  const ordem = ['cripto','conflitos','geopolitica','cambio','macro','mercado'];
+  const ordem = ['cripto','conflitos','cambio','mercado','geopolitica','macro'];
   for(const cat of ordem){
     if(KEYWORDS[cat].some(k => text.includes(k))) return cat;
   }
