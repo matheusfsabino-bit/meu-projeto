@@ -193,6 +193,13 @@
   .cli-add-doc-label { display:inline-block; margin-top:8px; font-size:12px; color:#000FFA; cursor:pointer; font-weight:500; }
   .cli-docs-count { font-size:11px; color:#AEAEB2; margin-right:4px; }
   .cli-empty { font-size:13px; color:#AEAEB2; text-align:center; padding:32px 0; }
+  /* Gráficos */
+  .graf-toolbar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .graf-par-group { display:flex; gap:6px; flex-wrap:wrap; }
+  .graf-par-btn { padding:7px 14px; border:1px solid #E5E5EA; border-radius:8px; background:#fff; color:#888; font-size:13px; font-weight:500; cursor:pointer; font-family:inherit; transition:all .15s; }
+  .graf-par-btn:hover { border-color:#000FFA; color:#000FFA; }
+  .graf-par-btn.active { background:#000FFA; color:#fff; border-color:#000FFA; }
+  .graf-container { width:100%; height:520px; border-radius:10px; overflow:hidden; border:1px solid #E5E5EA; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -308,6 +315,7 @@
     <button class="app-tab" onclick="switchTab('clientes')">Clientes</button>
     <button class="app-tab" onclick="switchTab('relatorios')">Relatórios</button>
     <button class="app-tab" onclick="switchTab('news')">News Aurex</button>
+    <button class="app-tab" onclick="switchTab('graficos')">Gráficos</button>
   </nav>
 
   <div id="panel-calculadora" class="app-panel active">
@@ -596,6 +604,19 @@
     </div>
   </div><!-- /panel-aureon -->
 
+  <div id="panel-graficos" class="app-panel">
+    <div class="graf-toolbar">
+      <div class="graf-par-group">
+        <button class="graf-par-btn active" onclick="mudarPar('FX:USDBRL',this)">USD/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX:EURBRL',this)">EUR/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX:GBPBRL',this)">GBP/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX:EURUSD',this)">EUR/USD</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX:GBPUSD',this)">GBP/USD</button>
+      </div>
+    </div>
+    <div id="tvContainer" class="graf-container"></div>
+  </div><!-- /panel-graficos -->
+
 </div>
 
 <script>
@@ -683,10 +704,50 @@ async function carregarNews(){
   }
 }
 
+let grafParAtual = 'FX:USDBRL', grafCarregado = false;
+
 function switchTab(tab){
-  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', (tab==='calculadora' && b.textContent==='Fx Aurex') || (tab==='news' && b.textContent==='News Aurex') || (tab==='aureon' && b.textContent==='Fx Delta') || (tab==='clientes' && b.textContent==='Clientes') || (tab==='relatorios' && b.textContent==='Relatórios')));
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active',
+    (tab==='calculadora' && b.textContent==='Fx Aurex') ||
+    (tab==='news'        && b.textContent==='News Aurex') ||
+    (tab==='aureon'      && b.textContent==='Fx Delta') ||
+    (tab==='clientes'    && b.textContent==='Clientes') ||
+    (tab==='relatorios'  && b.textContent==='Relatórios') ||
+    (tab==='graficos'    && b.textContent==='Gráficos')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
+  if(tab === 'graficos' && !grafCarregado){ grafCarregado = true; initGrafico(grafParAtual); }
+}
+
+function initGrafico(symbol){
+  const c = document.getElementById('tvContainer'); if(!c) return;
+  c.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.cssText = 'height:100%;width:100%';
+  const inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.cssText = 'height:calc(100% - 32px);width:100%';
+  wrap.appendChild(inner);
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  script.async = true;
+  script.textContent = JSON.stringify({
+    autosize: true, symbol, interval: 'D',
+    timezone: 'America/Sao_Paulo', theme: 'light', style: '1',
+    locale: 'pt', allow_symbol_change: false,
+    calendar: false, support_host: 'https://www.tradingview.com'
+  });
+  wrap.appendChild(script);
+  c.appendChild(wrap);
+}
+
+function mudarPar(symbol, btn){
+  if(grafParAtual === symbol) return;
+  grafParAtual = symbol;
+  document.querySelectorAll('.graf-par-btn').forEach(b => b.classList.toggle('active', b === btn));
+  initGrafico(symbol);
 }
 
 function filtrarNews(cat){
