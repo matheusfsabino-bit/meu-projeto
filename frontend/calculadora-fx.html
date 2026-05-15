@@ -701,10 +701,10 @@ let grafCarregado = false;
 let grafAtivo = 0;
 
 const GRAF_PAINEIS = [
-  { symbol: 'FX_IDC:USDBRL',      title: 'USD / BRL',          interval: 'D', style: '1' },
-  { symbol: 'FX_IDC:EURBRL',      title: 'EUR / BRL',          interval: 'D', style: '1' },
-  { symbol: 'ECONOMICS:BRINTR',   title: 'Juros BR',           interval: 'M', style: '2' },
-  { symbol: 'ECONOMICS:USINTR',   title: 'Juros EUA',          interval: 'M', style: '2' },
+  { symbol: 'FX_IDC:USDBRL',      title: 'USD / BRL',          interval: '60', style: '1' },
+  { symbol: 'FX_IDC:EURBRL',      title: 'EUR / BRL',          interval: '60', style: '1' },
+  { symbol: 'ECONOMICS:BRINTR',   title: 'Juros BR',           interval: '60', style: '2' },
+  { symbol: 'ECONOMICS:USINTR',   title: 'Juros EUA',          interval: '60', style: '2' },
 ];
 
 function switchTab(tab){
