@@ -834,8 +834,19 @@ const KEYWORDS = {
     'pib','inflação','ipca','igpm','selic','desemprego','emprego','caged','pnad',
     'fmi','banco mundial','ocde','recessão','crescimento econômico','déficit','superávit',
     'balança comercial','exportação','importação','indústria','agronegócio','política fiscal',
+    'stf','supremo tribunal federal','supremo tribunal','ministro do stf','ministros do stf',
+    'alexandre de moraes','gilmar mendes','barroso','toffoli','fachin','cármen lúcia',
+    'sessão do stf','plenário do stf','decisão do stf','inquérito','mandado de segurança',
   ],
 };
+
+const CAMBIO_EXCLUSOES = [
+  'stf','supremo tribunal','ministro do stf','ministros do stf',
+  'alexandre de moraes','gilmar mendes','barroso','toffoli','fachin',
+  'sessão do stf','decisão do stf','plenário do stf',
+  'polícia federal','pf ','operação policial','delegado','inquérito policial',
+  'prisão','preso','arrested','indiciado','mandado de prisão',
+];
 
 function categorizarNoticia(title, desc){
   const text = (title + ' ' + (desc||'')).toLowerCase();
@@ -843,8 +854,12 @@ function categorizarNoticia(title, desc){
   for(const [cat, kws] of Object.entries(KEYWORDS)){
     for(const k of kws){ if(text.includes(k)) scores[cat]++; }
   }
-  const melhor = Object.entries(scores).sort((a,b) => b[1]-a[1])[0];
-  return melhor[1] > 0 ? melhor[0] : 'mercado';
+  const ranking = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+  let [melhorCat, melhorScore] = ranking[0];
+  if(melhorCat === 'cambio' && CAMBIO_EXCLUSOES.some(k => text.includes(k))){
+    [melhorCat, melhorScore] = ranking[1] && ranking[1][1] > 0 ? ranking[1] : ['macro', 1];
+  }
+  return melhorScore > 0 ? melhorCat : 'mercado';
 }
 
 function tempoRelativo(pubDate){
