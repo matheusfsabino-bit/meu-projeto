@@ -70,12 +70,13 @@
   .modo-banner.compra { background: #E0E5FF; color: #0011CC; border: 1px solid #99AAFF; }
   .modo-banner.venda { background: #FFE8EA; color: #CC2233; border: 1px solid #FF9AA5; }
   .formula-hint { font-size: 11px; color: #AEAEB2; margin-bottom: 10px; padding: 8px 12px; background: #F2F2F7; border-radius: 8px; }
-  .spread-dual { display: grid; grid-template-columns: 1fr auto 1fr; align-items: flex-end; gap: 8px; }
-  .spread-half { min-width: 0; }
+  .spread-dual { display: flex; align-items: stretch; }
+  .spread-half { flex: 1 1 0px; min-width: 0; }
+  .spread-half:last-child { border-left: 1px solid #E5E5EA; padding-left: 12px; }
   .spread-half-label { font-size: 10px; color: #AEAEB2; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
   .spread-half input { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #212121; outline: none; font-family: inherit; }
   .spread-half input::placeholder { color: #C7C7CC; font-weight: 400; }
-  .spread-sep { font-size: 12px; color: #C7C7CC; padding-bottom: 3px; flex-shrink: 0; }
+  .spread-sep { display: none; }
   .formula-hint code { font-family: 'Courier New', monospace; font-size: 11px; color: #212121; }
   .taxa-preview { background: #F2F2F7; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #888; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .taxa-preview strong { color: #000FFA; font-size: 14px; font-weight: 700; }
