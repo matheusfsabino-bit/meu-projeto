@@ -607,11 +607,11 @@
   <div id="panel-graficos" class="app-panel">
     <div class="graf-toolbar">
       <div class="graf-par-group">
-        <button class="graf-par-btn active" onclick="mudarPar('OANDA:USDBRL',this)">USD/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('OANDA:EURBRL',this)">EUR/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('OANDA:GBPBRL',this)">GBP/BRL</button>
-        <button class="graf-par-btn" onclick="mudarPar('OANDA:EURUSD',this)">EUR/USD</button>
-        <button class="graf-par-btn" onclick="mudarPar('OANDA:GBPUSD',this)">GBP/USD</button>
+        <button class="graf-par-btn active" onclick="mudarPar('FX_IDC:USDBRL',this)">USD/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX_IDC:EURBRL',this)">EUR/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX_IDC:GBPBRL',this)">GBP/BRL</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX:EURUSD',this)">EUR/USD</button>
+        <button class="graf-par-btn" onclick="mudarPar('FX:GBPUSD',this)">GBP/USD</button>
       </div>
     </div>
     <div id="tvContainer" class="graf-container"></div>
@@ -704,7 +704,7 @@ async function carregarNews(){
   }
 }
 
-let grafParAtual = 'OANDA:USDBRL', grafCarregado = false;
+let grafParAtual = 'FX_IDC:USDBRL', grafCarregado = false;
 
 function switchTab(tab){
   document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active',
@@ -721,26 +721,14 @@ function switchTab(tab){
 
 function initGrafico(symbol){
   const c = document.getElementById('tvContainer'); if(!c) return;
-  c.innerHTML = '';
-  const wrap = document.createElement('div');
-  wrap.className = 'tradingview-widget-container';
-  wrap.style.cssText = 'height:100%;width:100%';
-  const inner = document.createElement('div');
-  inner.className = 'tradingview-widget-container__widget';
-  inner.style.cssText = 'height:calc(100% - 32px);width:100%';
-  wrap.appendChild(inner);
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-  script.async = true;
-  script.textContent = JSON.stringify({
-    autosize: true, symbol, interval: 'D',
-    timezone: 'America/Sao_Paulo', theme: 'light', style: '1',
-    locale: 'pt', allow_symbol_change: false,
-    calendar: false, support_host: 'https://www.tradingview.com'
+  const params = new URLSearchParams({
+    symbol, interval: 'D', theme: 'light', style: '1',
+    locale: 'pt_BR', timezone: 'America/Sao_Paulo',
+    toolbar_bg: 'f1f3f6', enable_publishing: '0',
+    allow_symbol_change: '1', hide_side_toolbar: '0'
   });
-  wrap.appendChild(script);
-  c.appendChild(wrap);
+  c.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?${params}"
+    style="width:100%;height:100%;border:none;" allowtransparency="true" allowfullscreen></iframe>`;
 }
 
 function mudarPar(symbol, btn){
