@@ -70,6 +70,12 @@
   .modo-banner.compra { background: #E0E5FF; color: #0011CC; border: 1px solid #99AAFF; }
   .modo-banner.venda { background: #FFE8EA; color: #CC2233; border: 1px solid #FF9AA5; }
   .formula-hint { font-size: 11px; color: #AEAEB2; margin-bottom: 10px; padding: 8px 12px; background: #F2F2F7; border-radius: 8px; }
+  .spread-dual { display: flex; align-items: flex-end; gap: 8px; }
+  .spread-half { flex: 1; min-width: 0; }
+  .spread-half-label { font-size: 10px; color: #AEAEB2; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .spread-half input { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #212121; outline: none; font-family: inherit; }
+  .spread-half input::placeholder { color: #C7C7CC; font-weight: 400; }
+  .spread-sep { font-size: 12px; color: #C7C7CC; padding-bottom: 3px; flex-shrink: 0; }
   .formula-hint code { font-family: 'Courier New', monospace; font-size: 11px; color: #212121; }
   .taxa-preview { background: #F2F2F7; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #888; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .taxa-preview strong { color: #000FFA; font-size: 14px; font-weight: 700; }
@@ -221,7 +227,20 @@
 
   <div class="grid2">
     <div class="card"><div class="card-label">Spot</div><input type="number" id="spot" step="0.0001" placeholder="0,0000" oninput="atualizarPreview()"></div>
-    <div class="card"><div class="card-label">Spread (%)</div><input type="number" id="spread" step="0.01" placeholder="0,00" oninput="atualizarPreview()"></div>
+    <div class="card">
+      <div class="card-label">Spread</div>
+      <div class="spread-dual">
+        <div class="spread-half">
+          <div class="spread-half-label">%</div>
+          <input type="number" id="spread" step="0.01" placeholder="0,00" oninput="onSpreadPctChange()">
+        </div>
+        <div class="spread-sep">⇌</div>
+        <div class="spread-half">
+          <div class="spread-half-label">bips</div>
+          <input type="number" id="spreadBips" step="1" placeholder="0" oninput="onSpreadBipsChange()">
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="taxa-preview">Taxa cliente: <strong id="taxaPreview">—</strong></div>
@@ -522,6 +541,18 @@ function onTipoChange(){
     onParChange();
   }
   atualizarConversao();
+}
+
+function onSpreadPctChange(){
+  const pct = parseFloat(document.getElementById('spread').value);
+  document.getElementById('spreadBips').value = isNaN(pct) ? '' : Math.round(pct * 100);
+  atualizarPreview();
+}
+
+function onSpreadBipsChange(){
+  const bips = parseFloat(document.getElementById('spreadBips').value);
+  document.getElementById('spread').value = isNaN(bips) ? '' : (bips / 100).toFixed(2);
+  atualizarPreview();
 }
 
 function calcTaxa(spot, spread){
