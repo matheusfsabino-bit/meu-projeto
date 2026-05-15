@@ -159,9 +159,9 @@
   </div>
 
   <nav class="app-tabs">
-    <button class="app-tab active" onclick="switchTab('calculadora')">Calculadora</button>
+    <button class="app-tab active" onclick="switchTab('calculadora')">Fx Aurex</button>
     <button class="app-tab" onclick="switchTab('news')">News Aurex</button>
-    <button class="app-tab" onclick="switchTab('aureon')">Auren</button>
+    <button class="app-tab" onclick="switchTab('aureon')">Fx Delta</button>
   </nav>
 
   <div id="panel-calculadora" class="app-panel active">
@@ -454,7 +454,7 @@ async function carregarNews(){
 }
 
 function switchTab(tab){
-  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === tab || (tab==='news' && b.textContent==='News Aurex') || (tab==='calculadora' && b.textContent==='Calculadora')));
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', (tab==='calculadora' && b.textContent==='Fx Aurex') || (tab==='news' && b.textContent==='News Aurex') || (tab==='aureon' && b.textContent==='Fx Delta')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
 }
