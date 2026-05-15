@@ -130,6 +130,36 @@
   .hist-right .hist-total { font-size: 13px; font-weight: 500; color: #212121; }
   .hist-right .hist-taxa { font-size: 11px; color: #AEAEB2; }
   .hist-empty { font-size: 13px; color: #AEAEB2; text-align: center; padding: 16px 0; }
+  /* Sub-tabs */
+  .sub-tabs { display: flex; gap: 0; border-bottom: 1px solid #E5E5EA; margin-bottom: 20px; }
+  .sub-tab { padding: 8px 16px; font-size: 12px; font-weight: 600; color: #AEAEB2; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; font-family: inherit; transition: color .15s; }
+  .sub-tab:hover { color: #555; }
+  .sub-tab.active { color: #000FFA; border-bottom-color: #000FFA; }
+  .sub-badge { background: #FEF3DC; color: #9A6200; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 5px; vertical-align: middle; }
+  /* Full history cards */
+  .hist-full-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .hist-full-card.efetivada { border-left: 3px solid #00CC8C; }
+  .hist-full-card.pendente { border-left: 3px solid #F5A623; }
+  .hist-full-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; background: #F9F9FB; border-bottom: 1px solid #E5E5EA; }
+  .hist-full-tipo { font-size: 14px; font-weight: 600; color: #212121; }
+  .hist-full-sub { font-size: 11px; color: #AEAEB2; margin-top: 3px; }
+  .hist-status-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .hist-status-badge.pendente { background: #FEF3DC; color: #9A6200; }
+  .hist-status-badge.efetivada { background: #DFFAF1; color: #007A56; }
+  .hist-full-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; border-bottom: 1px solid #F0F0F5; font-size: 12px; }
+  .hist-full-row:last-child { border-bottom: none; }
+  .hist-full-row .hkey { color: #888; }
+  .hist-full-row .hval { font-weight: 500; color: #212121; }
+  .hist-full-row.hhl-compra { background: #E0E5FF; }
+  .hist-full-row.hhl-compra .hkey { color: #000FFA; font-weight: 500; }
+  .hist-full-row.hhl-compra .hval { color: #0011CC; font-weight: 600; }
+  .hist-full-row.hhl-venda { background: #FFE8EA; }
+  .hist-full-row.hhl-venda .hkey { color: #FF4B5A; font-weight: 500; }
+  .hist-full-row.hhl-venda .hval { color: #CC2233; font-weight: 600; }
+  .hist-efetivar-btn { display: block; width: calc(100% - 32px); margin: 10px 16px; padding: 9px; background: #fff; border: 1px solid #000FFA; border-radius: 8px; color: #000FFA; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; transition: background .15s; }
+  .hist-efetivar-btn:hover { background: #E0E5FF; }
+  .hist-full-empty { font-size: 13px; color: #AEAEB2; text-align: center; padding: 32px 0; }
+  .hist-summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -172,6 +202,12 @@
   </nav>
 
   <div id="panel-calculadora" class="app-panel active">
+  <div class="sub-tabs">
+    <button class="sub-tab active" data-subtab="cotacao" onclick="switchSubTab('cotacao')">Cotação</button>
+    <button class="sub-tab" data-subtab="historico" onclick="switchSubTab('historico')">Histórico<span class="sub-badge" id="histPendenteBadge" style="display:none">0</span></button>
+  </div>
+
+  <div id="subpanel-cotacao">
   <p class="section-title">Cliente</p>
   <div class="client-bar">
     <select id="clienteSelect"><option value="">— Selecionar cliente —</option></select>
@@ -312,10 +348,16 @@
     </div>
   </div>
 
-  <div id="historicoSection">
-    <p class="section-title">Histórico da sessão</p>
-    <div id="historicoList"><div class="hist-empty">Nenhuma operação calculada ainda</div></div>
-  </div>
+  </div><!-- /subpanel-cotacao -->
+
+  <div id="subpanel-historico" style="display:none">
+    <div class="hist-summary-bar">
+      <p class="section-title" style="margin:0">Operações registradas</p>
+      <span id="histResumo" style="font-size:12px;color:#AEAEB2"></span>
+    </div>
+    <div id="historicoCompleto"><div class="hist-full-empty">Nenhuma operação registrada ainda.</div></div>
+  </div><!-- /subpanel-historico -->
+
   </div><!-- /panel-calculadora -->
 
   <div id="panel-news" class="app-panel">
@@ -699,8 +741,16 @@ function calcular(){
   document.getElementById('copyBtn').className = 'copy-btn';
   document.getElementById('copyBtn').textContent = 'Copiar resumo';
 
-  historico.unshift({tipoLabel,clienteSel,saida,taxaCliente,totalBRL,modo,dataOp});
-  renderHistorico();
+  historico.unshift({
+    id: Date.now(),
+    tipoLabel, tipoAtual, clienteSel, dataOp, refOp,
+    modo, entrada, saida,
+    taxaCliente, amount, brlConversion,
+    iofAtual, irAtual, iofVal, irVal, totalBRL,
+    status: 'pendente'
+  });
+  salvarHistoricoLS();
+  renderHistoricoCompleto();
 }
 
 function renderHistorico(){
@@ -737,6 +787,66 @@ function copiarResumo(){
     btn.textContent='Copiado!'; btn.className='copy-btn copied';
     setTimeout(() => { btn.textContent='Copiar resumo'; btn.className='copy-btn'; }, 2000);
   });
+}
+
+function switchSubTab(tab){
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === tab));
+  document.getElementById('subpanel-cotacao').style.display = tab === 'cotacao' ? 'block' : 'none';
+  document.getElementById('subpanel-historico').style.display = tab === 'historico' ? 'block' : 'none';
+}
+
+function salvarHistoricoLS(){
+  try { localStorage.setItem('aurex_historico', JSON.stringify(historico)); } catch(e){}
+}
+
+function carregarHistoricoLS(){
+  try {
+    const saved = localStorage.getItem('aurex_historico');
+    if(saved) historico = JSON.parse(saved);
+  } catch(e){ historico = []; }
+}
+
+function efetivarCotacao(id){
+  const item = historico.find(h => h.id === id);
+  if(!item) return;
+  item.status = 'efetivada';
+  salvarHistoricoLS();
+  renderHistoricoCompleto();
+}
+
+function renderHistoricoCompleto(){
+  const el = document.getElementById('historicoCompleto');
+  if(!el) return;
+  const pendentes = historico.filter(h => h.status === 'pendente').length;
+  const badge = document.getElementById('histPendenteBadge');
+  if(badge){ badge.textContent = pendentes; badge.style.display = pendentes > 0 ? 'inline' : 'none'; }
+  const resumo = document.getElementById('histResumo');
+  if(resumo) resumo.textContent = `${historico.length} operaç${historico.length !== 1 ? 'ões' : 'ão'} · ${pendentes} pendente${pendentes !== 1 ? 's' : ''}`;
+  if(!historico.length){ el.innerHTML = '<div class="hist-full-empty">Nenhuma operação registrada ainda.</div>'; return; }
+  el.innerHTML = historico.map(op => {
+    const isPendente = op.status === 'pendente';
+    const hlClass = op.modo === 'compra' ? 'hhl-compra' : 'hhl-venda';
+    const subInfo = [op.clienteSel, op.entrada && op.saida ? op.entrada+'/'+op.saida : op.saida, op.dataOp ? formatarData(op.dataOp) : '', op.refOp].filter(Boolean).join(' · ');
+    return `<div class="hist-full-card ${op.status}">
+      <div class="hist-full-header">
+        <div>
+          <div class="hist-full-tipo">${op.tipoLabel || 'Operação FX'}</div>
+          <div class="hist-full-sub">${subInfo}</div>
+        </div>
+        <span class="hist-status-badge ${op.status}">${isPendente ? 'Pendente' : '✓ Efetivada'}</span>
+      </div>
+      <div>
+        <div class="hist-full-row"><span class="hkey">Operação</span><span class="hval"><span class="badge ${op.modo==='compra'?'badge-compra':'badge-venda'}">${op.modo==='compra'?'Compra':'Venda'}</span></span></div>
+        <div class="hist-full-row"><span class="hkey">FX Rate</span><span class="hval rval taxa">${op.taxaCliente ? op.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6}) : '—'}</span></div>
+        <div class="hist-full-row"><span class="hkey">Amount</span><span class="hval">${op.saida} ${fmt(op.amount||0)}</span></div>
+        <div class="hist-full-row"><span class="hkey">BRL Conversion</span><span class="hval">R$ ${fmt(op.brlConversion||0)}</span></div>
+        ${op.irAtual>0 ? `<div class="hist-full-row"><span class="hkey">IR (${op.irAtual.toFixed(5)}%)</span><span class="hval">R$ ${fmt(op.irVal||0)}</span></div>` : ''}
+        ${op.iofAtual>0 ? `<div class="hist-full-row"><span class="hkey">IOF (${op.iofAtual.toFixed(2)}%)</span><span class="hval">R$ ${fmt(op.iofVal||0)}</span></div>` : ''}
+        <div class="hist-full-row ${hlClass}"><span class="hkey">Total Amount BRL</span><span class="hval">R$ ${fmt(op.totalBRL||0)}</span></div>
+      </div>
+      ${isPendente ? `<button class="hist-efetivar-btn" onclick="efetivarCotacao(${op.id})">✓ Confirmar efetivação</button>` : ''}
+    </div>`;
+  }).join('');
 }
 
 // Aureon
@@ -817,8 +927,9 @@ function auCalcular(){
 // Init
 document.getElementById('dataOp').value = new Date().toISOString().split('T')[0];
 document.getElementById('au-dataCotacao').value = new Date().toISOString().split('T')[0];
+carregarHistoricoLS();
 onTipoChange();
-renderHistorico();
+renderHistoricoCompleto();
 </script>
 </body>
 </html>
