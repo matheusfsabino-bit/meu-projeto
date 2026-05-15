@@ -8,7 +8,39 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; padding: 24px; }
   .container { max-width: 720px; margin: 0 auto; }
-  h1 { font-size: 18px; font-weight: 600; margin-bottom: 24px; }
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 0; }
+  .app-tabs { display: flex; gap: 0; border-bottom: 2px solid #e5e5e5; margin-bottom: 24px; margin-top: 16px; }
+  .app-tab { padding: 10px 20px; font-size: 13px; font-weight: 600; color: #aaa; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; letter-spacing: 0.02em; transition: color .15s; }
+  .app-tab:hover { color: #555; }
+  .app-tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+  .app-panel { display: none; }
+  .app-panel.active { display: block; }
+  /* NEWS */
+  .news-filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .news-chip { padding: 6px 14px; border-radius: 20px; border: 1px solid #e5e5e5; background: #fff; font-size: 12px; font-weight: 500; color: #888; cursor: pointer; transition: all .15s; }
+  .news-chip:hover { border-color: #bbb; color: #555; }
+  .news-chip.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .news-chip.mercado.active  { background: #185FA5; border-color: #185FA5; }
+  .news-chip.geopolitica.active { background: #7B3FA0; border-color: #7B3FA0; }
+  .news-chip.macro.active    { background: #1D9E75; border-color: #1D9E75; }
+  .news-chip.cripto.active   { background: #F5A623; border-color: #F5A623; color: #fff; }
+  .news-chip.conflitos.active { background: #A32D2D; border-color: #A32D2D; }
+  .news-grid { display: flex; flex-direction: column; gap: 10px; }
+  .news-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .news-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .news-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; }
+  .news-tag.mercado   { background: #DDEEFA; color: #185FA5; }
+  .news-tag.geopolitica { background: #EDE3F7; color: #7B3FA0; }
+  .news-tag.macro     { background: #E1F5EE; color: #0F6E56; }
+  .news-tag.cripto    { background: #FEF3DC; color: #9A6200; }
+  .news-tag.conflitos { background: #FCEBEB; color: #A32D2D; }
+  .news-time { font-size: 11px; color: #bbb; white-space: nowrap; }
+  .news-title { font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.4; }
+  .news-summary { font-size: 12px; color: #888; line-height: 1.5; }
+  .news-source { font-size: 11px; color: #bbb; }
+  .news-empty { text-align: center; padding: 40px 0; font-size: 13px; color: #bbb; }
+  .news-placeholder { background: #f5f5f5; border-radius: 10px; padding: 32px; text-align: center; }
+  .news-placeholder p { font-size: 13px; color: #aaa; line-height: 1.6; margin-top: 8px; }
   .section-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
   .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
   .card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
@@ -93,6 +125,12 @@
 <div class="container">
   <h1>Calculadora de Câmbio</h1>
 
+  <nav class="app-tabs">
+    <button class="app-tab active" onclick="switchTab('calculadora')">Calculadora</button>
+    <button class="app-tab" onclick="switchTab('news')">News</button>
+  </nav>
+
+  <div id="panel-calculadora" class="app-panel active">
   <p class="section-title">Cliente</p>
   <div class="client-bar">
     <select id="clienteSelect"><option value="">— Selecionar cliente —</option></select>
@@ -222,10 +260,63 @@
     <p class="section-title">Histórico da sessão</p>
     <div id="historicoList"><div class="hist-empty">Nenhuma operação calculada ainda</div></div>
   </div>
+  </div><!-- /panel-calculadora -->
+
+  <div id="panel-news" class="app-panel">
+    <div class="news-filter-row">
+      <button class="news-chip active" data-cat="todos" onclick="filtrarNews('todos')">Todos</button>
+      <button class="news-chip mercado" data-cat="mercado" onclick="filtrarNews('mercado')">Mercado</button>
+      <button class="news-chip geopolitica" data-cat="geopolitica" onclick="filtrarNews('geopolitica')">Geopolítica</button>
+      <button class="news-chip macro" data-cat="macro" onclick="filtrarNews('macro')">Macro / Micro</button>
+      <button class="news-chip cripto" data-cat="cripto" onclick="filtrarNews('cripto')">Criptomoeda</button>
+      <button class="news-chip conflitos" data-cat="conflitos" onclick="filtrarNews('conflitos')">Conflitos</button>
+    </div>
+    <div class="news-grid" id="newsGrid">
+      <div class="news-placeholder">
+        <div style="font-size:28px">📰</div>
+        <p>As notícias aparecerão aqui quando a integração com a API estiver configurada.<br>Por enquanto, este é o layout da aba.</p>
+      </div>
+    </div>
+  </div><!-- /panel-news -->
+
 </div>
 
 <script>
 let modo = 'compra', iofAtual = 0, irAtual = 0, tipoAtual = '', iofDentro = false;
+let newsCatAtiva = 'todos', newsData = [];
+
+function switchTab(tab){
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === tab || (tab==='news' && b.textContent==='News') || (tab==='calculadora' && b.textContent==='Calculadora')));
+  document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
+}
+
+function filtrarNews(cat){
+  newsCatAtiva = cat;
+  document.querySelectorAll('.news-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.cat === cat);
+  });
+  renderNews();
+}
+
+function renderNews(){
+  const grid = document.getElementById('newsGrid');
+  const filtered = newsCatAtiva === 'todos' ? newsData : newsData.filter(n => n.cat === newsCatAtiva);
+  if(!filtered.length){
+    grid.innerHTML = `<div class="news-placeholder"><div style="font-size:28px">📰</div><p>${newsData.length ? 'Nenhuma notícia nesta categoria.' : 'As notícias aparecerão aqui quando a integração com a API estiver configurada.<br>Por enquanto, este é o layout da aba.'}</p></div>`;
+    return;
+  }
+  const catLabel = { mercado:'Mercado', geopolitica:'Geopolítica', macro:'Macro / Micro', cripto:'Criptomoeda', conflitos:'Conflitos' };
+  grid.innerHTML = filtered.map(n => `
+    <div class="news-card">
+      <div class="news-card-top">
+        <span class="news-tag ${n.cat}">${catLabel[n.cat]}</span>
+        <span class="news-time">${n.time}</span>
+      </div>
+      <div class="news-title">${n.title}</div>
+      ${n.summary ? `<div class="news-summary">${n.summary}</div>` : ''}
+      <div class="news-source">${n.source}</div>
+    </div>`).join('');
+}
 let historico = [], lastResult = {};
 
 function setModo(m){
