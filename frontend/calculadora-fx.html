@@ -30,6 +30,7 @@
   .news-chip.macro.active    { background: #00CC8C; border-color: #00CC8C; }
   .news-chip.cripto.active   { background: #F5A623; border-color: #F5A623; color: #fff; }
   .news-chip.conflitos.active { background: #FF4B5A; border-color: #FF4B5A; }
+  .news-chip.cambio.active   { background: #185FA5; border-color: #185FA5; }
   .news-grid { display: flex; flex-direction: column; gap: 10px; }
   .news-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
   .news-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -39,6 +40,7 @@
   .news-tag.macro     { background: #DFFAF1; color: #007A56; }
   .news-tag.cripto    { background: #FEF3DC; color: #9A6200; }
   .news-tag.conflitos { background: #FFE8EA; color: #FF4B5A; }
+  .news-tag.cambio    { background: #DDEEFF; color: #185FA5; }
   .news-time { font-size: 11px; color: #AEAEB2; white-space: nowrap; }
   .news-title { font-size: 14px; font-weight: 600; color: #212121; line-height: 1.4; }
   .news-summary { font-size: 12px; color: #888; line-height: 1.5; }
@@ -554,6 +556,7 @@
       <button class="news-chip macro" data-cat="macro" onclick="filtrarNews('macro')">Macro / Micro</button>
       <button class="news-chip cripto" data-cat="cripto" onclick="filtrarNews('cripto')">Criptomoeda</button>
       <button class="news-chip conflitos" data-cat="conflitos" onclick="filtrarNews('conflitos')">Conflitos</button>
+      <button class="news-chip cambio" data-cat="cambio" onclick="filtrarNews('cambio')">Câmbio</button>
     </div>
     <div class="news-grid" id="newsGrid">
       <div class="news-placeholder">
@@ -645,13 +648,14 @@ const KEYWORDS = {
   cripto:     ['bitcoin','ethereum','cripto','blockchain','btc','eth','binance','coinbase','altcoin','defi','nft','web3','stablecoin','solana','xrp','litecoin'],
   conflitos:  ['guerra','conflito','ataque','militar','ucrânia','rússia','israel','hamas','oriente médio','bombardeio','tropas','exército','nato','otan','míssil','drone','cessar-fogo'],
   geopolitica:['trump','biden','putin','xi jinping','geopolítica','sanção','embargo','diplomacia','relações exteriores','otan','onu','g7','g20','brics','parlamento','congresso','senado','eleição','voto','partido'],
-  macro:      ['pib','inflação','ipca','igpm','juros','selic','taxa','desemprego','emprego','fmi','ocde','banco central','fed','bce','recessão','crescimento econômico','déficit','superávit','balança','exportação','importação','câmbio','dólar','euro'],
+  cambio:     ['câmbio','dólar','euro','libra','iene','yuan','remessa','ptax','operação de câmbio','taxa de câmbio','dólar comercial','dólar turismo','forex','fx','moeda','real','brl','usd','eur','cotação do dólar','bacen câmbio','intervenção cambial','reservas internacionais'],
+  macro:      ['pib','inflação','ipca','igpm','juros','selic','taxa','desemprego','emprego','fmi','ocde','banco central','fed','bce','recessão','crescimento econômico','déficit','superávit','balança','exportação','importação'],
   mercado:    ['ibovespa','bolsa','ações','nasdaq','dow jones','s&p','nikkei','petrobras','vale','itaú','bradesco','ambev','resultados','dividendos','ipo','oferta','índice','alta','queda','pregão','commodities','petróleo','ouro','minério'],
 };
 
 function categorizarNoticia(title, desc){
   const text = (title + ' ' + (desc||'')).toLowerCase();
-  const ordem = ['cripto','conflitos','geopolitica','macro','mercado'];
+  const ordem = ['cripto','conflitos','geopolitica','cambio','macro','mercado'];
   for(const cat of ordem){
     if(KEYWORDS[cat].some(k => text.includes(k))) return cat;
   }
@@ -791,7 +795,7 @@ function renderNews(){
     grid.innerHTML = `<div class="news-placeholder"><div style="font-size:28px">📰</div><p>${newsData.length ? 'Nenhuma notícia nesta categoria.' : 'As notícias aparecerão aqui quando a integração com a API estiver configurada.'}</p></div>`;
     return;
   }
-  const catLabel = { mercado:'Mercado', geopolitica:'Geopolítica', macro:'Macro / Micro', cripto:'Criptomoeda', conflitos:'Conflitos' };
+  const catLabel = { mercado:'Mercado', geopolitica:'Geopolítica', macro:'Macro / Micro', cripto:'Criptomoeda', conflitos:'Conflitos', cambio:'Câmbio' };
   grid.innerHTML = filtered.map(n => `
     <a class="news-card" href="${n.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;cursor:pointer;">
       <div class="news-card-top">
