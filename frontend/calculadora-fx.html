@@ -729,6 +729,16 @@ function parseRssXml(xmlText, fallbackSource){
   }).filter(Boolean);
 }
 
+async function tryProxy(proxyUrl, fallbackSource){
+  const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(7000) });
+  if(!r.ok) throw new Error('not ok');
+  let text = await r.text();
+  try{ const j = JSON.parse(text); if(j.contents) text = j.contents; }catch{}
+  const items = parseRssXml(text, fallbackSource);
+  if(!items || !items.length) throw new Error('empty');
+  return items;
+}
+
 async function fetchFeed(feed){
   const u = encodeURIComponent(feed.url);
   const proxies = [
@@ -736,17 +746,11 @@ async function fetchFeed(feed){
     `https://corsproxy.io/?${u}`,
     `https://api.allorigins.win/get?url=${u}`,
   ];
-  for(const proxyUrl of proxies){
-    try{
-      const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(9000) });
-      if(!r.ok) continue;
-      let text = await r.text();
-      try{ const j = JSON.parse(text); if(j.contents) text = j.contents; }catch{}
-      const items = parseRssXml(text, feed.source);
-      if(items && items.length) return items;
-    }catch{}
+  try{
+    return await Promise.any(proxies.map(p => tryProxy(p, feed.source)));
+  }catch{
+    return [];
   }
-  return [];
 }
 
 async function carregarNews(){
