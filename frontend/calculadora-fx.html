@@ -327,7 +327,7 @@ function tempoRelativo(pubDate){
 function stripHtml(html){ return (html||'').replace(/<[^>]*>/g,'').trim().slice(0,160); }
 
 async function fetchFeed(feed){
-  const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}&count=15`;
+  const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
   const r = await fetch(url);
   const json = await r.json();
   if(json.status !== 'ok') return [];
