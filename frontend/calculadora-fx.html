@@ -263,6 +263,10 @@
   </div><!-- /panel-calculadora -->
 
   <div id="panel-news" class="app-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.08em">Notícias do mercado</span>
+      <button onclick="carregarNews()" style="font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:6px;padding:4px 10px;cursor:pointer;">↻ Atualizar</button>
+    </div>
     <div class="news-filter-row">
       <button class="news-chip active" data-cat="todos" onclick="filtrarNews('todos')">Todos</button>
       <button class="news-chip mercado" data-cat="mercado" onclick="filtrarNews('mercado')">Mercado</button>
@@ -285,16 +289,84 @@
 let modo = 'compra', iofAtual = 0, irAtual = 0, tipoAtual = '', iofDentro = false;
 let newsCatAtiva = 'todos', newsData = [];
 
+const RSS_FEEDS = [
+  { url: 'https://www.infomoney.com.br/feed/',                    source: 'InfoMoney' },
+  { url: 'https://www.infomoney.com.br/mercados/feed/',           source: 'InfoMoney · Mercados' },
+  { url: 'https://www.infomoney.com.br/guias/criptomoedas/feed/', source: 'InfoMoney · Cripto' },
+  { url: 'https://br.investing.com/rss/news.rss',                 source: 'Investing.com' },
+  { url: 'https://br.investing.com/rss/news_301.rss',             source: 'Investing.com · Forex' },
+];
+
+const KEYWORDS = {
+  cripto:     ['bitcoin','ethereum','cripto','blockchain','btc','eth','binance','coinbase','altcoin','defi','nft','web3','stablecoin','solana','xrp','litecoin'],
+  conflitos:  ['guerra','conflito','ataque','militar','ucrânia','rússia','israel','hamas','oriente médio','bombardeio','tropas','exército','nato','otan','míssil','drone','cessar-fogo'],
+  geopolitica:['trump','biden','putin','xi jinping','geopolítica','sanção','embargo','diplomacia','relações exteriores','otan','onu','g7','g20','brics','parlamento','congresso','senado','eleição','voto','partido'],
+  macro:      ['pib','inflação','ipca','igpm','juros','selic','taxa','desemprego','emprego','fmi','ocde','banco central','fed','bce','recessão','crescimento econômico','déficit','superávit','balança','exportação','importação','câmbio','dólar','euro'],
+  mercado:    ['ibovespa','bolsa','ações','nasdaq','dow jones','s&p','nikkei','petrobras','vale','itaú','bradesco','ambev','resultados','dividendos','ipo','oferta','índice','alta','queda','pregão','commodities','petróleo','ouro','minério'],
+};
+
+function categorizarNoticia(title, desc){
+  const text = (title + ' ' + (desc||'')).toLowerCase();
+  const ordem = ['cripto','conflitos','geopolitica','macro','mercado'];
+  for(const cat of ordem){
+    if(KEYWORDS[cat].some(k => text.includes(k))) return cat;
+  }
+  return 'mercado';
+}
+
+function tempoRelativo(pubDate){
+  const diff = Date.now() - new Date(pubDate).getTime();
+  const m = Math.floor(diff/60000);
+  if(m < 1)  return 'agora';
+  if(m < 60) return `${m}min`;
+  const h = Math.floor(m/60);
+  if(h < 24) return `${h}h`;
+  return `${Math.floor(h/24)}d`;
+}
+
+function stripHtml(html){ return (html||'').replace(/<[^>]*>/g,'').trim().slice(0,160); }
+
+async function fetchFeed(feed){
+  const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}&count=15`;
+  const r = await fetch(url);
+  const json = await r.json();
+  if(json.status !== 'ok') return [];
+  return json.items.map(item => ({
+    title:   item.title,
+    summary: stripHtml(item.description),
+    source:  feed.source,
+    time:    tempoRelativo(item.pubDate),
+    link:    item.link,
+    cat:     categorizarNoticia(item.title, item.description),
+    pubDate: new Date(item.pubDate).getTime(),
+  }));
+}
+
+async function carregarNews(){
+  const grid = document.getElementById('newsGrid');
+  grid.innerHTML = '<div class="news-placeholder"><div style="font-size:20px;color:#bbb">Carregando notícias...</div></div>';
+  try {
+    const results = await Promise.allSettled(RSS_FEEDS.map(fetchFeed));
+    const all = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+    const seen = new Set();
+    newsData = all
+      .filter(n => { const key = n.title.slice(0,60); if(seen.has(key)) return false; seen.add(key); return true; })
+      .sort((a,b) => b.pubDate - a.pubDate);
+    renderNews();
+  } catch(e) {
+    grid.innerHTML = '<div class="news-placeholder"><p>Erro ao carregar notícias. Verifique sua conexão.</p></div>';
+  }
+}
+
 function switchTab(tab){
   document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === tab || (tab==='news' && b.textContent==='News') || (tab==='calculadora' && b.textContent==='Calculadora')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
+  if(tab === 'news' && !newsData.length) carregarNews();
 }
 
 function filtrarNews(cat){
   newsCatAtiva = cat;
-  document.querySelectorAll('.news-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.cat === cat);
-  });
+  document.querySelectorAll('.news-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === cat));
   renderNews();
 }
 
@@ -302,12 +374,12 @@ function renderNews(){
   const grid = document.getElementById('newsGrid');
   const filtered = newsCatAtiva === 'todos' ? newsData : newsData.filter(n => n.cat === newsCatAtiva);
   if(!filtered.length){
-    grid.innerHTML = `<div class="news-placeholder"><div style="font-size:28px">📰</div><p>${newsData.length ? 'Nenhuma notícia nesta categoria.' : 'As notícias aparecerão aqui quando a integração com a API estiver configurada.<br>Por enquanto, este é o layout da aba.'}</p></div>`;
+    grid.innerHTML = `<div class="news-placeholder"><div style="font-size:28px">📰</div><p>${newsData.length ? 'Nenhuma notícia nesta categoria.' : 'As notícias aparecerão aqui quando a integração com a API estiver configurada.'}</p></div>`;
     return;
   }
   const catLabel = { mercado:'Mercado', geopolitica:'Geopolítica', macro:'Macro / Micro', cripto:'Criptomoeda', conflitos:'Conflitos' };
   grid.innerHTML = filtered.map(n => `
-    <div class="news-card">
+    <a class="news-card" href="${n.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;cursor:pointer;">
       <div class="news-card-top">
         <span class="news-tag ${n.cat}">${catLabel[n.cat]}</span>
         <span class="news-time">${n.time}</span>
@@ -315,7 +387,7 @@ function renderNews(){
       <div class="news-title">${n.title}</div>
       ${n.summary ? `<div class="news-summary">${n.summary}</div>` : ''}
       <div class="news-source">${n.source}</div>
-    </div>`).join('');
+    </a>`).join('');
 }
 let historico = [], lastResult = {};
 
