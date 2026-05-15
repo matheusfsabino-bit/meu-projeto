@@ -82,17 +82,16 @@
   .comunicado-loading-dot:nth-child(2){ animation-delay:.2s; }
   .comunicado-loading-dot:nth-child(3){ animation-delay:.4s; }
   @keyframes dotpulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
-  .arte-card { background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%); border-radius:14px; padding:28px 26px 22px; color:#fff; margin-top:20px; }
-  .arte-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
-  .arte-logo { font-size:16px; font-weight:800; letter-spacing:.12em; color:#fff; }
-  .arte-tag { font-size:10px; font-weight:600; background:rgba(255,255,255,.15); border-radius:4px; padding:3px 9px; letter-spacing:.07em; text-transform:uppercase; color:rgba(255,255,255,.85); }
-  .arte-text { font-size:14px; line-height:1.75; color:rgba(255,255,255,.93); }
-  .arte-divider { border:none; border-top:1px solid rgba(255,255,255,.12); margin:18px 0 14px; }
-  .arte-fontes { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
-  .arte-fonte-tag { font-size:10px; color:rgba(255,255,255,.55); background:rgba(255,255,255,.08); border-radius:4px; padding:2px 8px; }
-  .arte-footer { display:flex; justify-content:space-between; align-items:center; }
+  .arte-card { background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%); border-radius:14px; padding:28px 26px 24px; color:#fff; }
+  .arte-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+  .arte-logo { font-size:15px; font-weight:800; letter-spacing:.14em; color:#fff; }
+  .arte-tag { font-size:10px; font-weight:600; background:rgba(255,255,255,.15); border-radius:4px; padding:3px 9px; letter-spacing:.07em; text-transform:uppercase; color:rgba(255,255,255,.8); }
+  .arte-titulo { font-size:22px; font-weight:800; line-height:1.25; color:#fff; margin-bottom:20px; letter-spacing:-.01em; }
+  .arte-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; }
+  .arte-chip { font-size:11px; font-weight:700; letter-spacing:.08em; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:4px 12px; color:rgba(255,255,255,.9); }
+  .arte-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,.1); padding-top:14px; }
   .arte-date { font-size:11px; color:rgba(255,255,255,.4); }
-  .arte-brand { font-size:11px; font-weight:700; letter-spacing:.1em; color:rgba(255,255,255,.35); }
+  .arte-brand { font-size:11px; font-weight:700; letter-spacing:.1em; color:rgba(255,255,255,.3); }
   .comunicado-actions { display:flex; gap:8px; margin-top:14px; }
   .btn-action { flex:1; padding:10px; background:#F2F2F7; border:none; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; color:#212121; transition:background .15s; }
   .btn-action:hover { background:#E5E5EA; }
@@ -1145,17 +1144,22 @@ async function executarGeracao(){
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system: `Você é operador de câmbio da Aurex, empresa especializada em operações de câmbio no Brasil.
-Seu papel é comunicar à comunidade, de forma simples e direta, como eventos do mercado impactam o câmbio brasileiro (BRL/USD).
-Regras obrigatórias:
-- Máximo 120 palavras
-- Linguagem acessível, sem jargão técnico excessivo
-- Foco no impacto cambial: o que isso significa para o dólar e o real
-- Texto corrido, sem bullet points, sem hashtags, sem emojis
-- Tom: autoridade de operador de câmbio explicando ao cliente
-- NÃO mencione "Aurex" no texto`,
-        messages: [{ role:'user', content:`Com base nas notícias abaixo, escreva um comunicado explicando o impacto no mercado de câmbio:\n\n${prompt}` }]
+        max_tokens: 600,
+        system: `Você é operador de câmbio sênior da Aurex, especialista em mercado cambial brasileiro.
+Gere um comunicado para redes sociais em formato JSON com exatamente esta estrutura:
+{
+  "titulo": "frase curta e impactante, máx 8 palavras, sem ponto final",
+  "chips": ["palavra-chave 1", "palavra-chave 2", "palavra-chave 3"],
+  "legenda": "texto da legenda do post"
+}
+
+Regras para cada campo:
+- titulo: manchete chamativa sobre o impacto cambial, linguagem direta, pode usar números (ex: "Dólar pressiona real com Fed hawkish")
+- chips: 3 termos técnicos relevantes em caixa alta (ex: "DXY", "COPOM", "RISK-OFF")
+- legenda: 3 parágrafos curtos — (1) o que aconteceu, (2) por que impacta o câmbio, (3) o que observar. Máx 150 palavras. Sem hashtags. Tom de especialista explicando ao cliente.
+
+Responda SOMENTE com o JSON, sem texto antes ou depois.`,
+        messages: [{ role:'user', content:`Notícias:\n\n${prompt}` }]
       })
     });
     if(!res.ok){
@@ -1163,8 +1167,11 @@ Regras obrigatórias:
       throw new Error(err.error?.message || `Erro ${res.status}`);
     }
     const data = await res.json();
-    _ultimoTexto = data.content[0].text;
-    renderArteComunicado(_ultimoTexto);
+    let resultado;
+    try { resultado = JSON.parse(data.content[0].text); }
+    catch { throw new Error('Resposta da IA em formato inválido. Tente novamente.'); }
+    _ultimoTexto = resultado.legenda;
+    renderArteComunicado(resultado);
   } catch(e){
     body.innerHTML = `<div style="text-align:center;padding:24px 0">
       <div style="font-size:13px;color:#FF4B5A;margin-bottom:16px">Erro: ${e.message}</div>
@@ -1173,28 +1180,30 @@ Regras obrigatórias:
   }
 }
 
-function renderArteComunicado(texto){
+function renderArteComunicado(r){
   const body = document.getElementById('comunicadoBody');
   const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
   body.innerHTML = `
+    <p style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Arte</p>
     <div class="arte-card" id="arteCard">
       <div class="arte-header">
         <span class="arte-logo">AUREX</span>
-        <span class="arte-tag">Mercado de Câmbio</span>
+        <span class="arte-tag">Câmbio</span>
       </div>
-      <div class="arte-text">${texto}</div>
-      <hr class="arte-divider">
-      <div class="arte-fontes">${noticiasSelected.map(a =>
-        `<span class="arte-fonte-tag">${a.source}</span>`).join('')}
-      </div>
+      <div class="arte-titulo">${r.titulo}</div>
+      <div class="arte-chips">${(r.chips||[]).map(c=>`<span class="arte-chip">${c}</span>`).join('')}</div>
       <div class="arte-footer">
         <span class="arte-date">${hoje}</span>
         <span class="arte-brand">AUREX.COM.BR</span>
       </div>
     </div>
-    <div class="comunicado-actions">
-      <button class="btn-action" id="btnCopiarTexto" onclick="copiarTextoComunicado()">📋 Copiar texto</button>
+    <div class="comunicado-actions" style="margin-bottom:20px;">
       <button class="btn-action" onclick="abrirArteJanela()">🖼 Salvar arte</button>
+    </div>
+    <p style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Legenda do post</p>
+    <div style="background:#F9F9FB;border:1px solid #E5E5EA;border-radius:10px;padding:14px 16px;font-size:13px;color:#212121;line-height:1.7;white-space:pre-wrap;margin-bottom:12px;">${r.legenda}</div>
+    <div class="comunicado-actions">
+      <button class="btn-action" id="btnCopiarTexto" onclick="copiarTextoComunicado()">📋 Copiar legenda</button>
       <button class="btn-action" onclick="renderFormComunicado()">↺ Gerar novamente</button>
     </div>`;
 }
@@ -1210,25 +1219,27 @@ function copiarTextoComunicado(){
 function abrirArteJanela(){
   const card = document.getElementById('arteCard');
   if(!card) return;
-  const w = window.open('','_blank','width=560,height=520,toolbar=0,menubar=0');
+  const w = window.open('','_blank','width=520,height=480,toolbar=0,menubar=0,resizable=0');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800&display=swap">
   <style>
-    body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;box-sizing:border-box;}
-    .arte-card{background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%);border-radius:14px;padding:28px 26px 22px;color:#fff;width:100%;max-width:500px;}
-    .arte-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-    .arte-logo{font-size:16px;font-weight:800;letter-spacing:.12em;}
-    .arte-tag{font-size:10px;font-weight:600;background:rgba(255,255,255,.15);border-radius:4px;padding:3px 9px;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.85);}
-    .arte-text{font-size:14px;line-height:1.75;color:rgba(255,255,255,.93);}
-    .arte-divider{border:none;border-top:1px solid rgba(255,255,255,.12);margin:18px 0 14px;}
-    .arte-fontes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
-    .arte-fonte-tag{font-size:10px;color:rgba(255,255,255,.55);background:rgba(255,255,255,.08);border-radius:4px;padding:2px 8px;}
-    .arte-footer{display:flex;justify-content:space-between;align-items:center;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#0D0D0D;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:'Inter',sans-serif;}
+    .arte-card{background:linear-gradient(145deg,#04043A 0%,#0A0AFF 100%);border-radius:16px;padding:30px 28px 26px;color:#fff;width:100%;max-width:460px;}
+    .arte-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+    .arte-logo{font-size:15px;font-weight:800;letter-spacing:.14em;}
+    .arte-tag{font-size:10px;font-weight:600;background:rgba(255,255,255,.15);border-radius:4px;padding:3px 10px;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.8);}
+    .arte-titulo{font-size:24px;font-weight:800;line-height:1.2;color:#fff;margin-bottom:22px;letter-spacing:-.02em;}
+    .arte-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px;}
+    .arte-chip{font-size:11px;font-weight:700;letter-spacing:.08em;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 13px;color:rgba(255,255,255,.9);}
+    .arte-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;}
     .arte-date{font-size:11px;color:rgba(255,255,255,.4);}
-    .arte-brand{font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.35);}
-    p{text-align:center;color:#555;font-size:12px;font-family:sans-serif;margin-top:16px;}
+    .arte-brand{font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);}
+    .hint{color:#444;font-size:11px;font-family:sans-serif;margin-top:14px;text-align:center;}
   </style></head><body>
   ${card.outerHTML}
-  <p>Pressione Print Screen ou use Ctrl+Shift+S para salvar</p>
+  <p class="hint">Use a ferramenta de recorte do Windows (Win + Shift + S) para salvar</p>
   </body></html>`);
   w.document.close();
 }
