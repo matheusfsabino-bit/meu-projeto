@@ -165,6 +165,32 @@
   .hist-full-card { position: relative; }
   .hist-full-empty { font-size: 13px; color: #AEAEB2; text-align: center; padding: 32px 0; }
   .hist-summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  /* Clientes */
+  .cli-form-card { background:#fff; border:1px solid #E5E5EA; border-radius:10px; padding:16px; margin-bottom:20px; }
+  .cli-form-title { font-size:13px; font-weight:600; color:#212121; margin-bottom:14px; }
+  .cli-upload-area { border:2px dashed #E5E5EA; border-radius:8px; padding:20px; text-align:center; cursor:pointer; transition:all .15s; margin-bottom:10px; }
+  .cli-upload-area:hover { border-color:#000FFA; background:#F7F8FF; }
+  .cli-upload-label { font-size:13px; color:#AEAEB2; }
+  .cli-upload-label span { color:#000FFA; font-weight:600; cursor:pointer; }
+  .cli-file-pending { display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:#F2F2F7; border-radius:6px; margin-bottom:4px; font-size:12px; color:#555; }
+  .cli-btn-primary { display:block; width:100%; padding:11px; background:#000FFA; border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; margin-top:4px; }
+  .cli-btn-primary:hover { background:#3340FF; }
+  .cli-card { background:#fff; border:1px solid #E5E5EA; border-radius:10px; overflow:hidden; margin-bottom:10px; }
+  .cli-card-header { padding:12px 16px; display:flex; justify-content:space-between; align-items:center; }
+  .cli-card-name { font-size:14px; font-weight:600; color:#212121; }
+  .cli-card-cnpj { font-size:11px; color:#AEAEB2; margin-top:2px; }
+  .cli-docs-section { border-top:1px solid #F0F0F5; padding:10px 16px; background:#F9F9FB; }
+  .cli-doc-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #F0F0F5; }
+  .cli-doc-row:last-of-type { border-bottom:none; }
+  .cli-doc-name { font-size:12px; color:#555; }
+  .cli-doc-size { font-size:11px; color:#AEAEB2; margin-left:6px; }
+  .cli-btn-dl { background:#fff; border:1px solid #E5E5EA; border-radius:4px; padding:3px 8px; font-size:11px; color:#000FFA; cursor:pointer; font-family:inherit; transition:background .15s; }
+  .cli-btn-dl:hover { background:#E0E5FF; }
+  .cli-btn-icon { background:none; border:none; cursor:pointer; color:#C7C7CC; font-size:14px; padding:2px 4px; transition:color .15s; line-height:1; }
+  .cli-btn-icon:hover { color:#FF4B5A; }
+  .cli-add-doc-label { display:inline-block; margin-top:8px; font-size:12px; color:#000FFA; cursor:pointer; font-weight:500; }
+  .cli-docs-count { font-size:11px; color:#AEAEB2; margin-right:4px; }
+  .cli-empty { font-size:13px; color:#AEAEB2; text-align:center; padding:32px 0; }
   /* Aureon panel */
   .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
   .au-spot-card.max { border-top: 3px solid #000FFA; }
@@ -203,6 +229,7 @@
   <nav class="app-tabs">
     <button class="app-tab active" onclick="switchTab('calculadora')">Fx Aurex</button>
     <button class="app-tab" onclick="switchTab('aureon')">Fx Delta</button>
+    <button class="app-tab" onclick="switchTab('clientes')">Clientes</button>
     <button class="app-tab" onclick="switchTab('news')">News Aurex</button>
   </nav>
 
@@ -365,6 +392,26 @@
 
   </div><!-- /panel-calculadora -->
 
+  <div id="panel-clientes" class="app-panel">
+    <div class="cli-form-card">
+      <div class="cli-form-title">Novo cliente</div>
+      <div class="grid2">
+        <div class="card"><div class="card-label">Nome da empresa</div><input type="text" id="cliNome" placeholder="Razão social..."></div>
+        <div class="card"><div class="card-label">CNPJ</div><input type="text" id="cliCnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="maskCnpj(this)"></div>
+      </div>
+      <div class="cli-upload-area" onclick="document.getElementById('cliFileInput').click()">
+        <input type="file" id="cliFileInput" multiple style="display:none" onchange="onCliFileSelect(this)">
+        <div class="cli-upload-label">Arraste ou <span>clique para selecionar documentos</span></div>
+        <div style="font-size:11px;color:#C7C7CC;margin-top:4px">PDF, JPG, PNG, DOCX, XLSX...</div>
+      </div>
+      <div id="cliFilesPending"></div>
+      <button class="cli-btn-primary" onclick="cadastrarCliente()">Cadastrar cliente</button>
+    </div>
+
+    <p class="section-title">Clientes cadastrados</p>
+    <div id="cliLista"><div class="cli-empty">Nenhum cliente cadastrado ainda.</div></div>
+  </div><!-- /panel-clientes -->
+
   <div id="panel-news" class="app-panel">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.08em">Notícias do mercado</span>
@@ -521,7 +568,7 @@ async function carregarNews(){
 }
 
 function switchTab(tab){
-  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', (tab==='calculadora' && b.textContent==='Fx Aurex') || (tab==='news' && b.textContent==='News Aurex') || (tab==='aureon' && b.textContent==='Fx Delta')));
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.toggle('active', (tab==='calculadora' && b.textContent==='Fx Aurex') || (tab==='news' && b.textContent==='News Aurex') || (tab==='aureon' && b.textContent==='Fx Delta') || (tab==='clientes' && b.textContent==='Clientes')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
 }
@@ -871,7 +918,144 @@ function renderHistoricoCompleto(){
   }).join('');
 }
 
-// Aureon
+// ── Clientes ──────────────────────────────────────
+let clientes = [], cliFilesTemp = [], _seq = Date.now();
+function nextId(){ return _seq++; }
+
+function fmtSize(b){ return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(1)+'MB'; }
+
+function maskCnpj(el){
+  let v = el.value.replace(/\D/g,'').slice(0,14);
+  if(v.length>12) v=v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,'$1.$2.$3/$4-$5');
+  else if(v.length>8) v=v.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/,'$1.$2.$3/$4');
+  else if(v.length>5) v=v.replace(/^(\d{2})(\d{3})(\d{0,3})/,'$1.$2.$3');
+  else if(v.length>2) v=v.replace(/^(\d{2})(\d{0,3})/,'$1.$2');
+  el.value=v;
+}
+
+function onCliFileSelect(input){
+  cliFilesTemp=[...cliFilesTemp,...Array.from(input.files)];
+  renderCliPending(); input.value='';
+}
+
+function renderCliPending(){
+  const el=document.getElementById('cliFilesPending'); if(!el) return;
+  el.innerHTML=cliFilesTemp.map((f,i)=>`
+    <div class="cli-file-pending">
+      <span>📄 ${f.name} <span style="color:#AEAEB2">(${fmtSize(f.size)})</span></span>
+      <button class="cli-btn-icon" onclick="cliFilesTemp.splice(${i},1);renderCliPending()">✕</button>
+    </div>`).join('');
+}
+
+async function cadastrarCliente(){
+  const nome=document.getElementById('cliNome').value.trim();
+  const cnpj=document.getElementById('cliCnpj').value.trim();
+  if(!nome){ document.getElementById('cliNome').focus(); return; }
+  const clienteId=nextId(), docs=[];
+  for(const file of cliFilesTemp){
+    const docId=nextId(), buf=await file.arrayBuffer();
+    await idbSalvar({id:docId,clienteId,nome:file.name,tipo:file.type,tamanho:file.size,conteudo:buf});
+    docs.push({id:docId,nome:file.name,tipo:file.type,tamanho:file.size});
+  }
+  clientes.unshift({id:clienteId,nome,cnpj,docs});
+  salvarClientesLS(); renderClientes(); atualizarSeletorClientes();
+  document.getElementById('cliNome').value='';
+  document.getElementById('cliCnpj').value='';
+  cliFilesTemp=[]; renderCliPending();
+}
+
+function salvarClientesLS(){
+  try{ localStorage.setItem('aurex_clientes',JSON.stringify(clientes)); }catch(e){}
+}
+function carregarClientesLS(){
+  try{ const s=localStorage.getItem('aurex_clientes'); if(s) clientes=JSON.parse(s); }catch(e){ clientes=[]; }
+}
+
+function renderClientes(){
+  const el=document.getElementById('cliLista'); if(!el) return;
+  if(!clientes.length){ el.innerHTML='<div class="cli-empty">Nenhum cliente cadastrado ainda.</div>'; return; }
+  el.innerHTML=clientes.map(c=>`
+    <div class="cli-card">
+      <div class="cli-card-header">
+        <div>
+          <div class="cli-card-name">${c.nome}</div>
+          <div class="cli-card-cnpj">${c.cnpj||'CNPJ não informado'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="cli-docs-count">${c.docs.length} doc${c.docs.length!==1?'s':''}</span>
+          <button class="cli-btn-icon" onclick="excluirCliente(${c.id})" title="Excluir cliente">✕</button>
+        </div>
+      </div>
+      <div class="cli-docs-section">
+        ${c.docs.map(d=>`
+          <div class="cli-doc-row">
+            <span class="cli-doc-name">📄 ${d.nome}<span class="cli-doc-size">${fmtSize(d.tamanho)}</span></span>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="cli-btn-dl" onclick="baixarDoc(${d.id},'${d.nome.replace(/'/g,"\\'")}','${d.tipo}')">↓ Baixar</button>
+              <button class="cli-btn-icon" onclick="excluirDoc(${c.id},${d.id})">✕</button>
+            </div>
+          </div>`).join('')}
+        <label class="cli-add-doc-label">
+          <input type="file" multiple style="display:none" onchange="adicionarDocs(${c.id},this)">
+          + Adicionar arquivo
+        </label>
+      </div>
+    </div>`).join('');
+}
+
+async function adicionarDocs(clienteId,input){
+  const c=clientes.find(x=>x.id===clienteId); if(!c) return;
+  for(const file of Array.from(input.files)){
+    const docId=nextId(), buf=await file.arrayBuffer();
+    await idbSalvar({id:docId,clienteId,nome:file.name,tipo:file.type,tamanho:file.size,conteudo:buf});
+    c.docs.push({id:docId,nome:file.name,tipo:file.type,tamanho:file.size});
+  }
+  salvarClientesLS(); renderClientes(); input.value='';
+}
+
+async function excluirDoc(clienteId,docId){
+  const c=clientes.find(x=>x.id===clienteId); if(!c) return;
+  c.docs=c.docs.filter(d=>d.id!==docId);
+  await idbExcluir(docId); salvarClientesLS(); renderClientes();
+}
+
+async function excluirCliente(id){
+  const c=clientes.find(x=>x.id===id);
+  if(c) for(const d of c.docs) await idbExcluir(d.id);
+  clientes=clientes.filter(x=>x.id!==id);
+  salvarClientesLS(); renderClientes(); atualizarSeletorClientes();
+}
+
+async function baixarDoc(docId,nome,tipo){
+  const doc=await idbBuscar(docId); if(!doc) return;
+  const url=URL.createObjectURL(new Blob([doc.conteudo],{type:tipo}));
+  const a=document.createElement('a'); a.href=url; a.download=nome; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function atualizarSeletorClientes(){
+  const sel=document.getElementById('clienteSelect'); if(!sel) return;
+  const cur=sel.value;
+  while(sel.options.length>1) sel.remove(1);
+  clientes.forEach(c=>{ const o=document.createElement('option'); o.value=c.nome; o.textContent=c.nome; sel.appendChild(o); });
+  sel.value=cur;
+}
+
+// IndexedDB
+let _idb=null;
+function getIDB(){
+  if(_idb) return Promise.resolve(_idb);
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('aurex_docs',1);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore('files',{keyPath:'id'});
+    r.onsuccess=e=>{_idb=e.target.result;res(_idb);}; r.onerror=()=>rej(r.error);
+  });
+}
+function idbSalvar(obj){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').put(obj); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
+function idbBuscar(id){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readonly'); const r=tx.objectStore('files').get(id); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); })); }
+function idbExcluir(id){ return getIDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').delete(id); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
+
+// ── Aureon
 function auAtualizarPreview(){
   const s = parseFloat(document.getElementById('au-spotMax').value) || 0;
   if(!s){ document.getElementById('au-taxaPreview').textContent='—'; return; }
@@ -950,8 +1134,11 @@ function auCalcular(){
 document.getElementById('dataOp').value = new Date().toISOString().split('T')[0];
 document.getElementById('au-dataCotacao').value = new Date().toISOString().split('T')[0];
 carregarHistoricoLS();
+carregarClientesLS();
 onTipoChange();
 renderHistoricoCompleto();
+renderClientes();
+atualizarSeletorClientes();
 </script>
 </body>
 </html>
