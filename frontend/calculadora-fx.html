@@ -9,14 +9,14 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #F2F2F7; color: #212121; min-height: 100vh; padding: 24px; }
+  body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #E8EAF2; color: #212121; min-height: 100vh; padding: 24px; }
   .container { max-width: 720px; margin: 0 auto; }
-  h1 { font-size: 18px; font-weight: 700; margin-bottom: 0; letter-spacing: -0.02em; color: #212121; }
+  h1 { font-size: 20px; font-weight: 800; margin-bottom: 0; letter-spacing: -0.03em; color: #0A0A1A; }
   .app-header { display: flex; align-items: center; gap: 10px; }
   .app-header-mark { width: 22px; height: 22px; position: relative; flex-shrink: 0; }
   .app-header-mark svg { width: 22px; height: 22px; }
-  .app-tabs { display: flex; gap: 0; border-bottom: 2px solid #E5E5EA; margin-bottom: 24px; margin-top: 16px; }
-  .app-tab { padding: 10px 20px; font-size: 13px; font-weight: 600; color: #AEAEB2; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; letter-spacing: 0.03em; transition: color .15s; font-family: inherit; }
+  .app-tabs { display: flex; gap: 0; border-bottom: 2px solid #D8DAE8; margin-bottom: 24px; margin-top: 16px; }
+  .app-tab { padding: 10px 18px; font-size: 12px; font-weight: 600; color: #AEAEB2; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase; transition: color .15s; font-family: inherit; }
   .app-tab:hover { color: #555; }
   .app-tab.active { color: #000FFA; border-bottom-color: #000FFA; }
   .app-panel { display: none; }
@@ -127,9 +127,10 @@
   .arte-wrap-linkedin .arte-card { height:100%; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; margin-top:0; }
   .arte-wrap-story .arte-titulo { font-size:26px; }
   .arte-wrap-linkedin .arte-titulo { font-size:20px; }
-  .section-title { font-size: 11px; font-weight: 600; color: #AEAEB2; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 10px; }
-  .card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-  .card-label { font-size: 12px; color: #AEAEB2; margin-bottom: 4px; }
+  .section-title { font-size: 10px; font-weight: 700; color: #000FFA; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 10px; }
+  .card { background: #fff; border: 1px solid #E0E2EE; border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,30,.05); transition: box-shadow .15s; }
+  .card:focus-within { box-shadow: 0 0 0 2px rgba(0,15,250,.12), 0 1px 4px rgba(0,0,30,.05); border-color: rgba(0,15,250,.2); }
+  .card-label { font-size: 11px; font-weight: 600; color: #AEAEB2; margin-bottom: 5px; letter-spacing: .02em; }
   .card input, .card select, .card textarea { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #212121; outline: none; font-family: inherit; }
   .card textarea { font-size: 13px; font-weight: 400; resize: none; height: 52px; line-height: 1.5; }
   .card select { cursor: pointer; }
@@ -159,8 +160,8 @@
   .spread-half input::placeholder { color: #C7C7CC; font-weight: 400; }
   .spread-sep { font-size: 12px; color: #C7C7CC; padding-bottom: 3px; flex-shrink: 0; align-self: flex-end; }
   .formula-hint code { font-family: 'Courier New', monospace; font-size: 11px; color: #212121; }
-  .taxa-preview { background: #F2F2F7; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #888; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .taxa-preview strong { color: #000FFA; font-size: 14px; font-weight: 700; }
+  .taxa-preview { background: linear-gradient(135deg, #EEF0FF 0%, #E8ECFF 100%); border: 1px solid rgba(0,15,250,.1); border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; font-size: 12px; color: #888; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .taxa-preview strong { color: #000FFA; font-size: 15px; font-weight: 700; }
   .impostos-box { background: #F2F2F7; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; }
   .imp-badge { font-size: 11px; font-weight: 500; border-radius: 3px; padding: 2px 6px; }
   .imp-iof { background: #E0E5FF; color: #0011CC; }
@@ -176,24 +177,24 @@
   .volume-input-wrap input { padding-left: 52px !important; width: 100%; font-size: 15px; font-weight: 500; padding-top: 10px; padding-bottom: 10px; border: 1px solid #E5E5EA; border-radius: 8px; background: #fff; color: #212121; outline: none; font-family: inherit; }
   .volume-resultado { padding: 8px 12px; background: #F2F2F7; border-radius: 8px; font-size: 12px; color: #888; display: none; }
   .volume-resultado strong { color: #212121; font-size: 13px; }
-  .calc-btn { display: block; width: 100%; padding: 13px; background: #000FFA; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; margin-bottom: 20px; margin-top: 6px; letter-spacing: 0.03em; font-family: inherit; transition: background .15s; }
-  .calc-btn:hover { background: #3340FF; }
-  .result-box { border: 1px solid #E5E5EA; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-  .result-header { padding: 12px 16px; background: #F9F9FB; border-bottom: 1px solid #E5E5EA; display: flex; justify-content: space-between; align-items: center; }
-  .result-header-title { font-size: 15px; font-weight: 600; color: #212121; }
+  .calc-btn { display: block; width: 100%; padding: 14px; background: linear-gradient(135deg, #000FFA 0%, #1428FA 100%); border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; margin-bottom: 20px; margin-top: 6px; letter-spacing: 0.04em; font-family: inherit; transition: all .2s; box-shadow: 0 4px 16px rgba(0,15,250,.28); }
+  .calc-btn:hover { background: linear-gradient(135deg, #1428FA 0%, #2E42FF 100%); box-shadow: 0 6px 20px rgba(0,15,250,.36); transform: translateY(-1px); }
+  .result-box { border: 1px solid #DDE0EE; border-radius: 14px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 4px 16px rgba(0,0,30,.07); }
+  .result-header { padding: 14px 16px; background: linear-gradient(135deg, #F5F7FF 0%, #EEF0FF 100%); border-bottom: 1px solid rgba(0,15,250,.1); border-left: 3px solid #000FFA; display: flex; justify-content: space-between; align-items: center; }
+  .result-header-title { font-size: 15px; font-weight: 700; color: #0A0A1A; }
   .result-header-sub { font-size: 11px; color: #AEAEB2; margin-top: 2px; }
   .result-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-  .result-header-client { font-size: 12px; font-weight: 500; color: #888; background: #fff; border: 1px solid #E5E5EA; border-radius: 6px; padding: 4px 10px; }
+  .result-header-client { font-size: 12px; font-weight: 600; color: #000FFA; background: #E8ECFF; border: 1px solid rgba(0,15,250,.15); border-radius: 6px; padding: 4px 10px; }
   .result-header-date { font-size: 11px; color: #AEAEB2; }
-  .rrow { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #F0F0F5; }
+  .rrow { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid #F0F2FA; }
   .rrow:last-child { border-bottom: none; }
   .rkey { font-size: 12px; color: #888; }
   .rval { font-size: 13px; font-weight: 500; color: #212121; }
-  .rval.taxa { color: #000FFA; font-weight: 600; }
-  .rval.total { font-size: 15px; }
-  .hl-green { background: #E0E5FF; }
-  .hl-green .rkey { color: #000FFA; font-weight: 500; }
-  .hl-green .rval { color: #0011CC; }
+  .rval.taxa { color: #000FFA; font-weight: 700; font-size: 15px; }
+  .rval.total { font-size: 16px; font-weight: 700; }
+  .hl-green { background: linear-gradient(135deg, #000FFA 0%, #1428FA 100%); }
+  .hl-green .rkey { color: rgba(255,255,255,.7); font-weight: 500; }
+  .hl-green .rval { color: #fff; font-size: 17px; font-weight: 800; }
   .hl-red { background: #FFE8EA; }
   .hl-red .rkey { color: #FF4B5A; font-weight: 500; }
   .hl-red .rval { color: #CC2233; }
@@ -202,7 +203,8 @@
   .badge-venda { background: #FFE8EA; color: #FF4B5A; }
   .divider-label { padding: 6px 16px; font-size: 11px; font-weight: 500; color: #AEAEB2; background: #F9F9FB; border-bottom: 1px solid #F0F0F5; text-transform: uppercase; letter-spacing: .04em; }
   .action-row { display: flex; gap: 8px; margin-bottom: 20px; }
-  .copy-btn { flex: 1; padding: 9px; border: 1px solid #E5E5EA; border-radius: 8px; background: #fff; font-size: 13px; font-weight: 500; color: #888; cursor: pointer; font-family: inherit; }
+  .copy-btn { flex: 1; padding: 10px; border: 1px solid #DDE0EE; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 600; color: #636380; cursor: pointer; font-family: inherit; box-shadow: 0 1px 4px rgba(0,0,20,.05); transition: all .15s; }
+  .copy-btn:hover { border-color: #bbb; background: #F8F8FC; }
   .copy-btn.copied { border-color: #80DCBC; color: #007A56; background: #DFFAF1; }
   .hist-item { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .hist-left .hist-tipo { font-size: 12px; font-weight: 500; color: #212121; }
@@ -288,23 +290,23 @@
   .graf-hint-icon { font-size:13px; font-weight:700; min-width:14px; margin-top:1px; }
   .graf-hint-text { color:#444; }
   /* Aureon panel */
-  .au-spot-card { background: #fff; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; }
-  .au-spot-card.max { border-top: 3px solid #000FFA; }
-  .au-spot-card.min { border-top: 3px solid #00CC8C; }
-  .au-spot-label { font-size: 12px; color: #AEAEB2; margin-bottom: 6px; font-weight: 500; }
-  .au-spot-card input { width: 100%; font-size: 15px; font-weight: 500; border: none; background: transparent; color: #212121; outline: none; font-family: inherit; }
+  .au-spot-card { background: #fff; border: 1px solid #E0E2EE; border-radius: 12px; padding: 14px; box-shadow: 0 1px 4px rgba(0,0,30,.05); }
+  .au-spot-card.max { border-top: 3px solid #000FFA; background: linear-gradient(180deg,#F5F7FF 0%,#fff 60%); }
+  .au-spot-card.min { border-top: 3px solid #00CC8C; background: linear-gradient(180deg,#F0FDF8 0%,#fff 60%); }
+  .au-spot-label { font-size: 11px; font-weight: 700; color: #AEAEB2; margin-bottom: 6px; letter-spacing:.03em; text-transform:uppercase; }
+  .au-spot-card input { width: 100%; font-size: 18px; font-weight: 700; border: none; background: transparent; color: #212121; outline: none; font-family: inherit; }
   .au-results-row { display: grid; grid-template-columns: 1fr 1fr; }
   .au-result-card { overflow: hidden; }
-  .au-result-card.max { border-right: 1px solid #E5E5EA; }
-  .au-col-header { padding: 10px 14px; background: #F9F9FB; border-bottom: 1px solid #E5E5EA; border-top: 3px solid transparent; }
-  .au-col-header.max { border-top-color: #000FFA; }
-  .au-col-header.min { border-top-color: #00CC8C; }
-  .au-col-title { font-size: 13px; font-weight: 600; color: #212121; }
+  .au-result-card.max { border-right: 1px solid #F0F2FA; }
+  .au-col-header { padding: 11px 14px; border-bottom: 1px solid #F0F2FA; border-top: 3px solid transparent; }
+  .au-col-header.max { border-top-color: #000FFA; background: linear-gradient(135deg,#F5F7FF,#EEF0FF); }
+  .au-col-header.min { border-top-color: #00CC8C; background: linear-gradient(135deg,#F0FDF8,#E8FAF2); }
+  .au-col-title { font-size: 13px; font-weight: 700; color: #212121; }
   .au-col-sub { font-size: 11px; color: #AEAEB2; margin-top: 2px; }
-  .au-diff-card { background: #F9F9FB; border: 1px solid #E5E5EA; border-radius: 10px; padding: 14px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .au-diff-card { background: linear-gradient(135deg,#F5F7FF 0%,#EEF0FF 100%); border: 1px solid rgba(0,15,250,.1); border-radius: 14px; padding: 16px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; box-shadow: 0 2px 8px rgba(0,15,250,.06); }
   .au-diff-item { text-align: center; }
-  .au-diff-label { font-size: 11px; color: #AEAEB2; margin-bottom: 4px; }
-  .au-diff-val { font-size: 16px; font-weight: 600; color: #00CC8C; }
+  .au-diff-label { font-size: 10px; font-weight: 700; color: #AEAEB2; margin-bottom: 6px; text-transform:uppercase; letter-spacing:.06em; }
+  .au-diff-val { font-size: 17px; font-weight: 800; color: #00CC8C; }
   .rval.au-receita { color: #00CC8C; font-weight: 500; }
   .rval.au-spread { color: #000FFA; font-weight: 500; }
   /* Backup bar */
@@ -373,6 +375,41 @@
     .rel-cli-liq { font-size: 13px !important; }
     @page { margin: 1.5cm; }
   }
+  /* PTAX bar */
+  .ptax-bar { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#F0F2FF 0%,#E8ECFF 100%); border:1px solid rgba(0,15,250,.12); border-radius:14px; padding:12px 16px; margin-bottom:14px; flex-wrap:wrap; box-shadow:0 2px 8px rgba(0,15,250,.08); }
+  .ptax-label { font-size:10px; font-weight:800; color:#000FFA; text-transform:uppercase; letter-spacing:.1em; }
+  .ptax-val { font-size:16px; font-weight:700; color:#0A0A1A; }
+  .ptax-sub { font-size:11px; color:#888; margin-left:auto; }
+  .ptax-loading { font-size:12px; color:#AEAEB2; }
+  /* Resumo imprimível — modal */
+  .quote-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,30,.6); backdrop-filter:blur(4px); z-index:2000; align-items:center; justify-content:center; padding:20px; }
+  .quote-overlay.open { display:flex; }
+  .quote-modal { background:#fff; border-radius:20px; width:100%; max-width:420px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,50,.22); }
+  .quote-modal-actions { display:flex; gap:8px; padding:14px 16px; background:#F5F7FF; border-top:1px solid rgba(0,15,250,.1); }
+  .quote-btn-close { flex:1; padding:10px; border:1px solid #DDE0EE; border-radius:10px; background:#fff; font-size:13px; font-weight:600; color:#888; cursor:pointer; }
+  .quote-btn-print { flex:2; padding:10px; border:none; border-radius:10px; background:linear-gradient(135deg,#000FFA,#1428FA); font-size:13px; font-weight:700; color:#fff; cursor:pointer; box-shadow:0 3px 10px rgba(0,15,250,.3); }
+  .quote-btn-print:hover { background:linear-gradient(135deg,#1428FA,#2E42FF); }
+  /* Invoice */
+  .invoice-zone { border:2px dashed #E5E5EA; border-radius:10px; padding:20px 16px; text-align:center; cursor:pointer; transition:border-color .2s,background .2s; background:#fafafa; position:relative; margin-bottom:10px; }
+  .invoice-zone:hover { border-color:#000FFA; background:#f0f0ff; }
+  .invoice-zone input[type="file"] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+  .invoice-zone-icon { font-size:20px; margin-bottom:4px; }
+  .invoice-zone-text { font-size:13px; color:#888; }
+  .invoice-zone-sub { font-size:11px; color:#bbb; margin-top:3px; }
+  .invoice-zone.has-file { border-color:#9FE1CB; background:#f0fdf8; }
+  .invoice-zone.has-file .invoice-zone-text { color:#0F6E56; font-weight:500; }
+  @keyframes blink { 0%,100%{opacity:.4} 50%{opacity:1} }
+  .invoice-analyzing { display:none; padding:12px; text-align:center; font-size:13px; color:#888; animation:blink 1.4s ease-in-out infinite; }
+  .invoice-result-card { display:none; border:1px solid #E5E5EA; border-radius:10px; overflow:hidden; margin-bottom:8px; }
+  .invoice-result-header { padding:10px 14px; background:#F2F2F7; border-bottom:1px solid #E5E5EA; font-size:13px; font-weight:600; color:#1a1a1a; display:flex; justify-content:space-between; align-items:center; }
+  .invoice-result-row { display:flex; justify-content:space-between; align-items:flex-start; padding:7px 14px; border-bottom:1px solid #f0f0f0; font-size:12px; gap:8px; }
+  .invoice-result-row:last-child { border-bottom:none; }
+  .invoice-result-key { color:#888; white-space:nowrap; }
+  .invoice-result-val { font-weight:500; color:#1a1a1a; text-align:right; }
+  .invoice-apply-btn { display:block; width:100%; padding:10px; background:#000FFA; border:none; border-radius:8px; font-size:13px; font-weight:600; color:#fff; cursor:pointer; margin:10px 14px 10px; width:calc(100% - 28px); transition:background .15s; }
+  .invoice-apply-btn:hover { background:#3340FF; }
+  .invoice-reset-btn { display:none; width:100%; padding:8px; background:transparent; border:1px solid #E5E5EA; border-radius:8px; font-size:12px; color:#888; cursor:pointer; margin-bottom:10px; }
+  .invoice-reset-btn:hover { background:#F2F2F7; }
 </style>
 </head>
 <body>
@@ -412,6 +449,10 @@
   </div>
 
   <div id="subpanel-cotacao">
+  <div class="ptax-bar" id="ptaxBar">
+    <span class="ptax-label">PTAX USD/BRL</span>
+    <span class="ptax-loading" id="ptaxVal">Carregando...</span>
+  </div>
   <p class="section-title">Cliente</p>
   <div class="client-bar">
     <select id="clienteSelect"><option value="">— Selecionar cliente —</option></select>
@@ -421,6 +462,17 @@
     <div class="card"><div class="card-label">Data da operação</div><input type="date" id="dataOp"></div>
     <div class="card"><div class="card-label">Nº contrato / referência</div><input type="text" id="refOp" placeholder="Ex: FX-2026-001"></div>
   </div>
+
+  <p class="section-title">Analisar Invoice</p>
+  <div class="invoice-zone" id="invoiceZone">
+    <input type="file" id="invoiceFile" accept=".pdf,.jpg,.jpeg,.png,.webp" onchange="invoiceOnFileChange(event)">
+    <div class="invoice-zone-icon">📄</div>
+    <div class="invoice-zone-text">Arraste ou clique para carregar a invoice</div>
+    <div class="invoice-zone-sub">PDF, JPG, PNG ou WEBP — máx 20MB</div>
+  </div>
+  <div class="invoice-analyzing" id="invoiceAnalyzing">Analisando invoice com IA...</div>
+  <div class="invoice-result-card" id="invoiceResultCard"></div>
+  <button class="invoice-reset-btn" id="invoiceResetBtn" onclick="invoiceReset()">↺ Novo arquivo</button>
 
   <p class="section-title">Natureza da operação</p>
   <div class="card" style="margin-bottom:10px">
@@ -544,8 +596,14 @@
       </div>
       <div class="rrow hl-green" id="rowTotal"><span class="rkey">Total Amount BRL</span><span class="rval total" id="resTotal">—</span></div>
     </div>
-    <div class="action-row">
-      <button class="copy-btn" id="copyBtn" onclick="copiarResumo()">Copiar resumo</button>
+    <div style="padding:8px 14px 4px;font-size:10px;color:#bbb;text-align:center;">Cotação sujeita a variação cambial.</div>
+    <div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px;">
+      <button onclick="abrirModalResumo()" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#000FFA 0%,#1428FA 100%);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,15,250,.28);transition:all .2s;letter-spacing:.02em;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(0,15,250,.36)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,15,250,.28)'">
+        Gerar resumo para o cliente ↗
+      </button>
+      <button id="copyBtn" onclick="copiarResumo()" style="display:block;width:100%;padding:9px;background:transparent;border:none;font-size:12px;font-weight:500;color:#AEAEB2;cursor:pointer;font-family:inherit;transition:color .15s;" onmouseover="this.style.color='#636380'" onmouseout="this.style.color='#AEAEB2'">
+        Copiar texto simples
+      </button>
     </div>
   </div>
 
@@ -672,9 +730,13 @@
     </div>
 
     <p class="section-title">Configuração</p>
-    <div class="grid2">
+    <div class="grid2" style="margin-bottom:10px">
       <div class="card"><div class="card-label">Volume (USD)</div><input type="number" id="au-volume" value="9000000" step="100000"></div>
-      <div class="card"><div class="card-label">% Receita Aurex</div><input type="number" id="au-percAuren" value="50" step="1" min="1" max="100"></div>
+      <div class="card"><div class="card-label">Spread (%)</div><input type="number" id="au-spread" value="0.50" step="0.01" min="0" oninput="auAtualizarPreview()"></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-label">Indicador</div><input type="text" id="au-indicador" placeholder="Nome do indicador..."></div>
+      <div class="card"><div class="card-label">% do Indicador</div><input type="number" id="au-percAuren" value="50" step="1" min="0" max="100"></div>
     </div>
 
     <p class="section-title">Cotações do dia</p>
@@ -689,7 +751,7 @@
       </div>
     </div>
 
-    <div class="taxa-preview">Taxa cliente (máxima × 1,005): <strong id="au-taxaPreview">—</strong></div>
+    <div class="taxa-preview">Taxa cliente (máxima + spread): <strong id="au-taxaPreview">—</strong></div>
 
     <button class="calc-btn" onclick="auCalcular()">Calcular ↗</button>
 
@@ -949,6 +1011,7 @@ const GRAF_PAINEIS = [
     { icon: '▼', color: '#FF4B5A', text: 'TLT cai → mercado precifica <b>alta do Fed</b>. USD fortalece, pressão de baixa no BRL.' },
     { icon: '—', color: '#888',    text: 'ETF de Treasuries 20Y+. Preço inversamente proporcional ao yield de longo prazo dos EUA.' },
   ]},
+  { symbol: 'BITSTAMP:BTCUSD',  title: 'Bitcoin',   interval: '60', style: '1' },
 ];
 
 let newsRefreshTimer = null;
@@ -1449,7 +1512,8 @@ function atualizarConversao(){
       iofVal = brlConversion * (iofAtual/100);
       totalBRL = brlConversion + irVal + iofVal;
     }
-    document.getElementById('volumeResultadoText').innerHTML = `Amount: <strong>${saida} ${fmt(amount)}</strong>` + (iofAtual>0 ? ` · IOF: R$ ${fmt(iofVal)}` : '');
+    const _moedaME = entrada !== 'BRL' ? entrada : saida;
+    document.getElementById('volumeResultadoText').innerHTML = `Amount: <strong>${_moedaME} ${fmt(amount)}</strong>` + (iofAtual>0 ? ` · IOF: R$ ${fmt(iofVal)}` : '');
   } else {
     amount = val;
     brlConversion = amount * taxa;
@@ -1476,8 +1540,10 @@ function toggleAddCliente(){
 function salvarCliente(){
   const inp=document.getElementById('clienteInput'), nome=inp.value.trim();
   if(!nome) return;
-  const sel=document.getElementById('clienteSelect'), opt=document.createElement('option');
-  opt.value=nome; opt.textContent=nome; sel.appendChild(opt); sel.value=nome; inp.value=''; toggleAddCliente();
+  clientes.unshift({id:'cli_'+Date.now(),nome,cnpj:'',indicador:'',rebate:0,banco:'',feeBanco:0,docs:[]});
+  salvarClientesLS(); atualizarSeletorClientes(); renderClientes();
+  document.getElementById('clienteSelect').value=nome;
+  inp.value=''; toggleAddCliente();
 }
 
 function calcular(){
@@ -1520,8 +1586,9 @@ function calcular(){
   document.getElementById('resTipo').textContent = tipoLabel || 'Operação FX';
   document.getElementById('resSub').textContent = `${saida} · FX Rate: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}`;
   document.getElementById('resModo').innerHTML = `<span class="badge ${modo==='compra'?'badge-compra':'badge-venda'}">${modo==='compra'?'Compra':'Venda'}</span>`;
-  document.getElementById('resCurrency').textContent = saida;
-  document.getElementById('resAmount').textContent = `${saida} ${fmt(amount)}`;
+  const moedaME = entrada !== 'BRL' ? entrada : saida;
+  document.getElementById('resCurrency').textContent = moedaME;
+  document.getElementById('resAmount').textContent = `${moedaME} ${fmt(amount)}`;
   document.getElementById('resTaxa').textContent = taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6});
   document.getElementById('resBRLConversion').textContent = 'R$ '+fmt(brlConversion);
 
@@ -1543,8 +1610,8 @@ function calcular(){
   document.getElementById('rowTotal').className = `rrow ${modo==='compra'?'hl-green':'hl-red'}`;
   document.getElementById('resTotal').textContent = 'R$ '+fmt(totalBRL);
   document.getElementById('results').style.display = 'block';
-  document.getElementById('copyBtn').className = 'copy-btn';
-  document.getElementById('copyBtn').textContent = 'Copiar resumo';
+  const cb = document.getElementById('copyBtn');
+  cb.textContent = 'Copiar texto simples'; cb.style.color = '#AEAEB2';
 
   const clienteVinculado = clientes.find(c => c.nome === clienteSel);
   const clienteId = clienteVinculado ? clienteVinculado.id : null;
@@ -1587,7 +1654,8 @@ function copiarResumo(){
   if(r.dataOp) txt += `Data: ${formatarData(r.dataOp)}\n`;
   if(r.refOp) txt += `Ref: ${r.refOp}\n`;
   txt += `Natureza: ${r.tipoLabel}\nOperação: ${r.modo==='compra'?'Compra':'Venda'}\n`;
-  txt += `Currency: ${r.saida}\nAmount: ${r.saida} ${fmt(r.amount)}\n`;
+  const _moedaME = r.entrada !== 'BRL' ? r.entrada : r.saida;
+  txt += `Currency: ${_moedaME}\nAmount: ${_moedaME} ${fmt(r.amount)}\n`;
   txt += `FX Rate: ${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}\n`;
   txt += `BRL Conversion: R$ ${fmt(r.brlConversion)}\n`;
   if(r.irAtual>0) txt += `IR (${r.irAtual.toFixed(5)}%): R$ ${fmt(r.irVal)}\n`;
@@ -1595,8 +1663,8 @@ function copiarResumo(){
   txt += `Total Amount BRL: R$ ${fmt(r.totalBRL)}\n`;
   navigator.clipboard.writeText(txt).then(() => {
     const btn = document.getElementById('copyBtn');
-    btn.textContent='Copiado!'; btn.className='copy-btn copied';
-    setTimeout(() => { btn.textContent='Copiar resumo'; btn.className='copy-btn'; }, 2000);
+    btn.textContent='✓ Copiado!'; btn.style.color='#007A56';
+    setTimeout(() => { btn.textContent='Copiar texto simples'; btn.style.color='#AEAEB2'; }, 2000);
   });
 }
 
@@ -1685,7 +1753,7 @@ function renderHistoricoCompleto(){
       <div>
         <div class="hist-full-row"><span class="hkey">Operação</span><span class="hval"><span class="badge ${op.modo==='compra'?'badge-compra':'badge-venda'}">${op.modo==='compra'?'Compra':'Venda'}</span></span></div>
         <div class="hist-full-row"><span class="hkey">FX Rate</span><span class="hval rval taxa">${op.taxaCliente ? op.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6}) : '—'}</span></div>
-        <div class="hist-full-row"><span class="hkey">Amount</span><span class="hval">${op.saida} ${fmt(op.amount||0)}</span></div>
+        <div class="hist-full-row"><span class="hkey">Amount</span><span class="hval">${op.entrada && op.entrada !== 'BRL' ? op.entrada : op.saida} ${fmt(op.amount||0)}</span></div>
         <div class="hist-full-row"><span class="hkey">BRL Conversion</span><span class="hval">R$ ${fmt(op.brlConversion||0)}</span></div>
         ${op.irAtual>0 ? `<div class="hist-full-row"><span class="hkey">IR (${op.irAtual.toFixed(5)}%)</span><span class="hval">R$ ${fmt(op.irVal||0)}</span></div>` : ''}
         ${op.iofAtual>0 ? `<div class="hist-full-row"><span class="hkey">IOF (${op.iofAtual.toFixed(2)}%)</span><span class="hval">R$ ${fmt(op.iofVal||0)}</span></div>` : ''}
@@ -2225,11 +2293,276 @@ function exportarPDF(){
   window.print();
 }
 
+// ── PTAX
+async function buscarPTAX() {
+  const el = document.getElementById('ptaxVal');
+  try {
+    const hoje = new Date();
+    // tenta hoje; se fim de semana ou sem dados, recua até encontrar
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(hoje); d.setDate(hoje.getDate() - i);
+      if (d.getDay() === 0 || d.getDay() === 6) continue;
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      const url = `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${mm}-${dd}-${yyyy}'&$top=100&$format=json`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.value && data.value.length) {
+        const last = data.value[data.value.length - 1];
+        const compra = last.cotacaoCompra.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+        const venda  = last.cotacaoVenda.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+        const label  = i === 0 ? 'fechamento de hoje' : `fechamento ${dd}/${mm}`;
+        el.outerHTML = `<span class="ptax-val" id="ptaxVal">C ${compra} &nbsp;|&nbsp; V ${venda}</span><span class="ptax-sub">${label}</span>`;
+        return;
+      }
+    }
+    el.textContent = 'Indisponível';
+  } catch { el.textContent = 'Indisponível'; }
+}
+
+// ── Resumo imprimível
+function _qRow(k, v) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F0F2FA;">
+    <span style="font-size:13px;color:#888;font-family:Inter,sans-serif;">${k}</span>
+    <span style="font-size:13px;font-weight:600;color:#1a1a1a;font-family:Inter,sans-serif;">${v}</span>
+  </div>`;
+}
+
+function _buildQuoteCard(r) {
+  const agora = new Date();
+  const dataStr = r.dataOp ? formatarData(r.dataOp) : agora.toLocaleDateString('pt-BR');
+  const isCompra = r.modo === 'compra';
+  const badgeBg   = isCompra ? 'rgba(0,15,250,.18)' : 'rgba(255,75,90,.15)';
+  const badgeClr  = isCompra ? '#9BB4FF' : '#FF8A94';
+  const badgeBdr  = isCompra ? 'rgba(107,138,255,.5)' : 'rgba(255,138,148,.5)';
+  const badgeTxt  = isCompra ? 'COMPRA' : 'VENDA';
+
+  return `<div style="width:480px;background:#ffffff;font-family:Inter,sans-serif;border-radius:20px;overflow:hidden;">
+
+    <!-- HEADER DARK -->
+    <div style="background:linear-gradient(135deg,#05061E 0%,#0A1270 100%);padding:32px 32px 28px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(0,80,255,.1);"></div>
+      <div style="position:absolute;bottom:-40px;left:80px;width:130px;height:130px;border-radius:50%;background:rgba(0,60,200,.07);"></div>
+
+      <!-- Logo + data -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;position:relative;">
+        <div style="line-height:1;">
+          <div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:#fff;">Aurex<span style="color:#6B8AFF;">FX</span></div>
+          <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:.14em;text-transform:uppercase;margin-top:3px;">Câmbio &amp; Mercado</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.55);">${dataStr}</div>
+          ${r.refOp ? `<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:2px;">${r.refOp}</div>` : ''}
+        </div>
+      </div>
+
+      <!-- Cliente -->
+      ${r.clienteSel ? `
+        <div style="margin-bottom:20px;position:relative;">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Cliente</div>
+          <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em;">${r.clienteSel}</div>
+        </div>` : '<div style="margin-bottom:8px;"></div>'}
+
+      <!-- Badge + natureza -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;position:relative;">
+        <div style="background:${badgeBg};border:1px solid ${badgeBdr};color:${badgeClr};border-radius:6px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">${badgeTxt}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.45);font-weight:500;">${r.tipoLabel}</div>
+      </div>
+
+      <!-- FX Rate hero -->
+      <div style="position:relative;border-top:1px solid rgba(255,255,255,.08);padding-top:18px;">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">FX Rate</div>
+        <div style="font-size:40px;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;">${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div style="padding:24px 32px 20px;background:#fff;">
+      ${_qRow('Currency', r.entrada && r.entrada !== 'BRL' ? r.entrada : r.saida)}
+      ${_qRow('Amount', `${r.entrada && r.entrada !== 'BRL' ? r.entrada : r.saida} ${fmt(r.amount)}`)}
+      ${_qRow('BRL Conversion', `R$ ${fmt(r.brlConversion)}`)}
+      ${r.irAtual  > 0 ? _qRow(`IR (${r.irAtual.toFixed(5)}%)`,  `R$ ${fmt(r.irVal)}`) : ''}
+      ${r.iofAtual > 0 ? _qRow(`IOF (${r.iofAtual.toFixed(2)}%)`, `R$ ${fmt(r.iofVal)}`) : ''}
+
+      <!-- Total -->
+      <div style="margin-top:20px;background:linear-gradient(135deg,#000FFA 0%,#1428FA 100%);border-radius:16px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:rgba(255,255,255,.65);font-family:Inter,sans-serif;font-weight:500;">Total Amount BRL</span>
+        <span style="font-size:26px;font-weight:900;color:#fff;font-family:Inter,sans-serif;letter-spacing:-.02em;">R$ ${fmt(r.totalBRL)}</span>
+      </div>
+
+      <!-- Footer -->
+      <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:10px;color:#bbb;font-family:Inter,sans-serif;">Cotação sujeita a variação cambial.</span>
+        <span style="font-size:10px;font-weight:700;color:#D0D4F0;letter-spacing:.08em;font-family:Inter,sans-serif;">AUREX FX</span>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+let _lastQuoteImgSrc = null;
+
+function abrirModalResumo() {
+  const r = lastResult; if (!r.tipoLabel) return;
+
+  const modal = document.getElementById('quoteModal');
+  const quoteCard = document.getElementById('quoteCard');
+  const btn = document.getElementById('quoteBtnDownload');
+
+  // Estado de carregando
+  quoteCard.innerHTML = `<div style="padding:40px;text-align:center;">
+    <div style="font-size:13px;color:#888;margin-bottom:8px;">Gerando imagem...</div>
+    <div style="display:inline-flex;gap:5px;">
+      <div class="comunicado-loading-dot"></div>
+      <div class="comunicado-loading-dot"></div>
+      <div class="comunicado-loading-dot"></div>
+    </div>
+  </div>`;
+  btn.textContent = '⬇ Salvar imagem';
+  btn.disabled = true;
+  modal.classList.add('open');
+
+  // Renderiza o card no div oculto
+  const area = document.getElementById('quoteRenderArea');
+  area.innerHTML = _buildQuoteCard(r);
+
+  html2canvas(area.firstElementChild, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+    windowWidth: 480,
+  }).then(canvas => {
+    _lastQuoteImgSrc = canvas.toDataURL('image/png');
+    const img = document.createElement('img');
+    img.src = _lastQuoteImgSrc;
+    img.style.cssText = 'width:100%;display:block;border-radius:0;';
+    quoteCard.innerHTML = '';
+    quoteCard.appendChild(img);
+    btn.disabled = false;
+    area.innerHTML = '';
+
+    // Copia para o clipboard automaticamente
+    canvas.toBlob(blob => {
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        .then(() => { btn.textContent = '✓ Copiado! (Ctrl+V para colar)'; })
+        .catch(() => { btn.textContent = '⬇ Salvar imagem'; });
+    }, 'image/png');
+  }).catch(() => {
+    quoteCard.innerHTML = '<div style="padding:20px;font-size:13px;color:#c00;">Erro ao gerar imagem.</div>';
+    btn.disabled = false;
+  });
+}
+
+function fecharModalResumo() { document.getElementById('quoteModal').classList.remove('open'); }
+
+function baixarImagemResumo() {
+  if (!_lastQuoteImgSrc) return;
+  const a = document.createElement('a');
+  const data = lastResult.dataOp ? lastResult.dataOp : new Date().toISOString().slice(0,10);
+  a.href = _lastQuoteImgSrc;
+  a.download = `cotacao-aurex-${data}.png`;
+  a.click();
+}
+
+// ── Invoice
+let lastInvoiceResult = null;
+
+function invoiceOnFileChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const zone = document.getElementById('invoiceZone');
+  zone.classList.add('has-file');
+  zone.querySelector('.invoice-zone-text').textContent = file.name;
+  invoiceAnalisar(file);
+}
+
+async function invoiceAnalisar(file) {
+  const analyzing = document.getElementById('invoiceAnalyzing');
+  const resultCard = document.getElementById('invoiceResultCard');
+  const resetBtn = document.getElementById('invoiceResetBtn');
+  const zone = document.getElementById('invoiceZone');
+  zone.style.pointerEvents = 'none';
+  analyzing.style.display = 'block';
+  resultCard.style.display = 'none';
+  resetBtn.style.display = 'none';
+  try {
+    const formData = new FormData();
+    formData.append('invoice', file);
+    const res = await fetch('/api/invoice/analyze', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro na análise');
+    invoiceMostrarResultado(data);
+  } catch (err) {
+    analyzing.style.display = 'none';
+    resultCard.innerHTML = `<div style="padding:14px;font-size:13px;color:#FF4B5A">Erro: ${err.message}</div>`;
+    resultCard.style.display = 'block';
+    resetBtn.style.display = 'block';
+  }
+}
+
+function invoiceMostrarResultado(d) {
+  lastInvoiceResult = d;
+  const analyzing = document.getElementById('invoiceAnalyzing');
+  const resultCard = document.getElementById('invoiceResultCard');
+  const resetBtn = document.getElementById('invoiceResetBtn');
+  analyzing.style.display = 'none';
+  const naturezaLabels = {
+    imp_merc: 'Importação de Mercadoria', imp_serv: 'Importação de Serviço',
+    imp_serv_pf: 'Importação de Serviço — Paraíso Fiscal'
+  };
+  const rows = [
+    d.beneficiario && ['Beneficiário', d.beneficiario],
+    d.pais && ['País', d.isParaisoFiscal ? `${d.pais} ⚠️ Paraíso fiscal` : d.pais],
+    d.valor && ['Valor', `${d.moeda || ''} ${d.valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`],
+    d.naturezaSugerida && ['Natureza sugerida', naturezaLabels[d.naturezaSugerida] || d.naturezaSugerida],
+    d.iofAliquota && ['IOF', `${d.iofAliquota}%`],
+    d.irAliquota && ['IR', `${d.irAliquota}%`],
+    d.observacoes && ['Obs', d.observacoes],
+  ].filter(Boolean);
+  const rowStyle = 'display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #F0F2FA;font-size:12px;gap:8px;';
+  resultCard.innerHTML = `
+    <div class="invoice-result-header">
+      <span>📄 Análise da invoice</span>
+      ${d.isParaisoFiscal ? '<span style="font-size:11px;color:#FF4B5A;font-weight:700;background:#FFE8EA;padding:2px 8px;border-radius:4px">⚠️ PARAÍSO FISCAL</span>' : ''}
+    </div>
+    ${rows.map(([k,v]) => `<div class="invoice-result-row"><span class="invoice-result-key">${k}</span><span class="invoice-result-val">${v}</span></div>`).join('')}
+    <button class="invoice-apply-btn" onclick="invoiceAplicar()">Aplicar à operação ↗</button>`;
+  resultCard.style.display = 'block';
+  resetBtn.style.display = 'block';
+}
+
+function invoiceAplicar() {
+  const d = lastInvoiceResult;
+  if (!d) return;
+  if (d.naturezaSugerida) {
+    const sel = document.getElementById('tipoOp');
+    sel.value = d.naturezaSugerida;
+    onTipoChange();
+  }
+  if (d.dataInvoice) document.getElementById('dataOp').value = d.dataInvoice;
+  document.getElementById('invoiceResultCard').querySelector('.invoice-apply-btn').textContent = '✓ Aplicado';
+}
+
+function invoiceReset() {
+  lastInvoiceResult = null;
+  const zone = document.getElementById('invoiceZone');
+  zone.classList.remove('has-file');
+  zone.style.pointerEvents = '';
+  zone.querySelector('.invoice-zone-text').textContent = 'Arraste ou clique para carregar a invoice';
+  document.getElementById('invoiceAnalyzing').style.display = 'none';
+  document.getElementById('invoiceResultCard').style.display = 'none';
+  document.getElementById('invoiceResetBtn').style.display = 'none';
+  document.getElementById('invoiceFile').value = '';
+}
+
 // ── Aureon
 function auAtualizarPreview(){
   const s = parseFloat(document.getElementById('au-spotMax').value) || 0;
   if(!s){ document.getElementById('au-taxaPreview').textContent='—'; return; }
-  const t = s * 1.005;
+  const spread = parseFloat(document.getElementById('au-spread').value) || 0;
+  const t = s * (1 + spread / 100);
   document.getElementById('au-taxaPreview').textContent = t.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6});
 }
 
@@ -2239,7 +2572,9 @@ function auCalcular(){
   const spotMax = parseFloat(document.getElementById('au-spotMax').value);
   const spotMin = parseFloat(document.getElementById('au-spotMin').value);
   if(!spotMax || !spotMin || !volume) return;
-  const taxaCliente = spotMax * 1.005;
+  const spread = parseFloat(document.getElementById('au-spread').value) || 0;
+  const taxaCliente = spotMax * (1 + spread / 100);
+  const indicador = document.getElementById('au-indicador').value.trim() || 'Indicador';
   const nome = document.getElementById('au-nomeCotacao').value.trim();
   const data = document.getElementById('au-dataCotacao').value;
   auAtualizarPreview();
@@ -2270,7 +2605,7 @@ function auCalcular(){
       <div class="rrow"><span class="rkey">Taxa cliente</span><span class="rval taxa">${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</span></div>
       <div class="rrow"><span class="rkey">Volume ME</span><span class="rval">USD ${fmt(volume)}</span></div>
       <div class="rrow"><span class="rkey">Receita Total</span><span class="rval au-receita">R$ ${fmt(r.receitaTotal)}</span></div>
-      <div class="rrow"><span class="rkey">Receita Aurex (${(percAuren*100).toFixed(0)}%)</span><span class="rval au-receita">R$ ${fmt(r.receitaAuren)}</span></div>
+      <div class="rrow"><span class="rkey">Receita ${indicador} (${(percAuren*100).toFixed(0)}%)</span><span class="rval au-receita">R$ ${fmt(r.receitaAuren)}</span></div>
       <div class="rrow hl-green"><span class="rkey">Total Amount BRL</span><span class="rval">${fmt(r.totalBRL)}</span></div>
     </div>`;
   }
@@ -2293,7 +2628,7 @@ function auCalcular(){
       <div class="au-diff-val">${diffReceita >= 0 ? '+' : '−'}R$ ${fmt(Math.abs(diffReceita))}</div>
     </div>
     <div class="au-diff-item">
-      <div class="au-diff-label">Ganho receita Aurex</div>
+      <div class="au-diff-label">Ganho receita ${indicador}</div>
       <div class="au-diff-val">${diffAuren >= 0 ? '+' : '−'}R$ ${fmt(Math.abs(diffAuren))}</div>
     </div>`;
 
@@ -2301,6 +2636,7 @@ function auCalcular(){
 }
 
 // Init
+buscarPTAX();
 document.getElementById('dataOp').value = new Date().toISOString().split('T')[0];
 document.getElementById('au-dataCotacao').value = new Date().toISOString().split('T')[0];
 carregarHistoricoLS();
@@ -2312,6 +2648,18 @@ atualizarSeletorClientes();
 atualizarSelectIndicadores();
 initRelFiltros();
 </script>
+<div id="quoteRenderArea" style="position:fixed;left:-9999px;top:0;width:480px;z-index:-1;font-family:'Inter',sans-serif;"></div>
+
+<div id="quoteModal" class="quote-overlay" onclick="if(event.target===this)fecharModalResumo()">
+  <div class="quote-modal">
+    <div class="quote-card" id="quoteCard"></div>
+    <div class="quote-modal-actions">
+      <button class="quote-btn-close" onclick="fecharModalResumo()">Fechar</button>
+      <button class="quote-btn-print" id="quoteBtnDownload" onclick="baixarImagemResumo()">⬇ Salvar imagem</button>
+    </div>
+  </div>
+</div>
+
 <div id="backupModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharBackup()">
   <div class="modal-box">
     <div id="bpExport">
