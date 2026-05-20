@@ -858,6 +858,25 @@
 
       <p class="section-title" style="margin-top:14px;margin-bottom:8px">Diferencial — mínima vs máxima</p>
       <div class="au-diff-card" id="au-diffCard"></div>
+
+      <button class="calc-btn" style="margin-top:8px;background:#1C1C1E" onclick="auGerarResumoCliente()">
+        Resumo Cliente ↗
+      </button>
+    </div>
+
+    <!-- Card oculto para html2canvas -->
+    <div id="au-clientCard" style="position:fixed;left:-9999px;top:0;width:480px;font-family:'Inter',sans-serif;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15)">
+      <div style="background:#1C1C1E;padding:20px 24px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px">Aurex FX</div>
+          <div style="font-size:12px;color:#AEAEB2" id="auc-data"></div>
+        </div>
+        <div style="font-size:13px;color:#AEAEB2;margin-top:4px" id="auc-nome"></div>
+      </div>
+      <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px" id="auc-cols"></div>
+      <div style="padding:0 24px 20px;font-size:10px;color:#C7C7CC;text-align:center">
+        Cotação indicativa sujeita a variação cambial · Aurex FX
+      </div>
     </div>
   </div><!-- /panel-aureon -->
 
@@ -2882,6 +2901,50 @@ function auCalcular(){
     </div>`;
 
   document.getElementById('au-results').style.display = 'block';
+}
+
+async function auGerarResumoCliente(){
+  const nome = document.getElementById('au-nomeCotacao').value.trim() || 'Análise FX Delta';
+  const data = document.getElementById('au-dataCotacao').value;
+  const moeda = document.getElementById('au-moeda').value;
+  const volume = parseFloat(document.getElementById('au-volume').value);
+  const spread = parseFloat(document.getElementById('au-spread').value) || 0;
+  const spotMax = parseFloat(document.getElementById('au-spotMax').value);
+  const spotMin = parseFloat(document.getElementById('au-spotMin').value);
+  if (!spotMax || !spotMin || !volume) return;
+
+  const taxaCliente = spotMax * (1 + spread / 100);
+
+  function col(spot, label, cor) {
+    const taxa = taxaCliente;
+    const totalBRL = taxa * volume;
+    return `<div style="background:#F9F9FB;border-radius:14px;padding:16px">
+      <div style="font-size:10px;font-weight:700;color:${cor};text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">${label}</div>
+      <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">Spot</div><div style="font-size:14px;font-weight:700;color:#1C1C1E">${spot.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4})}</div></div>
+      <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">Taxa</div><div style="font-size:18px;font-weight:800;color:#000FFA">${taxa.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</div></div>
+      <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">Volume</div><div style="font-size:13px;font-weight:600;color:#1C1C1E">${moeda} ${fmt(volume)}</div></div>
+      <div style="border-top:1px solid #E5E5EA;padding-top:8px;margin-top:4px"><div style="font-size:10px;color:#888">Total BRL</div><div style="font-size:14px;font-weight:700;color:#1C1C1E">R$ ${fmt(totalBRL)}</div></div>
+    </div>`;
+  }
+
+  document.getElementById('auc-nome').textContent = nome;
+  document.getElementById('auc-data').textContent = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  document.getElementById('auc-cols').innerHTML = col(spotMax,'Máxima do dia','#FF6B35') + col(spotMin,'Mínima do dia','#00CC8C');
+
+  const card = document.getElementById('au-clientCard');
+  try {
+    const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#fff' });
+    canvas.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        alert('Resumo copiado! Cole no WhatsApp.');
+      } catch {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `resumo-fx-${Date.now()}.png`; a.click();
+      }
+    });
+  } catch(e) { alert('Erro ao gerar imagem: ' + e.message); }
 }
 
 // Init
