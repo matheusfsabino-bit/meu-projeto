@@ -241,7 +241,7 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
 
     for await (const msg of client_imap.fetch(`${startSeq}:*`, { envelope: true })) {
       const subj = (msg.envelope?.subject || '').toLowerCase();
-      if (subj.includes('indicativos')) {
+      if (subj.includes('indicativa')) {
         matchSeqs.push(msg.seq);
       }
     }
