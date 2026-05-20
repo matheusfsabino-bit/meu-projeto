@@ -272,17 +272,31 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
     }
 
     const base64 = pdfBuffer.toString('base64');
-    const message = await client.messages.create({
-      model: 'claude-opus-4-7',
-      max_tokens: 4096,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-          { type: 'text', text: NDF_PROMPT }
-        ]
-      }]
-    });
+    let message;
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      try {
+        message = await client.messages.create({
+          model: 'claude-opus-4-7',
+          max_tokens: 4096,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+              { type: 'text', text: NDF_PROMPT }
+            ]
+          }]
+        });
+        break;
+      } catch (err) {
+        const retryable = err.status === 529 || err.status === 520 || err.status === 503 || err.status === 502;
+        if (retryable && attempt < 4) {
+          console.log(`NDF Claude tentativa ${attempt} falhou (${err.status}), aguardando ${attempt * 6}s...`);
+          await new Promise(r => setTimeout(r, attempt * 6000));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     const raw = message.content[0].text.trim();
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
