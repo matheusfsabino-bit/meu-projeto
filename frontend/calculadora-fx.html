@@ -2915,13 +2915,15 @@ async function auGerarResumoCliente(){
 
   const taxaCliente = spotMax * (1 + spread / 100);
 
+  const fmt6 = v => v.toLocaleString('pt-BR', {minimumFractionDigits:6, maximumFractionDigits:6});
+
   function col(spot, label, cor) {
-    const taxa = taxaCliente;
+    const taxa = spot * (1 + spread / 100);
     const totalBRL = taxa * volume;
     return `<div style="background:#F9F9FB;border-radius:14px;padding:16px">
       <div style="font-size:10px;font-weight:700;color:${cor};text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">${label}</div>
       <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">Spot</div><div style="font-size:14px;font-weight:700;color:#1C1C1E">${spot.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4})}</div></div>
-      <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">Taxa</div><div style="font-size:18px;font-weight:800;color:#000FFA">${taxa.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</div></div>
+      <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">FX Rate</div><div style="font-size:18px;font-weight:800;color:#000FFA">${fmt6(taxa)}</div></div>
       <div style="margin-bottom:7px"><div style="font-size:10px;color:#888">Volume</div><div style="font-size:13px;font-weight:600;color:#1C1C1E">${moeda} ${fmt(volume)}</div></div>
       <div style="border-top:1px solid #E5E5EA;padding-top:8px;margin-top:4px"><div style="font-size:10px;color:#888">Total BRL</div><div style="font-size:14px;font-weight:700;color:#1C1C1E">R$ ${fmt(totalBRL)}</div></div>
     </div>`;
