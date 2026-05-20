@@ -2918,7 +2918,7 @@ async function auGerarResumoCliente(){
   const fmt6 = v => v.toLocaleString('pt-BR', {minimumFractionDigits:6, maximumFractionDigits:6});
 
   function col(spot, label, cor) {
-    const taxa = spot * (1 + spread / 100);
+    const taxa = parseFloat((spot * (1 + spread / 100)).toFixed(6));
     const totalBRL = taxa * volume;
     return `<div style="background:#F9F9FB;border-radius:14px;padding:16px">
       <div style="font-size:10px;font-weight:700;color:${cor};text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">${label}</div>
