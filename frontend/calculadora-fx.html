@@ -2851,7 +2851,7 @@ function auCalcular(){
     const spreadPct = ((taxaCliente / spot) - 1) * 100;
     const receitaTotal = (taxaCliente - spot) * volume;
     const receitaAuren = receitaTotal * percAuren;
-    const totalBRL = taxaCliente * volume;
+    const totalBRL = parseFloat((taxaCliente * volume).toFixed(2));
     return { spot, spreadPct, taxaCliente, receitaTotal, receitaAuren, totalBRL };
   }
 
