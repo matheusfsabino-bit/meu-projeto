@@ -2145,8 +2145,9 @@ function switchRelSubTab(tab){
 function initRelFiltros(){
   const mes=document.getElementById('relMes'); if(!mes) return;
   const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  mes.innerHTML=meses.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  mes.innerHTML=`<option value="-1">Todos os meses</option>`+meses.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
   const ano=document.getElementById('relAno'), y=new Date().getFullYear();
+  ano.innerHTML=`<option value="-1">Todos os anos</option>`;
   for(let a=y;a>=y-4;a--){ const o=document.createElement('option');o.value=a;o.textContent=a;ano.appendChild(o); }
   mes.value=new Date().getMonth(); ano.value=y;
 }
@@ -2162,7 +2163,9 @@ function gerarRelatorio(){
   const ops=historico.filter(op=>{
     if(relStatus !== 'todas' && op.status !== relStatus) return false;
     const d=op.dataOp?new Date(op.dataOp+'T12:00:00'):new Date(op.id);
-    return d.getMonth()===mes && d.getFullYear()===ano;
+    if(mes !== -1 && d.getMonth() !== mes) return false;
+    if(ano !== -1 && d.getFullYear() !== ano) return false;
+    return true;
   });
   if(!ops.length){ el.innerHTML='<div class="rel-empty">Nenhuma operação encontrada neste período.</div>'; return; }
   // agrupar por cliente
@@ -2199,7 +2202,7 @@ function gerarRelatorio(){
   }).join('');
   el.innerHTML=`
     <div class="rel-summary-card">
-      <div class="rel-summary-title">${mesesNome[mes]} ${ano} — ${ops.length} operação${ops.length!==1?'s':''} efetivada${ops.length!==1?'s':''}</div>
+      <div class="rel-summary-title">${mes===-1?'Todos os meses':mesesNome[mes]} ${ano===-1?'':ano} — ${ops.length} operação${ops.length!==1?'s':''}</div>
       <div class="rel-kpi-row">
         <div class="rel-kpi"><div class="rel-kpi-label">Receita total</div><div class="rel-kpi-val kv-blue">R$ ${fmt(totReceita)}</div></div>
         <div class="rel-kpi"><div class="rel-kpi-label">Fee bancos</div><div class="rel-kpi-val kv-orange">R$ ${fmt(totFee)}</div></div>
