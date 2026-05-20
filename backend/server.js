@@ -179,6 +179,36 @@ Regras:
 9. Se compra e venda forem a mesma tabela, replique em ambos os campos
 10. Se não encontrar a tabela NDF, retorne { "erro": "Tabela NDF não encontrada no documento" }`;
 
+app.get('/api/xp-ndf/debug', async (req, res) => {
+  const client_debug = new ImapFlow({
+    host: 'imap.gmail.com', port: 993, secure: true,
+    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+    logger: false
+  });
+  try {
+    await client_debug.connect();
+
+    const mailbox = await client_debug.mailboxOpen('INBOX');
+    const total = mailbox.exists || 0;
+
+    // Pega subjects das últimas 10 mensagens
+    const startSeq = Math.max(1, total - 9);
+    const recent = [];
+    for await (const msg of client_debug.fetch(`${startSeq}:*`, { envelope: true })) {
+      recent.push({ seq: msg.seq, uid: msg.uid, subject: msg.envelope?.subject });
+    }
+
+    // Testa search por subject
+    const searchResult = await client_debug.search({ subject: 'Indicativos' }, { uid: true });
+
+    await client_debug.logout();
+    res.json({ total, recent, searchResult });
+  } catch(e) {
+    try { await client_debug.logout(); } catch(_) {}
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/xp-ndf/latest', async (req, res) => {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     return res.status(500).json({ error: 'Credenciais Gmail não configuradas no .env' });
@@ -197,21 +227,34 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
 
   try {
     await client_imap.connect();
-    await client_imap.mailboxOpen('INBOX');
+    const mailbox = await client_imap.mailboxOpen('INBOX');
+    const total = mailbox.exists || 0;
 
-    // Busca UIDs por assunto (sem filtro de data)
-    const uids = await client_imap.search({ subject: 'Indicativos' }, { uid: true });
-
-    if (!uids || uids.length === 0) {
+    if (total === 0) {
       await client_imap.logout();
-      return res.status(404).json({ error: 'Nenhum email com "Indicativos" no assunto encontrado na caixa de entrada.' });
+      return res.status(404).json({ error: 'Caixa de entrada vazia.' });
     }
 
-    // Pega o UID mais recente
-    const latestUid = uids[uids.length - 1];
+    // Varre as últimas 200 mensagens por assunto (SEARCH IMAP é inconsistente no Gmail)
+    const startSeq = Math.max(1, total - 199);
+    const matchSeqs = [];
+
+    for await (const msg of client_imap.fetch(`${startSeq}:*`, { envelope: true })) {
+      const subj = (msg.envelope?.subject || '').toLowerCase();
+      if (subj.includes('indicativos')) {
+        matchSeqs.push(msg.seq);
+      }
+    }
+
+    if (matchSeqs.length === 0) {
+      await client_imap.logout();
+      return res.status(404).json({ error: 'Nenhum email com "Indicativos" encontrado nas últimas 200 mensagens.' });
+    }
+
+    const latestSeq = matchSeqs[matchSeqs.length - 1];
     let pdfBuffer = null;
 
-    for await (const msg of client_imap.fetch([latestUid], { source: true }, { uid: true })) {
+    for await (const msg of client_imap.fetch([latestSeq], { source: true })) {
       const parsed = await simpleParser(msg.source);
       if (parsed.attachments && parsed.attachments.length > 0) {
         const pdfAttach = parsed.attachments.find(a =>
