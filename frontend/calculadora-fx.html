@@ -2841,7 +2841,7 @@ function auCalcular(){
   if(!spotMax || !spotMin || !volume) return;
   const spread = parseFloat(document.getElementById('au-spread').value) || 0;
   const moeda = document.getElementById('au-moeda').value;
-  const taxaCliente = spotMax * (1 + spread / 100);
+  const taxaCliente = parseFloat((spotMax * (1 + spread / 100)).toFixed(6));
   const indicador = document.getElementById('au-indicador').value.trim() || 'Indicador';
   const nome = document.getElementById('au-nomeCotacao').value.trim();
   const data = document.getElementById('au-dataCotacao').value;
