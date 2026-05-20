@@ -197,46 +197,28 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
 
   try {
     await client_imap.connect();
-    const mailbox = await client_imap.mailboxOpen('INBOX');
-    const totalMessages = mailbox.exists || 0;
+    await client_imap.mailboxOpen('INBOX');
 
-    if (totalMessages === 0) {
+    // Busca UIDs por assunto (sem filtro de data)
+    const uids = await client_imap.search({ subject: 'Indicativos' }, { uid: true });
+
+    if (!uids || uids.length === 0) {
       await client_imap.logout();
-      return res.status(404).json({ error: 'Caixa de entrada vazia.' });
+      return res.status(404).json({ error: 'Nenhum email com "Indicativos" no assunto encontrado na caixa de entrada.' });
     }
 
-    // Busca as últimas 100 mensagens e filtra por assunto no código
-    const startSeq = Math.max(1, totalMessages - 99);
+    // Pega o UID mais recente
+    const latestUid = uids[uids.length - 1];
     let pdfBuffer = null;
 
-    const fetchRange = `${startSeq}:${totalMessages}`;
-    const msgs = [];
-
-    for await (const msg of client_imap.fetch(fetchRange, { envelope: true, uid: true })) {
-      const subj = (msg.envelope?.subject || '').toLowerCase();
-      if (subj.includes('indicativos')) {
-        msgs.push({ uid: msg.uid, seq: msg.seq });
-      }
-    }
-
-    if (msgs.length === 0) {
-      await client_imap.logout();
-      return res.status(404).json({ error: 'Nenhum email com "Indicativos" no assunto encontrado.' });
-    }
-
-    // Pega o mais recente
-    const latest = msgs[msgs.length - 1];
-
-    for await (const msg of client_imap.fetch({ uid: `${latest.uid}` }, { source: true }, { uid: true })) {
+    for await (const msg of client_imap.fetch([latestUid], { source: true }, { uid: true })) {
       const parsed = await simpleParser(msg.source);
       if (parsed.attachments && parsed.attachments.length > 0) {
         const pdfAttach = parsed.attachments.find(a =>
           a.contentType === 'application/pdf' ||
           (a.filename && a.filename.toLowerCase().endsWith('.pdf'))
         );
-        if (pdfAttach) {
-          pdfBuffer = pdfAttach.content;
-        }
+        if (pdfAttach) pdfBuffer = pdfAttach.content;
       }
     }
 
