@@ -204,8 +204,7 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
 
     const messages = await client_imap.search({
       since,
-      subject: 'Indicativos',
-      from: 'xp'
+      subject: 'Indicativos'
     });
 
     if (!messages || messages.length === 0) {
@@ -220,14 +219,12 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
     for await (const msg of client_imap.fetch([lastUid], { source: true })) {
       const parsed = await simpleParser(msg.source);
 
-      // Validação extra: confirmar remetente XP e assunto esperado
-      const fromAddr = (parsed.from?.text || '').toLowerCase();
+      // Validação extra: confirmar assunto esperado
       const subject = (parsed.subject || '').toLowerCase();
-      const isFromXP = fromAddr.includes('xp') || fromAddr.includes('xpinvestimentos') || fromAddr.includes('xpglobal');
       const hasIndicativos = subject.includes('indicativos');
 
-      if (!isFromXP || !hasIndicativos) {
-        continue; // pula emails que não sejam da XP com assunto correto
+      if (!hasIndicativos) {
+        continue;
       }
 
       emailDate = parsed.date;
