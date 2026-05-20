@@ -136,6 +136,7 @@
   .card select { cursor: pointer; }
   .card input::placeholder, .card textarea::placeholder { color: #C7C7CC; font-weight: 400; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
   .client-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
   .client-bar select { flex: 1; font-size: 14px; font-weight: 500; padding: 10px 12px; border: 1px solid #E5E5EA; border-radius: 10px; background: #fff; color: #212121; cursor: pointer; font-family: inherit; }
   .client-bar input { flex: 1; font-size: 14px; padding: 10px 12px; border: 1px solid #E5E5EA; border-radius: 10px; background: #fff; color: #212121; display: none; outline: none; font-family: inherit; }
@@ -730,8 +731,21 @@
     </div>
 
     <p class="section-title">Configuração</p>
-    <div class="grid2" style="margin-bottom:10px">
-      <div class="card"><div class="card-label">Volume (USD)</div><input type="number" id="au-volume" value="9000000" step="100000"></div>
+    <div class="grid3" style="margin-bottom:10px">
+      <div class="card">
+        <div class="card-label">Moeda</div>
+        <select id="au-moeda" style="width:100%;font-size:15px;font-weight:500;border:none;background:transparent;color:#1a1a1a;outline:none;" onchange="auOnMoedaChange()">
+          <option value="USD">USD — Dólar Americano</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GBP">GBP — Libra Esterlina</option>
+          <option value="CHF">CHF — Franco Suíço</option>
+          <option value="CAD">CAD — Dólar Canadense</option>
+          <option value="AUD">AUD — Dólar Australiano</option>
+          <option value="JPY">JPY — Iene Japonês</option>
+          <option value="ARS">ARS — Peso Argentino</option>
+        </select>
+      </div>
+      <div class="card"><div class="card-label" id="au-volume-label">Volume (USD)</div><input type="number" id="au-volume" value="9000000" step="100000"></div>
       <div class="card"><div class="card-label">Spread (%)</div><input type="number" id="au-spread" value="0.50" step="0.01" min="0" oninput="auAtualizarPreview()"></div>
     </div>
     <div class="grid2">
@@ -2558,6 +2572,12 @@ function invoiceReset() {
 }
 
 // ── Aureon
+function auOnMoedaChange(){
+  const moeda = document.getElementById('au-moeda').value;
+  document.getElementById('au-volume-label').textContent = `Volume (${moeda})`;
+  auAtualizarPreview();
+}
+
 function auAtualizarPreview(){
   const s = parseFloat(document.getElementById('au-spotMax').value) || 0;
   if(!s){ document.getElementById('au-taxaPreview').textContent='—'; return; }
@@ -2573,6 +2593,7 @@ function auCalcular(){
   const spotMin = parseFloat(document.getElementById('au-spotMin').value);
   if(!spotMax || !spotMin || !volume) return;
   const spread = parseFloat(document.getElementById('au-spread').value) || 0;
+  const moeda = document.getElementById('au-moeda').value;
   const taxaCliente = spotMax * (1 + spread / 100);
   const indicador = document.getElementById('au-indicador').value.trim() || 'Indicador';
   const nome = document.getElementById('au-nomeCotacao').value.trim();
@@ -2591,7 +2612,7 @@ function auCalcular(){
   const min = auCalc(spotMin);
 
   document.getElementById('au-resultTitle').textContent = nome || 'Análise FX';
-  document.getElementById('au-resultSub').textContent = `Taxa cliente: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})} · Volume: USD ${fmt(volume)}`;
+  document.getElementById('au-resultSub').textContent = `Taxa cliente: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})} · Volume: ${moeda} ${fmt(volume)}`;
   document.getElementById('au-resultDate').textContent = formatarData(data);
 
   function auRenderCol(r, label, cssClass){
@@ -2603,7 +2624,7 @@ function auCalcular(){
       <div class="rrow"><span class="rkey">Spot</span><span class="rval">${r.spot.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</span></div>
       <div class="rrow"><span class="rkey">Spread</span><span class="rval au-spread">${r.spreadPct.toFixed(4)}%</span></div>
       <div class="rrow"><span class="rkey">Taxa cliente</span><span class="rval taxa">${r.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}</span></div>
-      <div class="rrow"><span class="rkey">Volume ME</span><span class="rval">USD ${fmt(volume)}</span></div>
+      <div class="rrow"><span class="rkey">Volume ME</span><span class="rval">${moeda} ${fmt(volume)}</span></div>
       <div class="rrow"><span class="rkey">Receita Total</span><span class="rval au-receita">R$ ${fmt(r.receitaTotal)}</span></div>
       <div class="rrow"><span class="rkey">Receita ${indicador} (${(percAuren*100).toFixed(0)}%)</span><span class="rval au-receita">R$ ${fmt(r.receitaAuren)}</span></div>
       <div class="rrow hl-green"><span class="rkey">Total Amount BRL</span><span class="rval">${fmt(r.totalBRL)}</span></div>
