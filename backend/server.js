@@ -197,38 +197,38 @@ app.get('/api/xp-ndf/latest', async (req, res) => {
 
   try {
     await client_imap.connect();
-    await client_imap.mailboxOpen('INBOX');
+    const mailbox = await client_imap.mailboxOpen('INBOX');
+    const totalMessages = mailbox.exists || 0;
 
-    const since = new Date();
-    since.setDate(since.getDate() - 3);
-
-    const messages = await client_imap.search({
-      since,
-      subject: 'Indicativos'
-    });
-
-    if (!messages || messages.length === 0) {
+    if (totalMessages === 0) {
       await client_imap.logout();
-      return res.status(404).json({ error: 'Nenhum email da XP encontrado nos últimos 3 dias.' });
+      return res.status(404).json({ error: 'Caixa de entrada vazia.' });
     }
 
-    const lastUid = messages[messages.length - 1];
+    // Busca as últimas 100 mensagens e filtra por assunto no código
+    const startSeq = Math.max(1, totalMessages - 99);
     let pdfBuffer = null;
-    let emailDate = null;
 
-    for await (const msg of client_imap.fetch([lastUid], { source: true })) {
-      const parsed = await simpleParser(msg.source);
+    const fetchRange = `${startSeq}:${totalMessages}`;
+    const msgs = [];
 
-      // Validação extra: confirmar assunto esperado
-      const subject = (parsed.subject || '').toLowerCase();
-      const hasIndicativos = subject.includes('indicativos');
-
-      if (!hasIndicativos) {
-        continue;
+    for await (const msg of client_imap.fetch(fetchRange, { envelope: true, uid: true })) {
+      const subj = (msg.envelope?.subject || '').toLowerCase();
+      if (subj.includes('indicativos')) {
+        msgs.push({ uid: msg.uid, seq: msg.seq });
       }
+    }
 
-      emailDate = parsed.date;
+    if (msgs.length === 0) {
+      await client_imap.logout();
+      return res.status(404).json({ error: 'Nenhum email com "Indicativos" no assunto encontrado.' });
+    }
 
+    // Pega o mais recente
+    const latest = msgs[msgs.length - 1];
+
+    for await (const msg of client_imap.fetch({ uid: `${latest.uid}` }, { source: true }, { uid: true })) {
+      const parsed = await simpleParser(msg.source);
       if (parsed.attachments && parsed.attachments.length > 0) {
         const pdfAttach = parsed.attachments.find(a =>
           a.contentType === 'application/pdf' ||
