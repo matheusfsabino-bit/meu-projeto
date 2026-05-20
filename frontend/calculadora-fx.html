@@ -277,6 +277,30 @@
   .cli-add-doc-label { display:inline-block; margin-top:8px; font-size:12px; color:#000FFA; cursor:pointer; font-weight:500; }
   .cli-docs-count { font-size:11px; color:#AEAEB2; margin-right:4px; }
   .cli-empty { font-size:13px; color:#AEAEB2; text-align:center; padding:32px 0; }
+  /* NDF */
+  .ndf-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .ndf-ref-info { font-size:12px; color:#888; }
+  .ndf-ref-info strong { color:#1C1C1E; }
+  .ndf-controls { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+  .ndf-table-wrap { overflow-x:auto; margin-top:16px; }
+  .ndf-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .ndf-table th { background:#F2F2F7; color:#636366; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; padding:8px 10px; text-align:right; border-bottom:2px solid #E5E5EA; }
+  .ndf-table th:first-child { text-align:left; }
+  .ndf-table td { padding:9px 10px; text-align:right; border-bottom:1px solid #F2F2F7; color:#1C1C1E; font-size:13px; }
+  .ndf-table td:first-child { text-align:left; font-weight:500; }
+  .ndf-table tr:hover td { background:#F9F9FB; }
+  .ndf-table .col-receita { color:#34C759; font-weight:600; }
+  .ndf-table .col-neg { color:#FF4B5A; }
+  .ndf-op-toggle { display:flex; gap:6px; }
+  .ndf-op-btn { padding:6px 18px; border-radius:20px; border:1px solid #E5E5EA; background:#fff; font-size:13px; font-weight:500; color:#636366; cursor:pointer; transition:all .15s; }
+  .ndf-op-btn.active { background:#000FFA; color:#fff; border-color:#000FFA; }
+  .ndf-empty { text-align:center; padding:40px; color:#AEAEB2; font-size:14px; }
+  .ndf-load-btn { display:flex; align-items:center; gap:8px; background:#000FFA; color:#fff; border:none; border-radius:10px; padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s; }
+  .ndf-load-btn:hover { background:#0008D4; }
+  .ndf-load-btn:disabled { background:#AEAEB2; cursor:not-allowed; }
+  .ndf-spot-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .ndf-spot-row label { font-size:12px; color:#888; font-weight:500; white-space:nowrap; }
+  .ndf-spot-row input { width:110px; }
   /* Gráficos */
   .graf-subtabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
   .graf-subtab { padding:6px 16px; border-radius:20px; border:1px solid #E5E5EA; background:#fff; font-size:13px; font-weight:500; color:#636366; cursor:pointer; transition:all .15s; }
@@ -439,6 +463,7 @@
     <button class="app-tab" onclick="switchTab('aureon')">Fx Delta</button>
     <button class="app-tab" onclick="switchTab('clientes')">Clientes</button>
     <button class="app-tab" onclick="switchTab('relatorios')">Relatórios</button>
+    <button class="app-tab" onclick="switchTab('ndf')">NDF</button>
     <button class="app-tab" onclick="switchTab('news')">News Aurex</button>
     <button class="app-tab" onclick="switchTab('graficos')">Gráficos</button>
   </nav>
@@ -787,6 +812,36 @@
     </div>
   </div><!-- /panel-aureon -->
 
+  <div id="panel-ndf" class="app-panel">
+    <div class="ndf-header">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <button class="ndf-load-btn" id="ndfLoadBtn" onclick="ndfCarregar()">
+          <span>📥</span> Carregar PDF da XP
+        </button>
+        <div class="ndf-ref-info" id="ndfRefInfo" style="display:none">
+          Ref: <strong id="ndfDataRef">—</strong> &nbsp;|&nbsp; Spot XP: <strong id="ndfSpotRef">—</strong>
+        </div>
+      </div>
+      <div class="ndf-op-toggle">
+        <button class="ndf-op-btn active" id="ndfBtnCompra" onclick="ndfSetOp('compra')">Compra</button>
+        <button class="ndf-op-btn" id="ndfBtnVenda" onclick="ndfSetOp('venda')">Venda</button>
+      </div>
+    </div>
+
+    <div class="ndf-spot-row">
+      <label>Spot Atual (USD/BRL)</label>
+      <input type="number" id="ndfSpotAtual" class="inp" placeholder="0.0000" step="0.0001" oninput="ndfRenderTabela()">
+      <label style="margin-left:12px">Spread Aurex (%)</label>
+      <input type="number" id="ndfSpread" class="inp" placeholder="0.00" step="0.01" value="0" style="width:90px" oninput="ndfRenderTabela()">
+      <label style="margin-left:12px">Notional (USD)</label>
+      <input type="number" id="ndfNotional" class="inp" placeholder="0" step="1000" oninput="ndfRenderTabela()">
+    </div>
+
+    <div id="ndfTableWrap" class="ndf-table-wrap">
+      <div class="ndf-empty">Clique em "Carregar PDF da XP" para buscar as cotações indicativas do dia.</div>
+    </div>
+  </div><!-- /panel-ndf -->
+
   <div id="panel-graficos" class="app-panel">
     <div class="graf-subtabs" id="grafSubtabs"></div>
     <div id="grafChartWrap"></div>
@@ -1040,10 +1095,105 @@ function switchTab(tab){
     (tab==='aureon'      && b.textContent==='Fx Delta') ||
     (tab==='clientes'    && b.textContent==='Clientes') ||
     (tab==='relatorios'  && b.textContent==='Relatórios') ||
-    (tab==='graficos'    && b.textContent==='Gráficos')));
+    (tab==='graficos'    && b.textContent==='Gráficos') ||
+    (tab==='ndf'         && b.textContent==='NDF')));
   document.querySelectorAll('.app-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+tab));
   if(tab === 'news' && !newsData.length) carregarNews();
   if(tab === 'graficos') initGraficos();
+}
+
+// ===== NDF =====
+let ndfDados = null;
+let ndfOp = 'compra';
+
+async function ndfCarregar(){
+  const btn = document.getElementById('ndfLoadBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Buscando...';
+  document.getElementById('ndfTableWrap').innerHTML = '<div class="ndf-empty">Conectando ao Gmail e processando PDF...</div>';
+  try {
+    const resp = await fetch('http://localhost:3001/api/xp-ndf/latest');
+    const data = await resp.json();
+    if (!resp.ok || data.erro || data.error) {
+      document.getElementById('ndfTableWrap').innerHTML = `<div class="ndf-empty" style="color:#FF4B5A">Erro: ${data.erro || data.error}</div>`;
+      return;
+    }
+    ndfDados = data;
+    document.getElementById('ndfRefInfo').style.display = '';
+    document.getElementById('ndfDataRef').textContent = data.dataRef || '—';
+    document.getElementById('ndfSpotRef').textContent = data.spotRef ? data.spotRef.toFixed(4) : '—';
+    if (!document.getElementById('ndfSpotAtual').value && data.spotRef) {
+      document.getElementById('ndfSpotAtual').value = data.spotRef.toFixed(4);
+    }
+    ndfRenderTabela();
+  } catch(e) {
+    document.getElementById('ndfTableWrap').innerHTML = `<div class="ndf-empty" style="color:#FF4B5A">Erro de conexão: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>📥</span> Atualizar PDF';
+  }
+}
+
+function ndfSetOp(op){
+  ndfOp = op;
+  document.getElementById('ndfBtnCompra').classList.toggle('active', op === 'compra');
+  document.getElementById('ndfBtnVenda').classList.toggle('active', op === 'venda');
+  ndfRenderTabela();
+}
+
+function ndfRenderTabela(){
+  const wrap = document.getElementById('ndfTableWrap');
+  if (!ndfDados) return;
+
+  const spotAtual = parseFloat(document.getElementById('ndfSpotAtual').value) || ndfDados.spotRef || 0;
+  const spreadPct = parseFloat(document.getElementById('ndfSpread').value) || 0;
+  const notional = parseFloat(document.getElementById('ndfNotional').value) || 0;
+  const linhas = ndfDados[ndfOp] || [];
+
+  if (!linhas.length) {
+    wrap.innerHTML = '<div class="ndf-empty">Nenhum dado disponível para esta operação.</div>';
+    return;
+  }
+
+  const fmt4 = v => v.toFixed(4);
+  const fmtMoeda = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  let rows = '';
+  for (const l of linhas) {
+    const fwdAtualizado = spotAtual + (l.fwdPoints || 0);
+    const taxaCliente = ndfOp === 'compra'
+      ? fwdAtualizado * (1 - spreadPct / 100)
+      : fwdAtualizado * (1 + spreadPct / 100);
+    const receita = notional ? Math.abs(fwdAtualizado - taxaCliente) * notional : null;
+    const receitaHtml = receita !== null
+      ? `<td class="col-receita">R$ ${fmtMoeda(receita)}</td>`
+      : `<td style="color:#AEAEB2">—</td>`;
+
+    rows += `<tr>
+      <td>${l.vencimento || '—'}</td>
+      <td>${l.dc ?? '—'}</td>
+      <td>${fmt4(l.fwd || 0)}</td>
+      <td>${l.fwdPoints >= 0 ? '+' : ''}${fmt4(l.fwdPoints || 0)}</td>
+      <td><strong>${fmt4(fwdAtualizado)}</strong></td>
+      <td style="color:#000FFA;font-weight:600">${fmt4(taxaCliente)}</td>
+      ${receitaHtml}
+    </tr>`;
+  }
+
+  const notionalHeader = notional ? '<th>Receita (BRL)</th>' : '<th>Receita</th>';
+
+  wrap.innerHTML = `<table class="ndf-table">
+    <thead><tr>
+      <th>Vencimento</th>
+      <th>DC</th>
+      <th>Fwd XP</th>
+      <th>Fwd Points</th>
+      <th>Taxa Atual.</th>
+      <th>Taxa Cliente</th>
+      ${notionalHeader}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
 function initGraficos(){
