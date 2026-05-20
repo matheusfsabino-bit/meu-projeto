@@ -298,9 +298,15 @@
   .ndf-load-btn { display:flex; align-items:center; gap:8px; background:#000FFA; color:#fff; border:none; border-radius:10px; padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s; }
   .ndf-load-btn:hover { background:#0008D4; }
   .ndf-load-btn:disabled { background:#AEAEB2; cursor:not-allowed; }
-  .ndf-spot-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .ndf-spot-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
   .ndf-spot-row label { font-size:12px; color:#888; font-weight:500; white-space:nowrap; }
   .ndf-spot-row input { width:110px; }
+  .ndf-quebrado-card { background:#fff; border:1.5px solid #000FFA; border-radius:12px; padding:14px 18px; margin-bottom:14px; display:none; }
+  .ndf-quebrado-title { font-size:11px; font-weight:700; color:#000FFA; text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+  .ndf-quebrado-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .ndf-quebrado-item label { font-size:10px; color:#888; display:block; margin-bottom:2px; }
+  .ndf-quebrado-item strong { font-size:14px; color:#1C1C1E; }
+  .ndf-quebrado-item.destaque strong { color:#000FFA; font-size:16px; }
   /* Gráficos */
   .graf-subtabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
   .graf-subtab { padding:6px 16px; border-radius:20px; border:1px solid #E5E5EA; background:#fff; font-size:13px; font-weight:500; color:#636366; cursor:pointer; transition:all .15s; }
@@ -673,12 +679,27 @@
     </div>
     <div class="ndf-spot-row">
       <label>Spot Atual (USD/BRL)</label>
-      <input type="number" id="ndfSpotAtual" class="inp" placeholder="0.0000" step="0.0001" oninput="ndfRenderTabela()">
+      <input type="number" id="ndfSpotAtual" class="inp" placeholder="0.0000" step="0.0001" oninput="ndfRenderTabela();ndfRenderQuebrado()">
       <label style="margin-left:12px">Spread Aurex (%)</label>
-      <input type="number" id="ndfSpread" class="inp" placeholder="0.00" step="0.01" value="0" style="width:90px" oninput="ndfRenderTabela()">
+      <input type="number" id="ndfSpread" class="inp" placeholder="0.00" step="0.01" value="0" style="width:90px" oninput="ndfRenderTabela();ndfRenderQuebrado()">
       <label style="margin-left:12px">Notional (USD)</label>
       <input type="number" id="ndfNotional" class="inp" placeholder="0" step="1000" oninput="ndfRenderTabela()">
+      <label style="margin-left:12px">Dia Quebrado</label>
+      <input type="date" id="ndfDiaQuebrado" class="inp" style="width:150px" oninput="ndfRenderQuebrado()">
     </div>
+
+    <div class="ndf-quebrado-card" id="ndfQuebradoCard">
+      <div class="ndf-quebrado-title">Dia Quebrado — Interpolação Linear</div>
+      <div class="ndf-quebrado-grid">
+        <div class="ndf-quebrado-item"><label>Vencimento</label><strong id="qbVencimento">—</strong></div>
+        <div class="ndf-quebrado-item"><label>DC</label><strong id="qbDC">—</strong></div>
+        <div class="ndf-quebrado-item"><label>Fwd Points</label><strong id="qbFwdPoints">—</strong></div>
+        <div class="ndf-quebrado-item destaque"><label>Taxa Atualizada</label><strong id="qbTaxaAtual">—</strong></div>
+        <div class="ndf-quebrado-item destaque"><label>Taxa Cliente</label><strong id="qbTaxaCliente">—</strong></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#888" id="qbInterpolInfo"></div>
+    </div>
+
     <div id="ndfTableWrap" class="ndf-table-wrap">
       <div class="ndf-empty">Clique em "Carregar PDF da XP" para buscar as cotações indicativas do dia.</div>
     </div>
@@ -1136,6 +1157,65 @@ function ndfSetOp(op){
   document.getElementById('ndfBtnCompra').classList.toggle('active', op === 'compra');
   document.getElementById('ndfBtnVenda').classList.toggle('active', op === 'venda');
   ndfRenderTabela();
+  ndfRenderQuebrado();
+}
+
+function ndfRenderQuebrado(){
+  const card = document.getElementById('ndfQuebradoCard');
+  if (!ndfDados) { card.style.display = 'none'; return; }
+
+  const dateStr = document.getElementById('ndfDiaQuebrado').value;
+  if (!dateStr) { card.style.display = 'none'; return; }
+
+  const spotAtual = parseFloat(document.getElementById('ndfSpotAtual').value) || ndfDados.spotRef || 0;
+  const spreadPct = parseFloat(document.getElementById('ndfSpread').value) || 0;
+  const linhas = ndfDados[ndfOp] || [];
+  if (!linhas.length) { card.style.display = 'none'; return; }
+
+  // Calcula DC do dia quebrado a partir de hoje
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const alvo = new Date(dateStr + 'T00:00:00');
+  const dcAlvo = Math.round((alvo - hoje) / 86400000);
+
+  if (dcAlvo <= 0) { card.style.display = 'none'; return; }
+
+  // Encontra os dois vencimentos que cercam o dcAlvo
+  const sorted = [...linhas].sort((a,b) => a.dc - b.dc);
+  let antes = null, depois = null;
+  for (const l of sorted) {
+    if (l.dc <= dcAlvo) antes = l;
+    if (l.dc >= dcAlvo && !depois) depois = l;
+  }
+
+  let fwdPointsInterp, info;
+  if (!antes && depois) {
+    fwdPointsInterp = depois.fwdPoints;
+    info = `Extrapolado a partir de ${depois.vencimento} (${depois.dc}dc)`;
+  } else if (antes && !depois) {
+    fwdPointsInterp = antes.fwdPoints;
+    info = `Extrapolado a partir de ${antes.vencimento} (${antes.dc}dc)`;
+  } else if (antes && depois && antes.dc === depois.dc) {
+    fwdPointsInterp = antes.fwdPoints;
+    info = `Coincide com vencimento padrão ${antes.vencimento}`;
+  } else {
+    // Interpolação linear
+    const t = (dcAlvo - antes.dc) / (depois.dc - antes.dc);
+    fwdPointsInterp = antes.fwdPoints + t * (depois.fwdPoints - antes.fwdPoints);
+    info = `Interpolado entre ${antes.vencimento} (${antes.dc}dc) e ${depois.vencimento} (${depois.dc}dc)`;
+  }
+
+  const fwdAtualizado = spotAtual + fwdPointsInterp;
+  const taxaCliente = ndfOp === 'compra'
+    ? fwdAtualizado * (1 - spreadPct / 100)
+    : fwdAtualizado * (1 + spreadPct / 100);
+
+  document.getElementById('qbVencimento').textContent = dateStr;
+  document.getElementById('qbDC').textContent = dcAlvo + ' dias';
+  document.getElementById('qbFwdPoints').textContent = (fwdPointsInterp >= 0 ? '+' : '') + fwdPointsInterp.toFixed(4);
+  document.getElementById('qbTaxaAtual').textContent = fwdAtualizado.toFixed(4);
+  document.getElementById('qbTaxaCliente').textContent = taxaCliente.toFixed(4);
+  document.getElementById('qbInterpolInfo').textContent = info;
+  card.style.display = 'block';
 }
 
 function ndfRenderTabela(){
