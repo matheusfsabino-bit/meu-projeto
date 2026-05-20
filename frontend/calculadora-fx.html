@@ -490,9 +490,10 @@
     <select id="clienteSelect"><option value="">— Selecionar cliente —</option></select>
   </div>
 
-  <div class="grid2">
+  <div class="grid3">
     <div class="card"><div class="card-label">Data da operação</div><input type="date" id="dataOp"></div>
     <div class="card"><div class="card-label">Nº contrato / referência</div><input type="text" id="refOp" placeholder="Ex: FX-2026-001"></div>
+    <div class="card"><div class="card-label">Banco</div><input type="text" id="bancoOp" placeholder="Ex: Braza Bank, BTG..."></div>
   </div>
 
   <p class="section-title">Analisar Invoice</p>
@@ -1815,6 +1816,7 @@ function calcular(){
   const clienteSel = document.getElementById('clienteSelect').value;
   const dataOp = document.getElementById('dataOp').value;
   const refOp = document.getElementById('refOp').value.trim();
+  const bancoOp = document.getElementById('bancoOp').value.trim();
   const taxaCliente = calcTaxa(spot, spread);
   const inputVal = parseFloat(document.getElementById('valorInput').value);
 
@@ -1841,7 +1843,7 @@ function calcular(){
     totalBRL = brlConversion + irVal + iofVal;
   }
 
-  lastResult = {tipoLabel,tipoAtual,clienteSel,dataOp,refOp,modo,entrada,saida,taxaCliente,amount,brlConversion,iofAtual,irAtual,iofVal,irVal,totalBRL};
+  lastResult = {tipoLabel,tipoAtual,clienteSel,dataOp,refOp,bancoOp,modo,entrada,saida,taxaCliente,spot,spreadPct:spread,amount,brlConversion,iofAtual,irAtual,iofVal,irVal,totalBRL};
 
   document.getElementById('resTipo').textContent = tipoLabel || 'Operação FX';
   document.getElementById('resSub').textContent = `${saida} · FX Rate: ${taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6})}`;
@@ -1878,7 +1880,7 @@ function calcular(){
   const receitaSpread = Math.abs(taxaCliente - spot) * amount;
   historico.unshift({
     id: Date.now(),
-    tipoLabel, tipoAtual, clienteSel, clienteId, dataOp, refOp,
+    tipoLabel, tipoAtual, clienteSel, clienteId, dataOp, refOp, bancoOp,
     modo, entrada, saida,
     spot, spreadPct: spread,
     taxaCliente, amount, brlConversion,
@@ -2001,7 +2003,8 @@ function renderHistoricoCompleto(){
   el.innerHTML = lista.map(op => {
     const isPendente = op.status === 'pendente';
     const hlClass = op.modo === 'compra' ? 'hhl-compra' : 'hhl-venda';
-    const subInfo = [op.clienteSel, op.entrada && op.saida ? op.entrada+'/'+op.saida : op.saida, op.dataOp ? formatarData(op.dataOp) : '', op.refOp].filter(Boolean).join(' · ');
+    const subInfo = [op.clienteSel, op.entrada && op.saida ? op.entrada+'/'+op.saida : op.saida, op.dataOp ? formatarData(op.dataOp) : '', op.refOp, op.bancoOp].filter(Boolean).join(' · ');
+    const fmt6 = v => v ? v.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6}) : '—';
     return `<div class="hist-full-card ${op.status}">
       <button class="hist-delete-btn" onclick="excluirCotacao(${op.id})" title="Excluir cotação">✕</button>
       <div class="hist-full-header">
@@ -2013,7 +2016,10 @@ function renderHistoricoCompleto(){
       </div>
       <div>
         <div class="hist-full-row"><span class="hkey">Operação</span><span class="hval"><span class="badge ${op.modo==='compra'?'badge-compra':'badge-venda'}">${op.modo==='compra'?'Compra':'Venda'}</span></span></div>
-        <div class="hist-full-row"><span class="hkey">FX Rate</span><span class="hval rval taxa">${op.taxaCliente ? op.taxaCliente.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6}) : '—'}</span></div>
+        ${op.bancoOp ? `<div class="hist-full-row"><span class="hkey">Banco</span><span class="hval">${op.bancoOp}</span></div>` : ''}
+        <div class="hist-full-row"><span class="hkey">Spot</span><span class="hval">${fmt6(op.spot)}</span></div>
+        <div class="hist-full-row"><span class="hkey">Spread</span><span class="hval au-spread">${op.spreadPct != null ? op.spreadPct.toFixed(4)+'%' : '—'}</span></div>
+        <div class="hist-full-row"><span class="hkey">FX Rate</span><span class="hval rval taxa">${fmt6(op.taxaCliente)}</span></div>
         <div class="hist-full-row"><span class="hkey">Amount</span><span class="hval">${op.entrada && op.entrada !== 'BRL' ? op.entrada : op.saida} ${fmt(op.amount||0)}</span></div>
         <div class="hist-full-row"><span class="hkey">BRL Conversion</span><span class="hval">R$ ${fmt(op.brlConversion||0)}</span></div>
         ${op.irAtual>0 ? `<div class="hist-full-row"><span class="hkey">IR (${op.irAtual.toFixed(5)}%)</span><span class="hval">R$ ${fmt(op.irVal||0)}</span></div>` : ''}
