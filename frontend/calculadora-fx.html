@@ -717,6 +717,11 @@
     <div class="rel-filter-bar">
       <select class="rel-select" id="relMes"></select>
       <select class="rel-select" id="relAno"></select>
+      <select class="rel-select" id="relStatus">
+        <option value="todas">Todas</option>
+        <option value="efetivada" selected>Efetivadas</option>
+        <option value="pendente">Pendentes</option>
+      </select>
       <select class="rel-select" id="relIndicador" style="display:none">
         <option value="">Todos os indicadores</option>
       </select>
@@ -2153,12 +2158,13 @@ function gerarRelatorio(){
   const ano=parseInt(document.getElementById('relAno').value);
   const el=document.getElementById('relResultados');
   const mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const relStatus = document.getElementById('relStatus')?.value || 'todas';
   const ops=historico.filter(op=>{
-    if(op.status!=='efetivada') return false;
+    if(relStatus !== 'todas' && op.status !== relStatus) return false;
     const d=op.dataOp?new Date(op.dataOp+'T12:00:00'):new Date(op.id);
     return d.getMonth()===mes && d.getFullYear()===ano;
   });
-  if(!ops.length){ el.innerHTML='<div class="rel-empty">Nenhuma operação efetivada neste período.</div>'; return; }
+  if(!ops.length){ el.innerHTML='<div class="rel-empty">Nenhuma operação encontrada neste período.</div>'; return; }
   // agrupar por cliente
   const grupos={};
   for(const op of ops){
@@ -2181,7 +2187,7 @@ function gerarRelatorio(){
       <div class="rel-cli-header">
         <div>
           <div class="rel-cli-name">${g.nome}</div>
-          <div class="rel-cli-sub">${g.ops.length} op${g.ops.length!==1?'s':''}${banco?' · '+banco:''}${ind?' · via '+ind:''}</div>
+          <div class="rel-cli-sub">${g.ops.length} op${g.ops.length!==1?'s':''}${banco?' · '+banco:''}${ind?' · via '+ind:''}${g.ops.some(o=>o.status==='pendente')?' · <span style="color:#FF9500;font-weight:600">'+g.ops.filter(o=>o.status==='pendente').length+' pendente(s)</span>':''}</div>
         </div>
         <div class="rel-cli-liq">R$ ${fmt(liq)}</div>
       </div>
